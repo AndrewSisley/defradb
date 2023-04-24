@@ -21,6 +21,7 @@ import (
 	"github.com/sourcenetwork/defradb/core"
 	"github.com/sourcenetwork/defradb/db/fetcher"
 	"github.com/sourcenetwork/defradb/planner/mapper"
+	"github.com/sourcenetwork/immutable"
 )
 
 type dagScanNode struct {
@@ -315,8 +316,14 @@ func (n *dagScanNode) dagBlockToNodeDoc(block blocks.Block) (core.Doc, []*ipld.L
 			request.SchemaVersionIDFieldName, schemaVersionId)
 	}
 
+	fieldID, ok := delta["FieldID"].(string)
+	if !ok {
+		return core.Doc{}, nil,
+	}
+
 	n.commitSelect.DocumentMapping.SetFirstOfName(&commit, request.HeightFieldName, int64(prio))
 	n.commitSelect.DocumentMapping.SetFirstOfName(&commit, request.DeltaFieldName, delta["Data"])
+	n.commitSelect.DocumentMapping.SetFirstOfName(&commit, request.FieldIDFieldName, fieldID)
 
 	dockey, ok := delta["DocKey"].([]byte)
 	if !ok {

@@ -143,3 +143,41 @@ func TestQueryCommitsWithSchemaVersionIdField(t *testing.T) {
 
 	testUtils.ExecuteTestCase(t, []string{"users"}, test)
 }
+
+func TestQueryCommitsWithFieldIdField(t *testing.T) {
+	test := testUtils.TestCase{
+		Description: "Simple commits query yielding fieldId",
+		Actions: []any{
+			updateUserCollectionSchema(),
+			testUtils.CreateDoc{
+				CollectionID: 0,
+				Doc: `{
+						"Name":	"John",
+						"Age":	21
+					}`,
+			},
+			testUtils.Request{
+				Request: `
+					query {
+						commits {
+							fieldId
+						}
+					}
+				`,
+				Results: []map[string]any{
+					{
+						"fieldId": "1",
+					},
+					{
+						"fieldId": "2",
+					},
+					{
+						"fieldId": "C",
+					},
+				},
+			},
+		},
+	}
+
+	testUtils.ExecuteTestCase(t, []string{"users"}, test)
+}
