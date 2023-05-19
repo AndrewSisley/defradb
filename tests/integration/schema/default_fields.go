@@ -191,9 +191,7 @@ type argDef struct {
 }
 
 func buildOrderArg(objectName string, fields []argDef) Field {
-	inputFields := []any{
-		makeInputObject("_key", "Ordering", nil),
-	}
+	inputFields := []any{}
 
 	for _, field := range fields {
 		inputFields = append(inputFields, makeInputObject(field.fieldName, field.typeName, nil))

@@ -35,7 +35,7 @@ func TestUpdateOneToOneSaveErrorsGivenNonExistantKeyViaSecondarySide(t *testing.
 	err = doc.SetWithJSON(
 		[]byte(
 			`{
-				"author_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+				"_author_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 			}`,
 		),
 	)
@@ -82,7 +82,7 @@ func TestUpdateOneToOneSavesGivenNewRelationValue(t *testing.T) {
 	err = doc.SetWithJSON(
 		[]byte(
 			`{
-				"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+				"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 			}`,
 		),
 	)
@@ -125,7 +125,7 @@ func TestUpdateOneToOneSaveFromSecondarySide(t *testing.T) {
 	err = doc.SetWithJSON(
 		[]byte(
 			`{
-				"author_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
+				"_author_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
 			}`,
 		),
 	)

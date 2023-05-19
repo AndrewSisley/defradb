@@ -46,14 +46,14 @@ func TestQueryOneToManyWithIdFieldOnPrimary(t *testing.T) {
 				CollectionID: 0,
 				Doc: `{
 					"name": "Painted House",
-					"author_id": 123456
+					"_author_id": 123456
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 0,
 				Doc: `{
 					"name": "A Time for Mercy",
-					"author_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
+					"_author_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
 				}`,
 			},
 			testUtils.Request{
@@ -68,16 +68,16 @@ func TestQueryOneToManyWithIdFieldOnPrimary(t *testing.T) {
 				}`,
 				Results: []map[string]any{
 					{
-						"name":      "A Time for Mercy",
-						"author_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed",
+						"name":       "A Time for Mercy",
+						"_author_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed",
 						"author": map[string]any{
 							"name": "John Grisham",
 						},
 					},
 					{
-						"name":      "Painted House",
-						"author_id": uint64(123456),
-						"author":    nil,
+						"name":       "Painted House",
+						"_author_id": uint64(123456),
+						"author":     nil,
 					},
 				},
 			},

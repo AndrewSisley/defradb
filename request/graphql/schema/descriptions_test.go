@@ -162,18 +162,18 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:  client.NONE_CRDT,
 							},
 							{
+								Name:         "_author_id",
+								Kind:         client.FieldKind_DocKey,
+								Typ:          client.LWW_REGISTER,
+								RelationType: client.Relation_Type_INTERNAL_ID,
+							},
+							{
 								Name:         "author",
 								RelationName: "author_book",
 								Kind:         client.FieldKind_FOREIGN_OBJECT,
 								Typ:          client.NONE_CRDT,
 								Schema:       "Author",
 								RelationType: client.Relation_Type_ONE | client.Relation_Type_ONEONE,
-							},
-							{
-								Name:         "author_id",
-								Kind:         client.FieldKind_DocKey,
-								Typ:          client.LWW_REGISTER,
-								RelationType: client.Relation_Type_INTERNAL_ID,
 							},
 							{
 								Name: "name",
@@ -199,6 +199,12 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:  client.NONE_CRDT,
 							},
 							{
+								Name:         "_published_id",
+								Kind:         client.FieldKind_DocKey,
+								Typ:          client.LWW_REGISTER,
+								RelationType: client.Relation_Type_INTERNAL_ID,
+							},
+							{
 								Name: "age",
 								Kind: client.FieldKind_INT,
 								Typ:  client.LWW_REGISTER,
@@ -215,12 +221,6 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:          client.NONE_CRDT,
 								Schema:       "Book",
 								RelationType: client.Relation_Type_ONE | client.Relation_Type_ONEONE | client.Relation_Type_Primary,
-							},
-							{
-								Name:         "published_id",
-								Kind:         client.FieldKind_DocKey,
-								Typ:          client.LWW_REGISTER,
-								RelationType: client.Relation_Type_INTERNAL_ID,
 							},
 						},
 					},
@@ -328,18 +328,18 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:  client.NONE_CRDT,
 							},
 							{
+								Name:         "_author_id",
+								Kind:         client.FieldKind_DocKey,
+								Typ:          client.LWW_REGISTER,
+								RelationType: client.Relation_Type_INTERNAL_ID,
+							},
+							{
 								Name:         "author",
 								RelationName: "book_authors",
 								Kind:         client.FieldKind_FOREIGN_OBJECT,
 								Typ:          client.NONE_CRDT,
 								Schema:       "Author",
 								RelationType: client.Relation_Type_ONE | client.Relation_Type_ONEONE,
-							},
-							{
-								Name:         "author_id",
-								Kind:         client.FieldKind_DocKey,
-								Typ:          client.LWW_REGISTER,
-								RelationType: client.Relation_Type_INTERNAL_ID,
 							},
 							{
 								Name: "name",
@@ -365,6 +365,12 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:  client.NONE_CRDT,
 							},
 							{
+								Name:         "_published_id",
+								Kind:         client.FieldKind_DocKey,
+								Typ:          client.LWW_REGISTER,
+								RelationType: client.Relation_Type_INTERNAL_ID,
+							},
+							{
 								Name: "age",
 								Kind: client.FieldKind_INT,
 								Typ:  client.LWW_REGISTER,
@@ -381,12 +387,6 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:          client.NONE_CRDT,
 								Schema:       "Book",
 								RelationType: client.Relation_Type_ONE | client.Relation_Type_ONEONE | client.Relation_Type_Primary,
-							},
-							{
-								Name:         "published_id",
-								Kind:         client.FieldKind_DocKey,
-								Typ:          client.LWW_REGISTER,
-								RelationType: client.Relation_Type_INTERNAL_ID,
 							},
 						},
 					},
@@ -420,18 +420,18 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:  client.NONE_CRDT,
 							},
 							{
+								Name:         "_author_id",
+								Kind:         client.FieldKind_DocKey,
+								Typ:          client.LWW_REGISTER,
+								RelationType: client.Relation_Type_INTERNAL_ID,
+							},
+							{
 								Name:         "author",
 								RelationName: "author_book",
 								Kind:         client.FieldKind_FOREIGN_OBJECT,
 								Typ:          client.NONE_CRDT,
 								Schema:       "Author",
 								RelationType: client.Relation_Type_ONE | client.Relation_Type_ONEONE | client.Relation_Type_Primary,
-							},
-							{
-								Name:         "author_id",
-								Kind:         client.FieldKind_DocKey,
-								Typ:          client.LWW_REGISTER,
-								RelationType: client.Relation_Type_INTERNAL_ID,
 							},
 							{
 								Name: "name",
@@ -457,6 +457,12 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:  client.NONE_CRDT,
 							},
 							{
+								Name:         "_published_id",
+								Kind:         client.FieldKind_DocKey,
+								Typ:          client.LWW_REGISTER,
+								RelationType: client.Relation_Type_INTERNAL_ID,
+							},
+							{
 								Name: "age",
 								Kind: client.FieldKind_INT,
 								Typ:  client.LWW_REGISTER,
@@ -473,12 +479,6 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:          client.NONE_CRDT,
 								Schema:       "Book",
 								RelationType: client.Relation_Type_ONE | client.Relation_Type_ONEONE,
-							},
-							{
-								Name:         "published_id",
-								Kind:         client.FieldKind_DocKey,
-								Typ:          client.LWW_REGISTER,
-								RelationType: client.Relation_Type_INTERNAL_ID,
 							},
 						},
 					},
@@ -512,18 +512,18 @@ func TestSingleSimpleType(t *testing.T) {
 								Typ:  client.NONE_CRDT,
 							},
 							{
+								Name:         "_author_id",
+								Kind:         client.FieldKind_DocKey,
+								Typ:          client.LWW_REGISTER,
+								RelationType: client.Relation_Type_INTERNAL_ID,
+							},
+							{
 								Name:         "author",
 								RelationName: "author_book",
 								Kind:         client.FieldKind_FOREIGN_OBJECT,
 								Typ:          client.NONE_CRDT,
 								Schema:       "Author",
 								RelationType: client.Relation_Type_ONE | client.Relation_Type_ONEMANY | client.Relation_Type_Primary,
-							},
-							{
-								Name:         "author_id",
-								Kind:         client.FieldKind_DocKey,
-								Typ:          client.LWW_REGISTER,
-								RelationType: client.Relation_Type_INTERNAL_ID,
 							},
 							{
 								Name: "name",

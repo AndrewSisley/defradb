@@ -48,17 +48,17 @@ func TestQueryOneToOneToMany(t *testing.T) {
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// bae-14b75d37-f17d-58f0-89a8-43f2ec067122
+				// bae-5332ecd0-1940-5a95-ba40-c93275b97c40
 				Doc: `{
 						"name":	"Observable1",
-						"indicator_id":	"bae-5d900ac7-8bef-5565-9040-364c99601ae0"
+						"_indicator_id":	"bae-5d900ac7-8bef-5565-9040-364c99601ae0"
 					}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 						"name":	"Observation1",
-						"observable_id":	"bae-14b75d37-f17d-58f0-89a8-43f2ec067122"
+						"_observable_id":	"bae-5332ecd0-1940-5a95-ba40-c93275b97c40"
 					}`,
 			},
 			testUtils.Request{
@@ -123,17 +123,17 @@ func TestQueryOneToOneToManyFromSecondaryOnOneToMany(t *testing.T) {
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// bae-14b75d37-f17d-58f0-89a8-43f2ec067122
+				// bae-5332ecd0-1940-5a95-ba40-c93275b97c40
 				Doc: `{
 						"name":	"Observable1",
-						"indicator_id":	"bae-5d900ac7-8bef-5565-9040-364c99601ae0"
+						"_indicator_id":	"bae-5d900ac7-8bef-5565-9040-364c99601ae0"
 					}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 						"name":	"Observation1",
-						"observable_id":	"bae-14b75d37-f17d-58f0-89a8-43f2ec067122"
+						"_observable_id":	"bae-5332ecd0-1940-5a95-ba40-c93275b97c40"
 					}`,
 			},
 			testUtils.Request{
@@ -200,17 +200,17 @@ func TestQueryOneToOneToManyFromSecondaryOnOneToOne(t *testing.T) {
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// bae-14b75d37-f17d-58f0-89a8-43f2ec067122
+				// bae-5332ecd0-1940-5a95-ba40-c93275b97c40
 				Doc: `{
 						"name":	"Observable1",
-						"indicator_id":	"bae-5d900ac7-8bef-5565-9040-364c99601ae0"
+						"_indicator_id":	"bae-5d900ac7-8bef-5565-9040-364c99601ae0"
 					}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 						"name":	"Observation1",
-						"observable_id":	"bae-14b75d37-f17d-58f0-89a8-43f2ec067122"
+						"_observable_id":	"bae-5332ecd0-1940-5a95-ba40-c93275b97c40"
 					}`,
 			},
 			testUtils.Request{
@@ -275,17 +275,17 @@ func TestQueryOneToOneToManyFromSecondary(t *testing.T) {
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// bae-14b75d37-f17d-58f0-89a8-43f2ec067122
+				// bae-5332ecd0-1940-5a95-ba40-c93275b97c40
 				Doc: `{
 						"name":	"Observable1",
-						"indicator_id":	"bae-5d900ac7-8bef-5565-9040-364c99601ae0"
+						"_indicator_id":	"bae-5d900ac7-8bef-5565-9040-364c99601ae0"
 					}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 						"name":	"Observation1",
-						"observable_id":	"bae-14b75d37-f17d-58f0-89a8-43f2ec067122"
+						"_observable_id":	"bae-5332ecd0-1940-5a95-ba40-c93275b97c40"
 					}`,
 			},
 			testUtils.Request{

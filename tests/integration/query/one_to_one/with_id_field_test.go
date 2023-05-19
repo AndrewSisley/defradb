@@ -16,6 +16,8 @@ import (
 	testUtils "github.com/sourcenetwork/defradb/tests/integration"
 )
 
+// This test documents undireable behaviour and should be changed with:
+// https://github.com/sourcenetwork/defradb/issues/1524
 func TestQueryOneToOneWithIdFieldOnSecondary(t *testing.T) {
 	test := testUtils.TestCase{
 		Description: "One-to-one relation secondary direction, id field with name clash on secondary side",
@@ -46,7 +48,7 @@ func TestQueryOneToOneWithIdFieldOnSecondary(t *testing.T) {
 				CollectionID: 1,
 				Doc: `{
 					"name": "John Grisham",
-					"published_id": "bae-d82dbe47-9df1-5e33-bd87-f92e9c378161"
+					"_published_id": "bae-d82dbe47-9df1-5e33-bd87-f92e9c378161"
 				}`,
 			},
 			testUtils.Request{
@@ -54,6 +56,7 @@ func TestQueryOneToOneWithIdFieldOnSecondary(t *testing.T) {
 					Book {
 						name
 						author_id
+						_author_id
 						author {
 							name
 						}
@@ -61,8 +64,9 @@ func TestQueryOneToOneWithIdFieldOnSecondary(t *testing.T) {
 				}`,
 				Results: []map[string]any{
 					{
-						"name":      "Painted House",
-						"author_id": uint64(123456),
+						"name":       "Painted House",
+						"author_id":  uint64(123456),
+						"_author_id": nil,
 						"author": map[string]any{
 							"name": "John Grisham",
 						},
@@ -75,7 +79,6 @@ func TestQueryOneToOneWithIdFieldOnSecondary(t *testing.T) {
 	testUtils.ExecuteTestCase(t, []string{"Book", "Author"}, test)
 }
 
-// This documents unwanted behaviour, see https://github.com/sourcenetwork/defradb/issues/1520
 func TestQueryOneToOneWithIdFieldOnPrimary(t *testing.T) {
 	test := testUtils.TestCase{
 		Description: "One-to-one relation primary direction, id field with name clash on primary side",
@@ -106,9 +109,30 @@ func TestQueryOneToOneWithIdFieldOnPrimary(t *testing.T) {
 				CollectionID: 1,
 				Doc: `{
 					"name": "John Grisham",
-					"published_id": "bae-d82dbe47-9df1-5e33-bd87-f92e9c378161"
+					"_published_id": "bae-d82dbe47-9df1-5e33-bd87-f92e9c378161"
 				}`,
-				ExpectedError: "value doesn't contain number; it contains string",
+			},
+			testUtils.Request{
+				Request: `query {
+					Book {
+						name
+						author_id
+						_author_id
+						author {
+							name
+						}
+					}
+				}`,
+				Results: []map[string]any{
+					{
+						"name":       "Painted House",
+						"author_id":  uint64(123456),
+						"_author_id": "bae-f09bc0ac-27aa-57d5-b784-46904071b4eb",
+						"author": map[string]any{
+							"name": "John Grisham",
+						},
+					},
+				},
 			},
 		},
 	}

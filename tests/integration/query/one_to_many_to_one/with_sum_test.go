@@ -48,7 +48,7 @@ func TestQueryWithSumOnInlineAndSumOnOneToManyField(t *testing.T) {
 				Doc: `{
 					"name": "The Rooster Bar",
 					"rating": 4,
-					"author_id": "bae-b769708d-f552-5c3d-a402-ccfd7ac7fb04"
+					"_author_id": "bae-b769708d-f552-5c3d-a402-ccfd7ac7fb04"
 				}`,
 			},
 			testUtils.CreateDoc{
@@ -57,7 +57,7 @@ func TestQueryWithSumOnInlineAndSumOnOneToManyField(t *testing.T) {
 				Doc: `{
 					"name": "Theif Lord",
 					"rating": 4.8,
-					"author_id": "bae-3c4217d2-f879-50b1-b375-acf42b764e5b"
+					"_author_id": "bae-3c4217d2-f879-50b1-b375-acf42b764e5b"
 				}`,
 			},
 			testUtils.CreateDoc{
@@ -66,7 +66,7 @@ func TestQueryWithSumOnInlineAndSumOnOneToManyField(t *testing.T) {
 				Doc: `{
 					"name": "The Associate",
 					"rating": 4.2,
-					"author_id": "bae-3c4217d2-f879-50b1-b375-acf42b764e5b"
+					"_author_id": "bae-3c4217d2-f879-50b1-b375-acf42b764e5b"
 				}`,
 			},
 			// Publishers
@@ -76,7 +76,7 @@ func TestQueryWithSumOnInlineAndSumOnOneToManyField(t *testing.T) {
 					"name": "Only Publisher of The Rooster Bar",
 					"address": "1 Rooster Ave., Waterloo, Ontario",
 					"yearOpened": 2022,
-					"book_id": "bae-b6c078f2-3427-5b99-bafd-97dcd7c2e935"
+					"_book_id": "bae-b6c078f2-3427-5b99-bafd-97dcd7c2e935"
 			    }`,
 			},
 			testUtils.CreateDoc{
@@ -85,7 +85,7 @@ func TestQueryWithSumOnInlineAndSumOnOneToManyField(t *testing.T) {
 					"name": "Only Publisher of Theif Lord",
 					"address": "1 Theif Lord, Waterloo, Ontario",
 					"yearOpened": 2020,
-					"book_id": "bae-afdd1769-b056-5bb1-b743-116a347b4b87"
+					"_book_id": "bae-afdd1769-b056-5bb1-b743-116a347b4b87"
 			    }`,
 			},
 			testUtils.Request{

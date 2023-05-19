@@ -55,32 +55,32 @@ func TestQueryOneToOneToOne(t *testing.T) {
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// "bae-a6cdabfc-17dd-5662-b213-c596ee4c3292"
+				// "bae-1ca8fc71-4940-5c52-bc5e-e8b7990a2650"
 				Doc: `{
 					"name": "Painted House",
-					"publisher_id": "bae-1f4cc394-08a8-5825-87b9-b02de2f25f7d"
+					"_publisher_id": "bae-1f4cc394-08a8-5825-87b9-b02de2f25f7d"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// "bae-bc198c5f-6238-5b50-8072-68dec9c7a16b"
+				// "bae-508067c0-29c2-5b4a-acb1-52cfefc6bcae"
 				Doc: `{
 					"name": "Theif Lord",
-					"publisher_id": "bae-a3cd6fac-13c0-5c8f-970b-0ce7abbb49a5"
+					"_publisher_id": "bae-a3cd6fac-13c0-5c8f-970b-0ce7abbb49a5"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 					"name": "John Grisham",
-					"published_id": "bae-a6cdabfc-17dd-5662-b213-c596ee4c3292"
+					"_published_id": "bae-1ca8fc71-4940-5c52-bc5e-e8b7990a2650"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 					"name": "Cornelia Funke",
-					"published_id": "bae-bc198c5f-6238-5b50-8072-68dec9c7a16b"
+					"_published_id": "bae-508067c0-29c2-5b4a-acb1-52cfefc6bcae"
 				}`,
 			},
 			testUtils.Request{
@@ -161,32 +161,32 @@ func TestQueryOneToOneToOneSecondaryThenPrimary(t *testing.T) {
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// "bae-a6cdabfc-17dd-5662-b213-c596ee4c3292"
+				// "bae-1ca8fc71-4940-5c52-bc5e-e8b7990a2650"
 				Doc: `{
 					"name": "Painted House",
-					"publisher_id": "bae-1f4cc394-08a8-5825-87b9-b02de2f25f7d"
+					"_publisher_id": "bae-1f4cc394-08a8-5825-87b9-b02de2f25f7d"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// "bae-bc198c5f-6238-5b50-8072-68dec9c7a16b"
+				// "bae-508067c0-29c2-5b4a-acb1-52cfefc6bcae"
 				Doc: `{
 					"name": "Theif Lord",
-					"publisher_id": "bae-a3cd6fac-13c0-5c8f-970b-0ce7abbb49a5"
+					"_publisher_id": "bae-a3cd6fac-13c0-5c8f-970b-0ce7abbb49a5"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 					"name": "John Grisham",
-					"published_id": "bae-a6cdabfc-17dd-5662-b213-c596ee4c3292"
+					"_published_id": "bae-1ca8fc71-4940-5c52-bc5e-e8b7990a2650"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 					"name": "Cornelia Funke",
-					"published_id": "bae-bc198c5f-6238-5b50-8072-68dec9c7a16b"
+					"_published_id": "bae-508067c0-29c2-5b4a-acb1-52cfefc6bcae"
 				}`,
 			},
 			testUtils.Request{
@@ -267,32 +267,32 @@ func TestQueryOneToOneToOnePrimaryThenSecondary(t *testing.T) {
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// "bae-a6cdabfc-17dd-5662-b213-c596ee4c3292"
+				// "bae-1ca8fc71-4940-5c52-bc5e-e8b7990a2650"
 				Doc: `{
 					"name": "Painted House",
-					"publisher_id": "bae-1f4cc394-08a8-5825-87b9-b02de2f25f7d"
+					"_publisher_id": "bae-1f4cc394-08a8-5825-87b9-b02de2f25f7d"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// "bae-bc198c5f-6238-5b50-8072-68dec9c7a16b"
+				// "bae-508067c0-29c2-5b4a-acb1-52cfefc6bcae"
 				Doc: `{
 					"name": "Theif Lord",
-					"publisher_id": "bae-a3cd6fac-13c0-5c8f-970b-0ce7abbb49a5"
+					"_publisher_id": "bae-a3cd6fac-13c0-5c8f-970b-0ce7abbb49a5"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 					"name": "John Grisham",
-					"published_id": "bae-a6cdabfc-17dd-5662-b213-c596ee4c3292"
+					"_published_id": "bae-1ca8fc71-4940-5c52-bc5e-e8b7990a2650"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 					"name": "Cornelia Funke",
-					"published_id": "bae-bc198c5f-6238-5b50-8072-68dec9c7a16b"
+					"_published_id": "bae-508067c0-29c2-5b4a-acb1-52cfefc6bcae"
 				}`,
 			},
 			testUtils.Request{
@@ -373,32 +373,32 @@ func TestQueryOneToOneToOneSecondary(t *testing.T) {
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// "bae-a6cdabfc-17dd-5662-b213-c596ee4c3292"
+				// "bae-1ca8fc71-4940-5c52-bc5e-e8b7990a2650"
 				Doc: `{
 					"name": "Painted House",
-					"publisher_id": "bae-1f4cc394-08a8-5825-87b9-b02de2f25f7d"
+					"_publisher_id": "bae-1f4cc394-08a8-5825-87b9-b02de2f25f7d"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 1,
-				// "bae-bc198c5f-6238-5b50-8072-68dec9c7a16b"
+				// "bae-508067c0-29c2-5b4a-acb1-52cfefc6bcae"
 				Doc: `{
 					"name": "Theif Lord",
-					"publisher_id": "bae-a3cd6fac-13c0-5c8f-970b-0ce7abbb49a5"
+					"_publisher_id": "bae-a3cd6fac-13c0-5c8f-970b-0ce7abbb49a5"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 					"name": "John Grisham",
-					"published_id": "bae-a6cdabfc-17dd-5662-b213-c596ee4c3292"
+					"_published_id": "bae-1ca8fc71-4940-5c52-bc5e-e8b7990a2650"
 				}`,
 			},
 			testUtils.CreateDoc{
 				CollectionID: 2,
 				Doc: `{
 					"name": "Cornelia Funke",
-					"published_id": "bae-bc198c5f-6238-5b50-8072-68dec9c7a16b"
+					"_published_id": "bae-508067c0-29c2-5b4a-acb1-52cfefc6bcae"
 				}`,
 			},
 			testUtils.Request{

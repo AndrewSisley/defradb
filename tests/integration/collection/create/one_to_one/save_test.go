@@ -25,7 +25,7 @@ func TestCollectionCreateSaveErrorsNonExistantKeyViaSecondarySide(t *testing.T) 
 		[]byte(
 			`{
 				"name": "Painted House",
-				"author_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+				"_author_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 			}`,
 		),
 	)
@@ -55,7 +55,7 @@ func TestCollectionCreateSaveCreatesDoc(t *testing.T) {
 		[]byte(
 			`{
 				"name": "John",
-				"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+				"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 			}`,
 		),
 	)
@@ -98,7 +98,7 @@ func TestCollectionCreateSaveFromSecondarySide(t *testing.T) {
 		[]byte(
 			`{
 				"name": "Painted House",
-				"author_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
+				"_author_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
 			}`,
 		),
 	)

@@ -29,7 +29,7 @@ func TestRelationalDeletionOfADocumentUsingSingleKey_Success(t *testing.T) {
 					Doc: `{
 						"name": "100 Go Mistakes to Avoid.",
 						"rating": 4.8,
-						"publisher_id": "bae-176ebdf0-77e7-5b2f-91ae-f620e37a29e3"
+						"_publisher_id": "bae-176ebdf0-77e7-5b2f-91ae-f620e37a29e3"
 					}`,
 				},
 				testUtils.CreateDoc{
@@ -40,7 +40,7 @@ func TestRelationalDeletionOfADocumentUsingSingleKey_Success(t *testing.T) {
 						"name": "Teiva Harsanyi",
 						"age": 48,
 						"verified": true,
-						"wrote_id": "bae-80eded16-ee4b-5c9d-b33f-6a7b83958af2"
+						"_wrote_id": "bae-80eded16-ee4b-5c9d-b33f-6a7b83958af2"
 					}`,
 				},
 				testUtils.CreateDoc{
@@ -77,7 +77,7 @@ func TestRelationalDeletionOfADocumentUsingSingleKey_Success(t *testing.T) {
 					Doc: `{
 						"name": "100 Go Mistakes to Avoid.",
 						"rating": 4.8,
-						"publisher_id": "bae-176ebdf0-77e7-5b2f-91ae-f620e37a29e3"
+						"_publisher_id": "bae-176ebdf0-77e7-5b2f-91ae-f620e37a29e3"
 					}`,
 				},
 				testUtils.CreateDoc{
@@ -88,7 +88,7 @@ func TestRelationalDeletionOfADocumentUsingSingleKey_Success(t *testing.T) {
 						"name": "Teiva Harsanyi",
 						"age": 48,
 						"verified": true,
-						"wrote_id": "bae-80eded16-ee4b-5c9d-b33f-6a7b83958af2"
+						"_wrote_id": "bae-80eded16-ee4b-5c9d-b33f-6a7b83958af2"
 					}`,
 				},
 				testUtils.CreateDoc{
@@ -125,7 +125,7 @@ func TestRelationalDeletionOfADocumentUsingSingleKey_Success(t *testing.T) {
 					Doc: `{
 						"name": "100 Go Mistakes to Avoid.",
 						"rating": 4.8,
-						"publisher_id": "bae-176ebdf0-77e7-5b2f-91ae-f620e37a29e3"
+						"_publisher_id": "bae-176ebdf0-77e7-5b2f-91ae-f620e37a29e3"
 					}`,
 				},
 				testUtils.CreateDoc{
@@ -136,7 +136,7 @@ func TestRelationalDeletionOfADocumentUsingSingleKey_Success(t *testing.T) {
 						"name": "Teiva Harsanyi",
 						"age": 48,
 						"verified": true,
-						"wrote_id": "bae-80eded16-ee4b-5c9d-b33f-6a7b83958af2"
+						"_wrote_id": "bae-80eded16-ee4b-5c9d-b33f-6a7b83958af2"
 					}`,
 				},
 				testUtils.CreateDoc{

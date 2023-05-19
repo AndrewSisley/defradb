@@ -35,7 +35,7 @@ func TestQueryOneToManyWithTypeName(t *testing.T) {
 				`{
 					"name": "Painted House",
 					"rating": 4.9,
-					"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+					"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 				}`,
 			},
 			//authors

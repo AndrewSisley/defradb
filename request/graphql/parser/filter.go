@@ -196,7 +196,7 @@ doc := userCollection.NewFromJSON("{
 	"title": "Painted House",
 	"description": "...",
 	"genres": ["bae-123", "bae-def", "bae-456"]
-	"author_id": "bae-999",
+	"_author_id": "bae-999",
 }")
 doc.Save()
 

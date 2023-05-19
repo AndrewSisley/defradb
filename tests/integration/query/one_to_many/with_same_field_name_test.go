@@ -49,7 +49,7 @@ func TestQueryOneToManyWithSameFieldName(t *testing.T) {
 				0: { // bae-9217906d-e8c5-533d-8520-71c754590844
 					`{
 						"name": "Painted House",
-						"relationship1_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
+						"_relationship1_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
 					}`,
 				},
 				//authors
@@ -83,7 +83,7 @@ func TestQueryOneToManyWithSameFieldName(t *testing.T) {
 				0: { // bae-9217906d-e8c5-533d-8520-71c754590844
 					`{
 						"name": "Painted House",
-						"relationship1_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
+						"_relationship1_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
 					}`,
 				},
 				//authors

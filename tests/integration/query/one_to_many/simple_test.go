@@ -36,7 +36,7 @@ func TestQueryOneToMany(t *testing.T) {
 					`{
 						"name": "Painted House",
 						"rating": 4.9,
-						"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+						"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 					}`,
 				},
 				//authors
@@ -77,17 +77,17 @@ func TestQueryOneToMany(t *testing.T) {
 					`{
 						"name": "Painted House",
 						"rating": 4.9,
-						"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+						"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 					}`,
 					`{
 						"name": "A Time for Mercy",
 						"rating": 4.5,
-						"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+						"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 						}`,
 					`{
 						"name": "Theif Lord",
 						"rating": 4.8,
-						"author_id": "bae-b769708d-f552-5c3d-a402-ccfd7ac7fb04"
+						"_author_id": "bae-b769708d-f552-5c3d-a402-ccfd7ac7fb04"
 					}`,
 				},
 				//authors
@@ -159,7 +159,7 @@ func TestQueryOneToManyWithNonExistantParent(t *testing.T) {
 				`{
 					"name": "Painted House",
 					"rating": 4.9,
-					"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+					"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 				}`,
 			},
 		},

@@ -140,6 +140,10 @@ var defaultUserArgsWithoutFilter = trimFields(
 		offsetArg,
 		buildOrderArg("Users", []argDef{
 			{
+				fieldName: "_key",
+				typeName:  "Ordering",
+			},
+			{
 				fieldName: "name",
 				typeName:  "Ordering",
 			},
@@ -214,6 +218,13 @@ func TestFilterForOneToOneSchema(t *testing.T) {
 														},
 													},
 													map[string]any{
+														"name": "_author_id",
+														"type": map[string]any{
+															"name":   "IDOperatorBlock",
+															"ofType": nil,
+														},
+													},
+													map[string]any{
 														"name": "_key",
 														"type": map[string]any{
 															"name":   "IDOperatorBlock",
@@ -240,13 +251,6 @@ func TestFilterForOneToOneSchema(t *testing.T) {
 														"name": "author",
 														"type": map[string]any{
 															"name":   "AuthorFilterArg",
-															"ofType": nil,
-														},
-													},
-													map[string]any{
-														"name": "author_id",
-														"type": map[string]any{
-															"name":   "IDOperatorBlock",
 															"ofType": nil,
 														},
 													},
@@ -292,12 +296,16 @@ var defaultBookArgsWithoutFilter = trimFields(
 		offsetArg,
 		buildOrderArg("Book", []argDef{
 			{
-				fieldName: "author",
-				typeName:  "AuthorOrderArg",
+				fieldName: "_author_id",
+				typeName:  "Ordering",
 			},
 			{
-				fieldName: "author_id",
+				fieldName: "_key",
 				typeName:  "Ordering",
+			},
+			{
+				fieldName: "author",
+				typeName:  "AuthorOrderArg",
 			},
 			{
 				fieldName: "name",

@@ -50,14 +50,14 @@ func TestQueryOneToOneWithChildBooleanOrderDescending(t *testing.T) {
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 				// bae-b769708d-f552-5c3d-a402-ccfd7ac7fb04
 				`{
 					"name": "Cornelia Funke",
 					"age": 62,
 					"verified": false,
-					"published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
+					"_published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
 				}`,
 			},
 		},
@@ -118,14 +118,14 @@ func TestQueryOneToOneWithChildBooleanOrderAscending(t *testing.T) {
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 				// bae-b769708d-f552-5c3d-a402-ccfd7ac7fb04
 				`{
 					"name": "Cornelia Funke",
 					"age": 62,
 					"verified": false,
-					"published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
+					"_published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
 				}`,
 			},
 		},
@@ -182,14 +182,14 @@ func TestQueryOneToOneWithChildIntOrderDescendingWithNoSubTypeFieldsSelected(t *
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 				// "bae-08519989-280d-5a4d-90b2-915ea06df3c4"
 				`{
 					"name": "Cornelia Funke",
 					"age": 62,
 					"verified": false,
-					"published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
+					"_published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
 				}`,
 			},
 		},
@@ -238,14 +238,14 @@ func TestQueryOneToOneWithChildIntOrderAscendingWithNoSubTypeFieldsSelected(t *t
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 				// "bae-08519989-280d-5a4d-90b2-915ea06df3c4"
 				`{
 					"name": "Cornelia Funke",
 					"age": 62,
 					"verified": false,
-					"published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
+					"_published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
 				}`,
 			},
 		},

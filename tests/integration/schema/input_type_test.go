@@ -91,6 +91,13 @@ func TestInputTypeOfOrderFieldWhereSchemaHasRelationType(t *testing.T) {
 													},
 												},
 												map[string]any{
+													"name": "_wrote_id",
+													"type": map[string]any{
+														"name":   "Ordering",
+														"ofType": nil,
+													},
+												},
+												map[string]any{
 													"name": "age",
 													"type": map[string]any{
 														"name":   "Ordering",
@@ -116,13 +123,6 @@ func TestInputTypeOfOrderFieldWhereSchemaHasRelationType(t *testing.T) {
 													"name": "wrote",
 													"type": map[string]any{
 														"name":   "bookOrderArg",
-														"ofType": nil,
-													},
-												},
-												map[string]any{
-													"name": "wrote_id",
-													"type": map[string]any{
-														"name":   "Ordering",
 														"ofType": nil,
 													},
 												},
@@ -159,6 +159,10 @@ var defaultGroupArgsWithoutOrder = trimFields(
 		dockeysArg,
 		buildFilterArg("author", []argDef{
 			{
+				fieldName: "_wrote_id",
+				typeName:  "IDOperatorBlock",
+			},
+			{
 				fieldName: "age",
 				typeName:  "IntOperatorBlock",
 			},
@@ -173,10 +177,6 @@ var defaultGroupArgsWithoutOrder = trimFields(
 			{
 				fieldName: "wrote",
 				typeName:  "bookFilterArg",
-			},
-			{
-				fieldName: "wrote_id",
-				typeName:  "IDOperatorBlock",
 			},
 		}),
 		groupByArg,

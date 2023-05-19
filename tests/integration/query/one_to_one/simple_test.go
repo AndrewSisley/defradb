@@ -44,7 +44,7 @@ func TestQueryOneToOne(t *testing.T) {
 						"name": "John Grisham",
 						"age": 65,
 						"verified": true,
-						"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+						"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 					}`,
 				},
 			},
@@ -85,7 +85,7 @@ func TestQueryOneToOne(t *testing.T) {
 						"name": "John Grisham",
 						"age": 65,
 						"verified": true,
-						"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+						"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 					}`,
 				},
 			},
@@ -139,14 +139,14 @@ func TestQueryOneToOneWithMultipleRecords(t *testing.T) {
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 				// "bae-756c2bf0-4767-57fd-b12b-393915feae68",
 				`{
 					"name": "Andrew Lone",
 					"age": 30,
 					"verified": true,
-					"published_id": "bae-d3bc0f38-a2e1-5a26-9cc9-5b3fdb41c6db"
+					"_published_id": "bae-d3bc0f38-a2e1-5a26-9cc9-5b3fdb41c6db"
 				}`,
 			},
 		},
@@ -196,11 +196,11 @@ func TestQueryOneToOneWithMultipleRecordsSecondaryDirection(t *testing.T) {
 			1: {
 				`{
 					"name": "John Grisham",
-					"published_id": "bae-3d236f89-6a31-5add-a36a-27971a2eac76"
+					"_published_id": "bae-3d236f89-6a31-5add-a36a-27971a2eac76"
 				}`,
 				`{
 					"name": "Cornelia Funke",
-					"published_id": "bae-c2f3f08b-53f2-5b53-9a9f-da1eee096321"
+					"_published_id": "bae-c2f3f08b-53f2-5b53-9a9f-da1eee096321"
 				}`,
 			},
 		},

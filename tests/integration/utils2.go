@@ -872,6 +872,7 @@ func createDoc(
 			nodeID,
 			func() error { return collections[action.CollectionID].Save(ctx, doc) },
 		)
+		println(doc.Key().String())
 		if AssertError(t, testCase.Description, err, action.ExpectedError) {
 			return nil
 		}

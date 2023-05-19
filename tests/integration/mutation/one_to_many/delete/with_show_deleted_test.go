@@ -31,7 +31,7 @@ func TestDeletionOfADocumentUsingSingleKeyWithShowDeletedDocumentQuery(t *testin
 	jsonString2 := fmt.Sprintf(`{
 		"name": "John and the philosopher are stoned",
 		"rating": 9.9,
-		"author_id": "%s"
+		"_author_id": "%s"
 	}`, doc1.Key())
 	doc2, err := client.NewDocFromJSON([]byte(jsonString2))
 	require.NoError(t, err)
@@ -39,7 +39,7 @@ func TestDeletionOfADocumentUsingSingleKeyWithShowDeletedDocumentQuery(t *testin
 	jsonString3 := fmt.Sprintf(`{
 		"name": "John has a chamber of secrets",
 		"rating": 9.9,
-		"author_id": "%s"
+		"_author_id": "%s"
 	}`, doc1.Key())
 	// doc3, err := client.NewDocFromJSON([]byte(jsonString1))
 	// require.NoError(t, err)

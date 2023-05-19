@@ -38,22 +38,22 @@ func TestQueryOneToManyWithInnerJoinGroupNumber(t *testing.T) {
 					`{
 						"name": "Painted House",
 						"rating": 4.9,
-						"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+						"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 					}`,
 					`{
 						"name": "A Time for Mercy",
 						"rating": 4.5,
-						"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+						"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 					}`,
 					`{
 						"name": "The Client",
 						"rating": 4.5,
-						"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+						"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 					}`,
 					`{
 						"name": "Theif Lord",
 						"rating": 4.8,
-						"author_id": "bae-b769708d-f552-5c3d-a402-ccfd7ac7fb04"
+						"_author_id": "bae-b769708d-f552-5c3d-a402-ccfd7ac7fb04"
 					}`,
 				},
 				//authors
@@ -143,32 +143,32 @@ func TestQueryOneToManyWithParentJoinGroupNumber(t *testing.T) {
 					`{
 						"name": "Painted House",
 						"rating": 4.9,
-						"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+						"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 					}`,
 					`{
 						"name": "A Time for Mercy",
 						"rating": 4.5,
-						"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+						"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 					}`,
 					`{
 						"name": "The Client",
 						"rating": 4.5,
-						"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
+						"_author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 					}`,
 					`{
 						"name": "Candide",
 						"rating": 4.95,
-						"author_id": "bae-7accaba8-ea9d-54b1-92f4-4a7ac5de88b3"
+						"_author_id": "bae-7accaba8-ea9d-54b1-92f4-4a7ac5de88b3"
 					}`,
 					`{
 						"name": "Zadig",
 						"rating": 4.91,
-						"author_id": "bae-7accaba8-ea9d-54b1-92f4-4a7ac5de88b3"
+						"_author_id": "bae-7accaba8-ea9d-54b1-92f4-4a7ac5de88b3"
 					}`,
 					`{
 						"name": "Histoiare des Celtes et particulierement des Gaulois et des Germains depuis les temps fabuleux jusqua la prise de Roze par les Gaulois",
 						"rating": 2,
-						"author_id": "bae-09d33399-197a-5b98-b135-4398f2b6de4c"
+						"_author_id": "bae-09d33399-197a-5b98-b135-4398f2b6de4c"
 					}`,
 				},
 				//authors

@@ -43,7 +43,7 @@ func TestQueryOneToOneWithNumericFilterOnParent(t *testing.T) {
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 			},
 		},
@@ -89,7 +89,7 @@ func TestQueryOneToOneWithStringFilterOnChild(t *testing.T) {
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 			},
 		},
@@ -135,7 +135,7 @@ func TestQueryOneToOneWithBooleanFilterOnChild(t *testing.T) {
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 			},
 		},
@@ -186,14 +186,14 @@ func TestQueryOneToOneWithFilterThroughChildBackToParent(t *testing.T) {
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 				// bae-b769708d-f552-5c3d-a402-ccfd7ac7fb04
 				`{
 					"name": "Cornelia Funke",
 					"age": 62,
 					"verified": false,
-					"published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
+					"_published_id": "bae-d432bdfb-787d-5a1c-ac29-dc025ab80095"
 				}`,
 			},
 		},
@@ -235,7 +235,7 @@ func TestQueryOneToOneWithBooleanFilterOnChildWithNoSubTypeSelection(t *testing.
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
+					"_published_id": "bae-fd541c25-229e-5280-b44b-e5c2af3e374d"
 				}`,
 			},
 		},

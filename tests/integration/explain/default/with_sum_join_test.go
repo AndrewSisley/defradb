@@ -48,17 +48,17 @@ func TestDefaultExplainRequestWithSumOnOneToManyJoinedField(t *testing.T) {
 			1: {
 				`{
 					"name": "Painted House",
-					"author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
+					"_author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
 					"pages": 22
 				}`,
 				`{
 					"name": "A Time for Mercy",
-					"author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
+					"_author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
 					"pages": 101
 				}`,
 				`{
 					"name": "Theif Lord",
-					"author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
+					"_author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
 					"pages": 321
 				}`,
 			},
@@ -70,14 +70,14 @@ func TestDefaultExplainRequestWithSumOnOneToManyJoinedField(t *testing.T) {
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"contact_id": "bae-1fe427b8-ab8d-56c3-9df2-826a6ce86fed"
+					"_contact_id": "bae-1fe427b8-ab8d-56c3-9df2-826a6ce86fed"
 				}`,
 				// _key: "bae-3dddb519-3612-5e43-86e5-49d6295d4f84"
 				`{
 					"name": "Cornelia Funke",
 					"age": 62,
 					"verified": false,
-					"contact_id": "bae-c0960a29-b704-5c37-9c2e-59e1249e4559"
+					"_contact_id": "bae-c0960a29-b704-5c37-9c2e-59e1249e4559"
 				}`,
 			},
 		},
@@ -171,17 +171,17 @@ func TestDefaultExplainRequestWithSumOnOneToManyJoinedFieldWithFilter(t *testing
 			0: {
 				`{
 					"name": "After Guantánamo, Another Injustice",
-					"author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
+					"_author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
 					"pages": 2
 				}`,
 				`{
 					"name": "To my dear readers",
-					"author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
+					"_author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
 					"pages": 11
 				}`,
 				`{
 					"name": "Twinklestar's Favourite Xmas Cookie",
-					"author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
+					"_author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
 					"pages": 31
 				}`,
 			},
@@ -193,14 +193,14 @@ func TestDefaultExplainRequestWithSumOnOneToManyJoinedFieldWithFilter(t *testing
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"contact_id": "bae-1fe427b8-ab8d-56c3-9df2-826a6ce86fed"
+					"_contact_id": "bae-1fe427b8-ab8d-56c3-9df2-826a6ce86fed"
 				}`,
 				// _key: "bae-3dddb519-3612-5e43-86e5-49d6295d4f84"
 				`{
 					"name": "Cornelia Funke",
 					"age": 62,
 					"verified": false,
-					"contact_id": "bae-c0960a29-b704-5c37-9c2e-59e1249e4559"
+					"_contact_id": "bae-c0960a29-b704-5c37-9c2e-59e1249e4559"
 				}`,
 			},
 		},
@@ -296,17 +296,17 @@ func TestDefaultExplainRequestWithSumOnOneToManyJoinedFieldWithManySources(t *te
 			0: {
 				`{
 					"name": "After Guantánamo, Another Injustice",
-					"author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
+					"_author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
 					"pages": 2
 				}`,
 				`{
 					"name": "To my dear readers",
-					"author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
+					"_author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
 					"pages": 11
 				}`,
 				`{
 					"name": "Twinklestar's Favourite Xmas Cookie",
-					"author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
+					"_author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
 					"pages": 31
 				}`,
 			},
@@ -315,17 +315,17 @@ func TestDefaultExplainRequestWithSumOnOneToManyJoinedFieldWithManySources(t *te
 			1: {
 				`{
 					"name": "Painted House",
-					"author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
+					"_author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
 					"pages": 22
 				}`,
 				`{
 					"name": "A Time for Mercy",
-					"author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
+					"_author_id": "bae-25fafcc7-f251-58c1-9495-ead73e676fb8",
 					"pages": 101
 				}`,
 				`{
 					"name": "Theif Lord",
-					"author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
+					"_author_id": "bae-3dddb519-3612-5e43-86e5-49d6295d4f84",
 					"pages": 321
 				}`,
 			},
@@ -337,14 +337,14 @@ func TestDefaultExplainRequestWithSumOnOneToManyJoinedFieldWithManySources(t *te
 					"name": "John Grisham",
 					"age": 65,
 					"verified": true,
-					"contact_id": "bae-1fe427b8-ab8d-56c3-9df2-826a6ce86fed"
+					"_contact_id": "bae-1fe427b8-ab8d-56c3-9df2-826a6ce86fed"
 				}`,
 				// _key: "bae-3dddb519-3612-5e43-86e5-49d6295d4f84"
 				`{
 					"name": "Cornelia Funke",
 					"age": 62,
 					"verified": false,
-					"contact_id": "bae-c0960a29-b704-5c37-9c2e-59e1249e4559"
+					"_contact_id": "bae-c0960a29-b704-5c37-9c2e-59e1249e4559"
 				}`,
 			},
 		},

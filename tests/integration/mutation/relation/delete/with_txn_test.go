@@ -29,7 +29,7 @@ func TestTxnDeletionOfRelatedDocFromPrimarySideForwardDirection(t *testing.T) {
 				Doc: `{
 					"name": "Book By Website",
 					"rating": 4.0,
-					"publisher_id": "bae-0e7c3bb5-4917-5d98-9fcf-b9db369ea6e4"
+					"_publisher_id": "bae-0e7c3bb5-4917-5d98-9fcf-b9db369ea6e4"
 				}`,
 			},
 			testUtils.CreateDoc{
@@ -95,7 +95,7 @@ func TestTxnDeletionOfRelatedDocFromPrimarySideBackwardDirection(t *testing.T) {
 				Doc: `{
 					"name": "Book By Website",
 					"rating": 4.0,
-					"publisher_id": "bae-0e7c3bb5-4917-5d98-9fcf-b9db369ea6e4"
+					"_publisher_id": "bae-0e7c3bb5-4917-5d98-9fcf-b9db369ea6e4"
 				}`,
 			},
 			testUtils.CreateDoc{
@@ -155,7 +155,7 @@ func TestATxnCanReadARecordThatIsDeletedInANonCommitedTxnForwardDirection(t *tes
 				Doc: `{
 					"name": "Book By Website",
 					"rating": 4.0,
-					"publisher_id": "bae-0e7c3bb5-4917-5d98-9fcf-b9db369ea6e4"
+					"_publisher_id": "bae-0e7c3bb5-4917-5d98-9fcf-b9db369ea6e4"
 				}`,
 			},
 			testUtils.CreateDoc{
@@ -245,7 +245,7 @@ func TestATxnCanReadARecordThatIsDeletedInANonCommitedTxnBackwardDirection(t *te
 				Doc: `{
 					"name": "Book By Website",
 					"rating": 4.0,
-					"publisher_id": "bae-0e7c3bb5-4917-5d98-9fcf-b9db369ea6e4"
+					"_publisher_id": "bae-0e7c3bb5-4917-5d98-9fcf-b9db369ea6e4"
 				}`,
 			},
 			testUtils.CreateDoc{
@@ -329,7 +329,7 @@ func TestTxnDeletionOfRelatedDocFromNonPrimarySideForwardDirection(t *testing.T)
 				Doc: `{
 					"name": "Book By Online",
 					"rating": 4.0,
-					"publisher_id": "bae-8a381044-9206-51e7-8bc8-dc683d5f2523"
+					"_publisher_id": "bae-8a381044-9206-51e7-8bc8-dc683d5f2523"
 				}`,
 			},
 			testUtils.CreateDoc{
@@ -390,7 +390,7 @@ func TestTxnDeletionOfRelatedDocFromNonPrimarySideBackwardDirection(t *testing.T
 				Doc: `{
 					"name": "Book By Online",
 					"rating": 4.0,
-					"publisher_id": "bae-8a381044-9206-51e7-8bc8-dc683d5f2523"
+					"_publisher_id": "bae-8a381044-9206-51e7-8bc8-dc683d5f2523"
 				}`,
 			},
 			testUtils.CreateDoc{
