@@ -344,7 +344,7 @@ func (n *typeJoinOne) Next() (bool, error) {
 
 func (n *typeJoinOne) valuesSecondary(doc core.Doc) core.Doc {
 	fkIndex := &mapper.PropertyIndex{
-		Index: n.subType.DocumentMap().FirstIndexOfName(n.subTypeFieldName + "_id"),
+		Index: n.subType.DocumentMap().FirstIndexOfName("_" + n.subTypeFieldName + "_id"),
 	}
 	filter := map[connor.FilterKey]any{
 		fkIndex: doc.GetKey(),
@@ -374,7 +374,7 @@ func (n *typeJoinOne) valuesSecondary(doc core.Doc) core.Doc {
 
 func (n *typeJoinOne) valuesPrimary(doc core.Doc) core.Doc {
 	// get the subtype doc key
-	subDocKey := n.docMapper.documentMapping.FirstOfName(doc, n.subTypeName+"_id")
+	subDocKey := n.docMapper.documentMapping.FirstOfName(doc, "_"+n.subTypeName+"_id")
 
 	subDocKeyStr, ok := subDocKey.(string)
 	if !ok {
@@ -526,7 +526,7 @@ func (n *typeJoinMany) Next() (bool, error) {
 		// @todo: handle index for one-to-many setup
 	} else {
 		fkIndex := &mapper.PropertyIndex{
-			Index: n.subSelect.FirstIndexOfName(n.rootName + "_id"),
+			Index: n.subSelect.FirstIndexOfName("_" + n.rootName + "_id"),
 		}
 		filter := map[connor.FilterKey]any{
 			fkIndex: n.currentValue.GetKey(), // user_id: "bae-ALICE" |  user_id: "bae-CHARLIE"

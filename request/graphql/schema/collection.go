@@ -108,7 +108,7 @@ func fromAstDefinition(
 
 				// An _id field is added for every 1-N relationship from this object.
 				fieldDescriptions = append(fieldDescriptions, client.FieldDescription{
-					Name:         fmt.Sprintf("%s_id", field.Name.Value),
+					Name:         fmt.Sprintf("_%s_id", field.Name.Value),
 					Kind:         client.FieldKind_DocKey,
 					Typ:          defaultCRDTForFieldKind[client.FieldKind_DocKey],
 					RelationType: client.Relation_Type_INTERNAL_ID,

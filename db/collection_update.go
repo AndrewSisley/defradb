@@ -398,7 +398,7 @@ func (c *collection) isSecondaryIDField(fieldDesc client.FieldDescription) (clie
 		return client.FieldDescription{}, false
 	}
 
-	relationFieldDescription, valid := c.Description().GetField(strings.TrimSuffix(fieldDesc.Name, "_id"))
+	relationFieldDescription, valid := c.Description().GetField(strings.TrimPrefix(strings.TrimSuffix(fieldDesc.Name, "_id"), "_"))
 	return relationFieldDescription, valid && !relationFieldDescription.IsPrimaryRelation()
 }
 
@@ -431,7 +431,7 @@ func (c *collection) patchPrimaryDoc(
 	_, err = primaryCol.UpdateWithKey(
 		ctx,
 		primaryDockey,
-		fmt.Sprintf(`{"%s": "%s"}`, primaryField.Name+"_id", docKey),
+		fmt.Sprintf(`{"_%s_id": "%s"}`, primaryField.Name, docKey),
 	)
 	if err != nil {
 		return err
