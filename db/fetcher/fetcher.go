@@ -318,6 +318,7 @@ func (df *DocumentFetcher) processKV(kv *core.KeyValue) error {
 	}
 
 	if df.kv.Key.FieldId == "" {
+		df.doc.schemaVersionID = string(df.kv.Value)
 		return nil
 	}
 

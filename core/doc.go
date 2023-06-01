@@ -34,6 +34,8 @@ type Doc struct {
 
 	Fields DocFields
 	Status client.DocumentStatus
+	// confirmed, fetcher can be reworked to be consistent - this prop can be removed and lens fetcher can just call FetchNext everywhere
+	SchemaVersionID string // todo - this is a bad place for this, but hopefully the main fetcher is buggy and will be changed to remove the need for this
 }
 
 // GetKey returns the DocKey for this document.

@@ -23,6 +23,7 @@ import (
 type EncodedDocument interface {
 	// Key returns the key of the document
 	Key() []byte
+	SchemaVersionID() string
 	// Reset re-initializes the EncodedDocument object.
 	Reset(newKey []byte)
 	// Decode returns a properly decoded document object
@@ -190,12 +191,17 @@ func convertToInt(propertyName string, untypedValue any) (int64, error) {
 
 // @todo: Implement Encoded Document type
 type encodedDocument struct {
-	key        []byte
-	Properties map[client.FieldDescription]*encProperty
+	key             []byte
+	schemaVersionID string
+	Properties      map[client.FieldDescription]*encProperty
 }
 
 func (encdoc *encodedDocument) Key() []byte {
 	return encdoc.key
+}
+
+func (encdoc *encodedDocument) SchemaVersionID() string {
+	return encdoc.schemaVersionID
 }
 
 // Reset re-initializes the EncodedDocument object.
@@ -237,5 +243,6 @@ func (encdoc *encodedDocument) DecodeToDoc(mapping *core.DocumentMapping) (core.
 		}
 		doc.Fields[fieldDesc.ID] = val
 	}
+	doc.SchemaVersionID = encdoc.SchemaVersionID()
 	return doc, nil
 }
