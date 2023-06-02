@@ -161,7 +161,7 @@ func (c CompositeDAG) Merge(ctx context.Context, delta core.Delta, id string) er
 	}
 	if !exists {
 		// write object marker
-		return c.store.Put(ctx, c.key.ToPrimaryDataStoreKey().ToDS(), []byte{base.ObjectMarker})
+		return c.store.Put(ctx, c.key.ToPrimaryDataStoreKey().ToDS(), c.schemaVersionKey.Bytes())
 	}
 
 	return nil

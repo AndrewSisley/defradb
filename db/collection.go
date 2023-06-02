@@ -669,7 +669,7 @@ func (c *collection) create(ctx context.Context, txn datastore.Txn, doc *client.
 	// write value object marker if we have an empty doc
 	if len(doc.Values()) == 0 {
 		valueKey := c.getDSKeyFromDockey(dockey)
-		err = txn.Datastore().Put(ctx, valueKey.ToDS(), []byte{base.ObjectMarker})
+		err = txn.Datastore().Put(ctx, valueKey.ToDS(), []byte(c.Schema().VersionID))
 		if err != nil {
 			return err
 		}

@@ -11,7 +11,6 @@
 package fetcher
 
 import (
-	"bytes"
 	"context"
 
 	dsq "github.com/ipfs/go-datastore/query"
@@ -318,8 +317,7 @@ func (df *DocumentFetcher) processKV(kv *core.KeyValue) error {
 		df.doc.Reset([]byte(kv.Key.DocKey))
 	}
 
-	// we have to skip the object marker
-	if bytes.Equal(df.kv.Value, []byte{base.ObjectMarker}) {
+	if df.kv.Key.FieldId == "" {
 		return nil
 	}
 
