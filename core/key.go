@@ -44,6 +44,7 @@ const (
 	COLLECTION                = "/collection/names"
 	COLLECTION_SCHEMA         = "/collection/schema"
 	COLLECTION_SCHEMA_VERSION = "/collection/version"
+	SCHEMA_MIGRATION          = "/schema/migration" // todo - confirm you are happy with this :)
 	SEQ                       = "/seq"
 	PRIMARY_KEY               = "/pk"
 	REPLICATOR                = "/replicator/id"
@@ -118,6 +119,12 @@ type SchemaHistoryKey struct {
 }
 
 var _ Key = (*SchemaHistoryKey)(nil)
+
+type SchemaVersionMigrationKey struct {
+	SourceSchemaVersionId string
+}
+
+var _ Key = (*SchemaVersionMigrationKey)(nil)
 
 type P2PCollectionKey struct {
 	CollectionID string
@@ -228,6 +235,10 @@ func NewSchemaHistoryKey(schemaId string, priorSchemaVersionId string) SchemaHis
 		SchemaID:             schemaId,
 		PriorSchemaVersionId: priorSchemaVersionId,
 	}
+}
+
+func NewSchemaVersionMigrationKey(schemaVersionId string) SchemaVersionMigrationKey {
+	return SchemaVersionMigrationKey{SourceSchemaVersionId: schemaVersionId}
 }
 
 func NewSequenceKey(name string) SequenceKey {
@@ -440,6 +451,24 @@ func (k SchemaHistoryKey) Bytes() []byte {
 }
 
 func (k SchemaHistoryKey) ToDS() ds.Key {
+	return ds.NewKey(k.ToString())
+}
+
+func (k SchemaVersionMigrationKey) ToString() string {
+	result := SCHEMA_MIGRATION
+
+	if k.SourceSchemaVersionId != "" {
+		result = result + "/" + k.SourceSchemaVersionId
+	}
+
+	return result
+}
+
+func (k SchemaVersionMigrationKey) Bytes() []byte {
+	return []byte(k.ToString())
+}
+
+func (k SchemaVersionMigrationKey) ToDS() ds.Key {
 	return ds.NewKey(k.ToString())
 }
 
