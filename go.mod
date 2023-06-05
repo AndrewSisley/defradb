@@ -202,6 +202,6 @@ require (
 replace (
 	github.com/graphql-go/graphql => github.com/sourcenetwork/graphql-go v0.7.10-0.20230511091704-fe7085512c23
 	github.com/lens-vm/lens/host-go => ../lens/host-go
-	github.com/textileio/go-libp2p-pubsub-rpc => github.com/sourcenetwork/go-libp2p-pubsub-rpc v0.0.0-20230209220544-e16d5e34c4fc
 	github.com/sourcenetwork/immutable => ../immutable
+	github.com/textileio/go-libp2p-pubsub-rpc => github.com/sourcenetwork/go-libp2p-pubsub-rpc v0.0.0-20230209220544-e16d5e34c4fc
 )
