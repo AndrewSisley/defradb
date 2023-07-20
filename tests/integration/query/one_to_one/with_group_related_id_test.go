@@ -99,7 +99,7 @@ func TestQueryOneToOneWithGroupRelatedID(t *testing.T) {
 
 // This test documents unwanted behaviour, see:
 // https://github.com/sourcenetwork/defradb/issues/1654
-func TestQueryOneToOneWithGroupRelatedIDFromSecondary(t *testing.T) {
+func TestQueryOneToOneWithGroupRelatedIDFromSecondary2(t *testing.T) {
 	test := testUtils.TestCase{
 		Description: "One-to-one relation query with group by related id (secondary side)",
 		Actions: []any{
