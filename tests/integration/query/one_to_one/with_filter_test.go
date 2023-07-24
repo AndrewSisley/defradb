@@ -249,3 +249,67 @@ func TestQueryOneToOneWithBooleanFilterOnChildWithNoSubTypeSelection(t *testing.
 
 	executeTestCase(t, test)
 }
+
+func TestQueryOneToOne_FilterPrimaryIdField_NoError(t *testing.T) {
+	test := testUtils.TestCase{
+		Description: "One-to-one relation with simple filter on primary relation id",
+		Actions: []any{
+			testUtils.SchemaUpdate{
+				Schema: `
+					type Author {
+						name: String
+						published: Book
+					}
+
+					type Book {
+						name: String
+						author: Author @primary
+					}
+				`,
+			},
+			testUtils.CreateDoc{
+				CollectionID: 0,
+				// bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed
+				Doc: `{
+					"name": "John Grisham"
+				}`,
+			},
+			testUtils.CreateDoc{
+				CollectionID: 0,
+				// bae-b6ea52b8-a5a5-5127-b9c0-5df4243457a3
+				Doc: `{
+					"name": "Cornelia Funke"
+				}`,
+			},
+			testUtils.CreateDoc{
+				CollectionID: 1,
+				Doc: `{
+					"name": "Painted House",
+					"author_id": "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"
+				}`,
+			},
+			testUtils.CreateDoc{
+				CollectionID: 1,
+				Doc: `{
+					"name": "Theif Lord",
+					"author_id": "bae-b6ea52b8-a5a5-5127-b9c0-5df4243457a3"
+				}`,
+			},
+			testUtils.Request{
+				Request: `
+				query {
+					Book(filter: {author_id: {_eq: "bae-2edb7fdd-cad7-5ad4-9c7d-6920245a96ed"}}) {
+						name
+					}
+				}`,
+				Results: []map[string]any{
+					{
+						"name": "Painted House",
+					},
+				},
+			},
+		},
+	}
+
+	testUtils.ExecuteTestCase(t, []string{"Author", "Book"}, test)
+}
