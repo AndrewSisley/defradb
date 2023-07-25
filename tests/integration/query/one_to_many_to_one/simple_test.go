@@ -77,26 +77,6 @@ func TestQueryOneToOneRelations(t *testing.T) {
 					"author_id": "bae-41598f0c-19bc-5da6-813b-e80f14a10df3"
 				}`,
 			},
-			// Publishers
-			testUtils.CreateDoc{
-				CollectionID: 2,
-				Doc: `{
-					"name": "Only Publisher of The Rooster Bar",
-					"address": "1 Rooster Ave., Waterloo, Ontario",
-					"yearOpened": 2022,
-					"book_id": "bae-b6c078f2-3427-5b99-bafd-97dcd7c2e935"
-			    }`,
-			},
-			testUtils.CreateDoc{
-				CollectionID: 2,
-				Doc: `{
-					"name": "Only Publisher of Theif Lord",
-					"address": "1 Theif Lord, Waterloo, Ontario",
-					"yearOpened": 2020,
-					"book_id": "bae-b8091c4f-7594-5d7a-98e8-272aadcedfdf"
-			    }`,
-			},
-
 			testUtils.Request{
 				Request: `query {
 					Book {
