@@ -1032,3 +1032,83 @@ func TestSchemaUpdatesAddFieldKindForeignObject_ImplicitIDFieldRelationType(t *t
 	}
 	testUtils.ExecuteTestCase(t, test)
 }
+
+func TestSchemaUpdatesAddFieldKindForeignObject_ImplicitSecondaryObjectFieldRelationType(t *testing.T) {
+	key1 := "bae-decf6467-4c7c-50d7-b09d-0a7097ef6bad"
+
+	test := testUtils.TestCase{
+		Description: "Test schema update, add field with kind foreign object (16), with implicit object secondary field RelationType",
+		Actions: []any{
+			testUtils.SchemaUpdate{
+				Schema: `
+					type Users {
+						name: String
+					}
+				`,
+			},
+			testUtils.SchemaPatch{
+				Patch: `
+					[
+						{ "op": "add", "path": "/Users/Schema/Fields/-", "value": {
+							"Name": "foo", "Kind": 16, "RelationType": 133, "Schema": "Users", "RelationName": "foo"
+						}},
+						{ "op": "add", "path": "/Users/Schema/Fields/-", "value": {
+							"Name": "foo_id", "Kind": 1, "RelationType": 64, "RelationName": "foo"
+						}},
+						{ "op": "add", "path": "/Users/Schema/Fields/-", "value": {
+							"Name": "foobar", "Kind": 16, "Schema": "Users", "RelationName": "foo"
+						}},
+						{ "op": "add", "path": "/Users/Schema/Fields/-", "value": {
+							"Name": "foobar_id", "Kind": 1, "RelationType": 64, "RelationName": "foo"
+						}}
+					]
+				`,
+			},
+			testUtils.CreateDoc{
+				CollectionID: 0,
+				Doc: `{
+					"name": "John"
+				}`,
+			},
+			testUtils.CreateDoc{
+				CollectionID: 0,
+				Doc: fmt.Sprintf(`{
+						"name": "Keenan",
+						"foo": "%s"
+					}`,
+					key1,
+				),
+			},
+			testUtils.Request{
+				Request: `query {
+					Users {
+						name
+						foo {
+							name
+						}
+						foobar {
+							name
+						}
+					}
+				}`,
+				Results: []map[string]any{
+					{
+						"name": "Keenan",
+						"foo": map[string]any{
+							"name": "John",
+						},
+						"foobar": nil,
+					},
+					{
+						"name": "John",
+						"foo":  nil,
+						"foobar": map[string]any{
+							"name": "Keenan",
+						},
+					},
+				},
+			},
+		},
+	}
+	testUtils.ExecuteTestCase(t, test)
+}
