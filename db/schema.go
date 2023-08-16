@@ -202,6 +202,13 @@ func substituteSchemaPatch(
 
 					newPatchValue = immutable.Some[any](field)
 				}
+
+				if _, ok := field["RelationName"]; ok {
+					if _, ok := field["RelationType"]; !ok {
+						field["RelationType"] = getRelationType(client.FieldKind(field["Kind"].(float64)))
+						newPatchValue = immutable.Some[any](field)
+					}
+				}
 			} else if isFieldKind(path) {
 				var kind any
 				err = json.Unmarshal(*value, &kind)
@@ -261,6 +268,17 @@ func getSubstituteFieldKind(
 		}
 
 		return 0, "", NewErrFieldKindNotFound(kind)
+	}
+}
+
+func getRelationType(
+	kind client.FieldKind,
+) client.RelationType {
+	switch kind {
+	case client.FieldKind_DocKey:
+		return client.Relation_Type_INTERNAL_ID
+	default:
+		return 0
 	}
 }
 
