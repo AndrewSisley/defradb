@@ -33,9 +33,10 @@ func newMockStore() datastore.DSReaderWriter {
 }
 
 func setupLWWRegister() LWWRegister {
-	store := newMockStore()
+	datastore := newMockStore()
+	headstore := newMockStore()
 	key := core.DataStoreKey{DocKey: "AAAA-BBBB"}
-	return NewLWWRegister(store, core.CollectionSchemaVersionKey{}, key, "")
+	return NewLWWRegister(datastore, headstore, core.CollectionSchemaVersionKey{}, key, "")
 }
 
 func setupLoadedLWWRegster(ctx context.Context, t *testing.T) LWWRegister {
@@ -114,7 +115,7 @@ func TestLWWRegisterOldMerge(t *testing.T) {
 	ctx := context.Background()
 	lww := setupLoadedLWWRegster(ctx, t)
 
-	content := []byte("test-1")
+	content := []byte("test")
 	cid, err := ccid.NewSHA256CidV1(content)
 	require.NoError(t, err)
 

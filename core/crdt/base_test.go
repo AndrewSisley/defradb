@@ -15,8 +15,10 @@ import (
 	"testing"
 
 	ds "github.com/ipfs/go-datastore"
+	"github.com/stretchr/testify/require"
 
 	"github.com/sourcenetwork/defradb/core"
+	ccid "github.com/sourcenetwork/defradb/core/cid"
 	"github.com/sourcenetwork/defradb/datastore"
 )
 
@@ -29,12 +31,12 @@ func newSeededDS() datastore.DSReaderWriter {
 }
 
 func exampleBaseCRDT() baseCRDT {
-	return newBaseCRDT(newSeededDS(), core.DataStoreKey{})
+	return newBaseCRDT(newSeededDS(), newSeededDS(), core.DataStoreKey{})
 }
 
 func TestBaseCRDTNew(t *testing.T) {
-	base := newBaseCRDT(newDS(), core.DataStoreKey{})
-	if base.store == nil {
+	base := newBaseCRDT(newDS(), newDS(), core.DataStoreKey{})
+	if base.datastore == nil {
 		t.Error("newBaseCRDT needs to init store")
 	}
 }
@@ -58,13 +60,18 @@ func TestBaseCRDTprioryKey(t *testing.T) {
 func TestBaseCRDTSetGetPriority(t *testing.T) {
 	base := exampleBaseCRDT()
 	ctx := context.Background()
-	err := base.setPriority(ctx, base.key.WithDocKey("mykey"), 10)
+
+	content := []byte("test")
+	cid, err := ccid.NewSHA256CidV1(content)
+	require.NoError(t, err)
+
+	err = base.setPriority(ctx, base.key.WithDocKey("mykey"), 10, cid)
 	if err != nil {
 		t.Errorf("baseCRDT failed to set Priority. err: %v", err)
 		return
 	}
 
-	priority, err := base.getPriority(ctx, base.key.WithDocKey("mykey"))
+	priority, err := base.getPriority(ctx, base.key.WithDocKey("mykey"), cid)
 	if err != nil {
 		t.Errorf("baseCRDT failed to get priority. err: %v", err)
 		return

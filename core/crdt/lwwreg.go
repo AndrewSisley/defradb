@@ -91,13 +91,14 @@ type LWWRegister struct {
 
 // NewLWWRegister returns a new instance of the LWWReg with the given ID.
 func NewLWWRegister(
-	store datastore.DSReaderWriter,
+	datastore datastore.DSReaderWriter,
+	headstore datastore.DSReaderWriter,
 	schemaVersionKey core.CollectionSchemaVersionKey,
 	key core.DataStoreKey,
 	fieldName string,
 ) LWWRegister {
 	return LWWRegister{
-		baseCRDT:         newBaseCRDT(store, key),
+		baseCRDT:         newBaseCRDT(datastore, headstore, key),
 		schemaVersionKey: schemaVersionKey,
 		fieldName:        fieldName,
 		// id:    id,
@@ -111,7 +112,7 @@ func NewLWWRegister(
 // RETURN STATE
 func (reg LWWRegister) Value(ctx context.Context) ([]byte, error) {
 	valueK := reg.key.WithValueFlag()
-	buf, err := reg.store.Get(ctx, valueK.ToDS())
+	buf, err := reg.datastore.Get(ctx, valueK.ToDS())
 	if err != nil {
 		return nil, err
 	}
@@ -152,11 +153,11 @@ func (reg LWWRegister) Merge(ctx context.Context, delta core.Delta, cid cid.Cid)
 		return ErrMismatchedMergeType
 	}
 
-	return reg.setValue(ctx, d.Data, d.GetPriority())
+	return reg.setValue(ctx, d.Data, d.GetPriority(), cid)
 }
 
-func (reg LWWRegister) setValue(ctx context.Context, val []byte, priority uint64) error {
-	curPrio, err := reg.getPriority(ctx, reg.key)
+func (reg LWWRegister) setValue(ctx context.Context, val []byte, priority uint64, cid cid.Cid) error {
+	curPrio, err := reg.getPriority(ctx, reg.key, cid)
 	if err != nil {
 		return NewErrFailedToGetPriority(err)
 	}
@@ -165,7 +166,7 @@ func (reg LWWRegister) setValue(ctx context.Context, val []byte, priority uint64
 	// else if the current value is lexicographically
 	// greater than the new then ignore
 	key := reg.key.WithValueFlag()
-	marker, err := reg.store.Get(ctx, reg.key.ToPrimaryDataStoreKey().ToDS())
+	marker, err := reg.datastore.Get(ctx, reg.key.ToPrimaryDataStoreKey().ToDS())
 	if err != nil && !errors.Is(err, ds.ErrNotFound) {
 		return err
 	}
@@ -175,7 +176,7 @@ func (reg LWWRegister) setValue(ctx context.Context, val []byte, priority uint64
 	if priority < curPrio {
 		return nil
 	} else if priority == curPrio {
-		curValue, _ := reg.store.Get(ctx, key.ToDS())
+		curValue, _ := reg.datastore.Get(ctx, key.ToDS())
 		// Do not use the first byte of the current value in the comparison.
 		// It's metadata that will falsify the result.
 		if len(curValue) > 0 {
@@ -186,12 +187,12 @@ func (reg LWWRegister) setValue(ctx context.Context, val []byte, priority uint64
 		}
 	}
 
-	err = reg.store.Put(ctx, key.ToDS(), val)
+	err = reg.datastore.Put(ctx, key.ToDS(), val)
 	if err != nil {
 		return NewErrFailedToStoreValue(err)
 	}
 
-	return reg.setPriority(ctx, reg.key, priority)
+	return reg.setPriority(ctx, reg.key, priority, cid)
 }
 
 // DeltaDecode is a typed helper to extract
