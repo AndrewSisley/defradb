@@ -15,11 +15,10 @@ import (
 	"encoding/binary"
 
 	"github.com/ipfs/go-cid"
-	ds "github.com/ipfs/go-datastore"
+	"github.com/ipfs/go-datastore/query"
 
 	"github.com/sourcenetwork/defradb/core"
 	"github.com/sourcenetwork/defradb/datastore"
-	"github.com/sourcenetwork/defradb/errors"
 )
 
 // baseCRDT is embedded as a base layer into all
@@ -63,7 +62,7 @@ func (base baseCRDT) setPriority(
 
 // get the current priority for given key
 func (base baseCRDT) getPriority(ctx context.Context, key core.DataStoreKey, cid cid.Cid) (uint64, error) {
-	headStoreKey := key.ToHeadStoreKey().WithCid(cid)
+	/*headStoreKey := key.ToHeadStoreKey().WithCid(cid)
 	pbuf, err := base.headstore.Get(ctx, headStoreKey.ToDS())
 	if err != nil {
 		if errors.Is(err, ds.ErrNotFound) {
@@ -76,5 +75,44 @@ func (base baseCRDT) getPriority(ctx context.Context, key core.DataStoreKey, cid
 	if num <= 0 {
 		return 0, ErrDecodingPriority
 	}
-	return prio, nil
+	return prio, nil*/
+
+	q := query.Query{
+		Prefix:   key.ToHeadStoreKey().ToString(),
+		KeysOnly: false,
+	}
+
+	results, err := base.headstore.Query(ctx, q)
+	if err != nil {
+		return 0, err
+	}
+
+	defer func() {
+		err := results.Close()
+		if err != nil {
+			//log.ErrorE(ctx, "Error closing results", err)
+		}
+	}()
+
+	var maxHeight uint64
+	for r := range results.Next() {
+		if r.Error != nil {
+			return 0, r.Error
+		}
+
+		_, err := core.NewHeadStoreKey(r.Key)
+		if err != nil {
+			return 0, err
+		}
+
+		height, n := binary.Uvarint(r.Value)
+		if n <= 0 {
+			return 0, ErrDecodingPriority
+		}
+		if height > maxHeight {
+			maxHeight = height
+		}
+	}
+
+	return maxHeight, nil
 }

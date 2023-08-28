@@ -32,8 +32,19 @@ func newTestMerkleClock() *MerkleClock {
 
 	rw := datastore.AsDSReaderWriter(s)
 	multistore := datastore.MultiStoreFrom(rw)
-	reg := crdt.NewLWWRegister(multistore.Datastore(), multistore.Headstore(), core.CollectionSchemaVersionKey{}, core.DataStoreKey{}, "")
-	return NewMerkleClock(multistore.Headstore(), multistore.DAGstore(), core.HeadStoreKey{DocKey: "dockey", FieldId: "1"}, reg).(*MerkleClock)
+	reg := crdt.NewLWWRegister(
+		multistore.Datastore(),
+		multistore.Headstore(),
+		core.CollectionSchemaVersionKey{},
+		core.DataStoreKey{DocKey: "dockey", FieldId: "1"},
+		"",
+	)
+	return NewMerkleClock(
+		multistore.Headstore(),
+		multistore.DAGstore(),
+		core.HeadStoreKey{DocKey: "dockey", FieldId: "1"},
+		reg,
+	).(*MerkleClock)
 }
 
 func TestNewMerkleClock(t *testing.T) {

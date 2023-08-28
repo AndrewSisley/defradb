@@ -35,7 +35,7 @@ func newMockStore() datastore.DSReaderWriter {
 func setupLWWRegister() LWWRegister {
 	datastore := newMockStore()
 	headstore := newMockStore()
-	key := core.DataStoreKey{DocKey: "AAAA-BBBB"}
+	key := core.DataStoreKey{DocKey: "AAAA-BBBB", FieldId: "0"}
 	return NewLWWRegister(datastore, headstore, core.CollectionSchemaVersionKey{}, key, "")
 }
 
@@ -99,7 +99,8 @@ func TestLWWReisterFollowupMerge(t *testing.T) {
 
 	addDelta := lww.Set(content)
 	addDelta.SetPriority(2)
-	lww.Merge(ctx, addDelta, cid)
+	err = lww.Merge(ctx, addDelta, cid)
+	require.NoError(t, err)
 
 	val, err := lww.Value(ctx)
 	if err != nil {
@@ -121,7 +122,8 @@ func TestLWWRegisterOldMerge(t *testing.T) {
 
 	addDelta := lww.Set(content)
 	addDelta.SetPriority(0)
-	lww.Merge(ctx, addDelta, cid)
+	err = lww.Merge(ctx, addDelta, cid)
+	require.NoError(t, err)
 
 	val, err := lww.Value(ctx)
 	if err != nil {
