@@ -61,6 +61,8 @@ type MerkleCompositeDAG struct {
 	reg corecrdt.CompositeDAG
 }
 
+var _ core.ReplicatedData = (*MerkleCompositeDAG)(nil)
+
 // NewMerkleCompositeDAG creates a new instance (or loaded from DB) of a MerkleCRDT
 // backed by a CompositeDAG CRDT.
 func NewMerkleCompositeDAG(
