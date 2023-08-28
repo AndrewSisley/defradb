@@ -15,6 +15,7 @@ import (
 	"sync"
 
 	ds "github.com/ipfs/go-datastore"
+	"github.com/ipfs/go-datastore/query"
 
 	"github.com/sourcenetwork/defradb/datastore/iterable"
 )
@@ -80,6 +81,13 @@ func (t *concurrentTxn) Has(ctx context.Context, key ds.Key) (bool, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	return t.Txn.Has(ctx, key)
+}
+
+// Has implements ds.Query
+func (t *concurrentTxn) Query(ctx context.Context, q query.Query) (query.Results, error) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.Txn.Query(ctx, q)
 }
 
 // Put implements ds.Put
