@@ -15,6 +15,7 @@ import (
 	"context"
 
 	dag "github.com/ipfs/boxo/ipld/merkledag"
+	"github.com/ipfs/go-cid"
 	ds "github.com/ipfs/go-datastore"
 	ipld "github.com/ipfs/go-ipld-format"
 	"github.com/ugorji/go/codec"
@@ -145,7 +146,7 @@ func (reg LWWRegister) ID() string {
 // Merge two LWWRegisty based on the order of the timestamp (ts),
 // if they are equal, compare IDs
 // MUTATE STATE
-func (reg LWWRegister) Merge(ctx context.Context, delta core.Delta, id string) error {
+func (reg LWWRegister) Merge(ctx context.Context, delta core.Delta, cid cid.Cid) error {
 	d, ok := delta.(*LWWRegDelta)
 	if !ok {
 		return ErrMismatchedMergeType

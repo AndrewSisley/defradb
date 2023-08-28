@@ -13,6 +13,7 @@ package crdt
 import (
 	"context"
 
+	"github.com/ipfs/go-cid"
 	ipld "github.com/ipfs/go-ipld-format"
 
 	"github.com/sourcenetwork/defradb/client"
@@ -100,6 +101,6 @@ func (mlwwreg *MerkleLWWRegister) Value(ctx context.Context) ([]byte, error) {
 
 // Merge writes the provided delta to state using a supplied
 // merge semantic.
-func (mlwwreg *MerkleLWWRegister) Merge(ctx context.Context, other core.Delta, id string) error {
-	return mlwwreg.reg.Merge(ctx, other, id)
+func (mlwwreg *MerkleLWWRegister) Merge(ctx context.Context, other core.Delta, cid cid.Cid) error {
+	return mlwwreg.reg.Merge(ctx, other, cid)
 }

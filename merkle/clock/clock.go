@@ -16,7 +16,6 @@ package clock
 import (
 	"context"
 
-	dshelp "github.com/ipfs/boxo/datastore/dshelp"
 	cid "github.com/ipfs/go-cid"
 	ipld "github.com/ipfs/go-ipld-format"
 
@@ -133,7 +132,7 @@ func (mc *MerkleClock) ProcessNode(
 ) ([]cid.Cid, error) {
 	current := node.Cid()
 	log.Debug(ctx, "Running ProcessNode", logging.NewKV("CID", current))
-	err := mc.crdt.Merge(ctx, delta, dshelp.MultihashToDsKey(current.Hash()).String())
+	err := mc.crdt.Merge(ctx, delta, current)
 	if err != nil {
 		return nil, NewErrMergingDelta(current, err)
 	}

@@ -13,6 +13,7 @@ package crdt
 import (
 	"context"
 
+	"github.com/ipfs/go-cid"
 	ipld "github.com/ipfs/go-ipld-format"
 
 	"github.com/sourcenetwork/defradb/client"
@@ -135,6 +136,6 @@ func (m *MerkleCompositeDAG) Value(ctx context.Context) ([]byte, error) {
 
 // Merge writes the provided delta to state using a supplied merge semantic.
 // @todo
-func (m *MerkleCompositeDAG) Merge(ctx context.Context, other core.Delta, id string) error {
-	return m.reg.Merge(ctx, other, id)
+func (m *MerkleCompositeDAG) Merge(ctx context.Context, other core.Delta, cid cid.Cid) error {
+	return m.reg.Merge(ctx, other, cid)
 }

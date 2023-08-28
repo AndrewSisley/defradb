@@ -16,6 +16,7 @@ package crdt
 import (
 	"context"
 
+	"github.com/ipfs/go-cid"
 	ipld "github.com/ipfs/go-ipld-format"
 
 	"github.com/sourcenetwork/defradb/core"
@@ -53,8 +54,8 @@ func (base *baseMerkleCRDT) Clock() core.MerkleClock {
 	return base.clock
 }
 
-func (base *baseMerkleCRDT) Merge(ctx context.Context, other core.Delta, id string) error {
-	return base.crdt.Merge(ctx, other, id)
+func (base *baseMerkleCRDT) Merge(ctx context.Context, other core.Delta, cid cid.Cid) error {
+	return base.crdt.Merge(ctx, other, cid)
 }
 
 func (base *baseMerkleCRDT) DeltaDecode(node ipld.Node) (core.Delta, error) {

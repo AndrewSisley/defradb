@@ -20,9 +20,11 @@ import (
 	ds "github.com/ipfs/go-datastore"
 	ipld "github.com/ipfs/go-ipld-format"
 	mh "github.com/multiformats/go-multihash"
+	"github.com/stretchr/testify/require"
 	"github.com/ugorji/go/codec"
 
 	"github.com/sourcenetwork/defradb/core"
+	ccid "github.com/sourcenetwork/defradb/core/cid"
 	"github.com/sourcenetwork/defradb/datastore"
 )
 
@@ -36,11 +38,17 @@ func setupLWWRegister() LWWRegister {
 	return NewLWWRegister(store, core.CollectionSchemaVersionKey{}, key, "")
 }
 
-func setupLoadedLWWRegster(ctx context.Context) LWWRegister {
+func setupLoadedLWWRegster(ctx context.Context, t *testing.T) LWWRegister {
 	lww := setupLWWRegister()
-	addDelta := lww.Set([]byte("test"))
+
+	content := []byte("test")
+	cid, err := ccid.NewSHA256CidV1(content)
+	require.NoError(t, err)
+
+	addDelta := lww.Set(content)
 	addDelta.SetPriority(1)
-	lww.Merge(ctx, addDelta, "test")
+
+	lww.Merge(ctx, addDelta, cid)
 	return lww
 }
 
@@ -55,9 +63,14 @@ func TestLWWRegisterAddDelta(t *testing.T) {
 
 func TestLWWRegisterInitialMerge(t *testing.T) {
 	ctx := context.Background()
+
+	content := []byte("test")
+	cid, err := ccid.NewSHA256CidV1(content)
+	require.NoError(t, err)
+
 	lww := setupLWWRegister()
-	addDelta := lww.Set([]byte("test"))
-	err := lww.Merge(ctx, addDelta, "test")
+	addDelta := lww.Set(content)
+	err = lww.Merge(ctx, addDelta, cid)
 	if err != nil {
 		t.Errorf("Unexpected error: %s\n", err)
 		return
@@ -77,10 +90,15 @@ func TestLWWRegisterInitialMerge(t *testing.T) {
 
 func TestLWWReisterFollowupMerge(t *testing.T) {
 	ctx := context.Background()
-	lww := setupLoadedLWWRegster(ctx)
-	addDelta := lww.Set([]byte("test2"))
+	lww := setupLoadedLWWRegster(ctx, t)
+
+	content := []byte("test2")
+	cid, err := ccid.NewSHA256CidV1(content)
+	require.NoError(t, err)
+
+	addDelta := lww.Set(content)
 	addDelta.SetPriority(2)
-	lww.Merge(ctx, addDelta, "test")
+	lww.Merge(ctx, addDelta, cid)
 
 	val, err := lww.Value(ctx)
 	if err != nil {
@@ -94,10 +112,15 @@ func TestLWWReisterFollowupMerge(t *testing.T) {
 
 func TestLWWRegisterOldMerge(t *testing.T) {
 	ctx := context.Background()
-	lww := setupLoadedLWWRegster(ctx)
-	addDelta := lww.Set([]byte("test-1"))
+	lww := setupLoadedLWWRegster(ctx, t)
+
+	content := []byte("test-1")
+	cid, err := ccid.NewSHA256CidV1(content)
+	require.NoError(t, err)
+
+	addDelta := lww.Set(content)
 	addDelta.SetPriority(0)
-	lww.Merge(ctx, addDelta, "test")
+	lww.Merge(ctx, addDelta, cid)
 
 	val, err := lww.Value(ctx)
 	if err != nil {
