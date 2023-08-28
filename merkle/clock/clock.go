@@ -183,20 +183,6 @@ func (mc *MerkleClock) ProcessNode(
 			return nil, NewErrCouldNotFindBlock(linkCid, err)
 		}
 		if known {
-			// we reached a non-head node in the known tree.
-			// This means our root block is a new head
-			log.Debug(ctx, "Adding head")
-			err := mc.headset.Write(ctx, root, rootPrio)
-			if err != nil {
-				log.ErrorE(
-					ctx,
-					"Failure adding head (when root is a new head)",
-					err,
-					logging.NewKV("Root", root),
-				)
-				// OR should this also return like below comment??
-				// return nil, errors.Wrap("error adding head (when root is new head): %s ", root, err)
-			}
 			continue
 		}
 
