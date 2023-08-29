@@ -161,7 +161,11 @@ func (reg LWWRegister) setValue(ctx context.Context, val []byte, priority uint64
 	if err != nil {
 		return NewErrFailedToGetPriority(err)
 	}
+	println(cid.String())
 
+	if cid.String() == "bafybeifzihkqhqwl6zqlp4aqaoodtcbll4uqjwztnpmyv6iijidpp2vv6e" {
+		panic("FDgssfa")
+	}
 	// if the current priority is higher ignore put
 	// else if the current value is lexicographically
 	// greater than the new then ignore
@@ -176,7 +180,10 @@ func (reg LWWRegister) setValue(ctx context.Context, val []byte, priority uint64
 	if priority < curPrio {
 		return nil
 	} else if priority == curPrio {
-		curValue, _ := reg.datastore.Get(ctx, key.ToDS())
+		curValue, err := reg.datastore.Get(ctx, key.ToDS())
+		if err != nil {
+			return err
+		}
 		// Do not use the first byte of the current value in the comparison.
 		// It's metadata that will falsify the result.
 		if len(curValue) > 0 {
@@ -192,7 +199,7 @@ func (reg LWWRegister) setValue(ctx context.Context, val []byte, priority uint64
 		return NewErrFailedToStoreValue(err)
 	}
 
-	return reg.setPriority(ctx, reg.key, priority, cid)
+	return nil //reg.setPriority(ctx, reg.key, priority, cid)
 }
 
 // DeltaDecode is a typed helper to extract

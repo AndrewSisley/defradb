@@ -131,8 +131,8 @@ func (mc *MerkleClock) ProcessNode(
 	node ipld.Node,
 ) ([]cid.Cid, error) {
 	current := node.Cid()
-	log.Debug(ctx, "Running ProcessNode", logging.NewKV("CID", current))
-	err := mc.crdt.Merge(ctx, delta, current)
+	log.Info(ctx, "Running ProcessNode", logging.NewKV("CID", current), logging.NewKV("Val", delta.Value()))
+	err := mc.crdt.Merge(ctx, delta, root)
 	if err != nil {
 		return nil, NewErrMergingDelta(current, err)
 	}
@@ -183,6 +183,20 @@ func (mc *MerkleClock) ProcessNode(
 			return nil, NewErrCouldNotFindBlock(linkCid, err)
 		}
 		if known {
+			// we reached a non-head node in the known tree.
+			// This means our root block is a new head
+			log.Debug(ctx, "Adding head")
+			err := mc.headset.Write(ctx, root, rootPrio)
+			if err != nil {
+				log.ErrorE(
+					ctx,
+					"Failure adding head (when root is a new head)",
+					err,
+					logging.NewKV("Root", root),
+				)
+				// OR should this also return like below comment??
+				// return nil, errors.Wrap("error adding head (when root is new head): %s ", root, err)
+			}
 			continue
 		}
 

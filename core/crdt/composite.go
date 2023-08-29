@@ -212,6 +212,7 @@ func (c CompositeDAG) deleteWithPrefix(ctx context.Context, key core.DataStoreKe
 	q := query.Query{
 		Prefix: key.ToString(),
 	}
+	panic(q.Prefix)
 	res, err := c.store.Query(ctx, q)
 	for e := range res.Next() {
 		if e.Error != nil {
