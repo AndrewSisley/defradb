@@ -81,8 +81,7 @@ func (p *Planner) makeTypeIndexJoin(
 	var joinPlan planNode
 	var err error
 
-	desc := parent.sourceInfo.collectionDescription
-	typeFieldDesc, ok := desc.Schema.GetField(subType.Name)
+	typeFieldDesc, ok := parent.collection.Schema().GetField(subType.Name)
 	if !ok {
 		return nil, client.NewErrFieldNotExist(subType.Name)
 	}
@@ -245,7 +244,7 @@ func (p *Planner) makeTypeJoinOne(
 	}
 
 	// get the correct sub field schema type (collection)
-	subTypeFieldDesc, ok := parent.sourceInfo.collectionDescription.Schema.GetField(subType.Name)
+	subTypeFieldDesc, ok := parent.collection.Schema().GetField(subType.Name)
 	if !ok {
 		return nil, client.NewErrFieldNotExist(subType.Name)
 	}
@@ -254,15 +253,17 @@ func (p *Planner) makeTypeJoinOne(
 	// check if the field we're querying is the primary side of the relation
 	isPrimary := subTypeFieldDesc.RelationType.IsSet(client.Relation_Type_Primary)
 
-	subTypeCollectionDesc, err := p.getCollectionDesc(subType.CollectionName)
+	subTypeCollection, err := p.db.GetCollectionByName(p.ctx, subType.CollectionName)
 	if err != nil {
 		return nil, err
 	}
 
-	subTypeField, subTypeFieldNameFound := subTypeCollectionDesc.GetFieldByRelation(
+	subTypeSchema := subTypeCollection.Schema()
+	subTypeField, subTypeFieldNameFound := subTypeCollection.Description().GetFieldByRelation(
 		subTypeFieldDesc.RelationName,
-		parent.sourceInfo.collectionDescription.Name,
+		parent.collection.Name(),
 		subTypeFieldDesc.Name,
+		&subTypeSchema,
 	)
 	if !subTypeFieldNameFound {
 		return nil, client.NewErrFieldNotExist(subTypeFieldDesc.RelationName)
@@ -367,8 +368,7 @@ func (n *typeJoinOne) valuesPrimary(doc core.Doc) (core.Doc, error) {
 
 	// create the collection key for the sub doc
 	slct := n.subType.(*selectTopNode).selectNode
-	desc := slct.sourceInfo.collectionDescription
-	subKeyIndexKey := base.MakeDocKey(desc, subDocKeyStr)
+	subKeyIndexKey := base.MakeDocKey(slct.collection.Description(), subDocKeyStr)
 
 	// reset span
 	n.spans = core.NewSpans(core.NewSpan(subKeyIndexKey, subKeyIndexKey.PrefixEnd()))
@@ -475,20 +475,22 @@ func (p *Planner) makeTypeJoinMany(
 		return nil, err
 	}
 
-	subTypeFieldDesc, ok := parent.sourceInfo.collectionDescription.Schema.GetField(subType.Name)
+	subTypeFieldDesc, ok := parent.collection.Schema().GetField(subType.Name)
 	if !ok {
 		return nil, client.NewErrFieldNotExist(subType.Name)
 	}
 
-	subTypeCollectionDesc, err := p.getCollectionDesc(subType.CollectionName)
+	subTypeCollection, err := p.db.GetCollectionByName(p.ctx, subType.CollectionName)
 	if err != nil {
 		return nil, err
 	}
 
-	rootField, rootNameFound := subTypeCollectionDesc.GetFieldByRelation(
+	subTypeSchema := subTypeCollection.Schema()
+	rootField, rootNameFound := subTypeCollection.Description().GetFieldByRelation(
 		subTypeFieldDesc.RelationName,
-		parent.sourceInfo.collectionDescription.Name,
+		parent.collection.Name(),
 		subTypeFieldDesc.Name,
+		&subTypeSchema,
 	)
 
 	if !rootNameFound {
