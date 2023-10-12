@@ -74,7 +74,6 @@ func (db *db) newCollection(desc client.CollectionDescription, schema client.Sch
 		desc: client.CollectionDescription{
 			ID:              desc.ID,
 			Name:            desc.Name,
-			Schema:          schema,
 			SchemaVersionID: schema.VersionID,
 			Indexes:         desc.Indexes,
 		},
@@ -136,7 +135,6 @@ func (db *db) createCollection(
 	}
 
 	col.schema = schema
-	col.desc.Schema = schema
 	col.desc.SchemaVersionID = schema.VersionID
 
 	// buffer must include all the ids, as it is saved and loaded from the store later.
@@ -208,7 +206,7 @@ func (db *db) updateCollection(
 	}
 
 	if !hasChanged {
-		return db.getCollectionByName(ctx, txn, desc.Name)
+		return db.getCollectionByName(ctx, txn, schema.Name)
 	}
 
 	for _, field := range schema.Fields {
@@ -238,7 +236,6 @@ func (db *db) updateCollection(
 		return nil, err
 	}
 
-	desc.Schema = schema
 	desc.SchemaVersionID = schema.VersionID
 
 	buf, err := json.Marshal(desc)
