@@ -217,7 +217,7 @@ func (db *db) updateCollection(
 		txn,
 		existingSchemaByName,
 		proposedDescriptionsByName,
-		desc.Schema,
+		schema,
 	)
 	if err != nil {
 		return nil, err
@@ -541,7 +541,7 @@ func (db *db) setDefaultSchemaVersion(
 	}
 
 	desc := col.Description()
-	err = db.setDefaultSchemaVersionExplicit(ctx, txn, desc.Name, desc.Schema.SchemaID, schemaVersionID)
+	err = db.setDefaultSchemaVersionExplicit(ctx, txn, desc.Name, col.Schema().SchemaID, schemaVersionID)
 	if err != nil {
 		return err
 	}
@@ -1401,7 +1401,7 @@ func (c *collection) tryGetFieldKey(key core.PrimaryDataStoreKey, fieldName stri
 // tryGetSchemaFieldID returns the FieldID of the given fieldName.
 // Will return false if the field is not found.
 func (c *collection) tryGetSchemaFieldID(fieldName string) (uint32, bool) {
-	for _, field := range c.desc.Schema.Fields {
+	for _, field := range c.Schema().Fields {
 		if field.Name == fieldName {
 			if field.IsObject() || field.IsObjectArray() {
 				// We do not wish to match navigational properties, only
