@@ -72,10 +72,11 @@ func (db *db) newCollection(desc client.CollectionDescription, schema client.Sch
 	return &collection{
 		db: db,
 		desc: client.CollectionDescription{
-			ID:      desc.ID,
-			Name:    desc.Name,
-			Schema:  schema,
-			Indexes: desc.Indexes,
+			ID:              desc.ID,
+			Name:            desc.Name,
+			Schema:          schema,
+			SchemaVersionID: schema.VersionID,
+			Indexes:         desc.Indexes,
 		},
 		schema: schema,
 	}, nil
@@ -136,6 +137,7 @@ func (db *db) createCollection(
 
 	col.schema = schema
 	col.desc.Schema = schema
+	col.desc.SchemaVersionID = schema.VersionID
 
 	// buffer must include all the ids, as it is saved and loaded from the store later.
 	buf, err := json.Marshal(col.desc)
@@ -237,6 +239,7 @@ func (db *db) updateCollection(
 	}
 
 	desc.Schema = schema
+	desc.SchemaVersionID = schema.VersionID
 
 	buf, err := json.Marshal(desc)
 	if err != nil {
@@ -561,10 +564,15 @@ func (db *db) getCollectionByVersionID(
 		return nil, err
 	}
 
+	schema, err := descriptions.GetSchemaVersion(ctx, txn, desc.SchemaVersionID)
+	if err != nil {
+		return nil, err
+	}
+
 	col := &collection{
 		db:     db,
 		desc:   desc,
-		schema: desc.Schema,
+		schema: schema,
 	}
 
 	err = col.loadIndexes(ctx, txn)
