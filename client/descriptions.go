@@ -13,35 +13,64 @@ package client
 import (
 	"fmt"
 
+	"github.com/lens-vm/lens/host-go/config/model"
 	"github.com/sourcenetwork/defradb/client/request"
+	"github.com/sourcenetwork/immutable"
 )
 
-// CollectionDescription describes a Collection and all its associated metadata.
 type CollectionDescription struct {
-	// Name contains the name of the collection.
-	//
-	// It is conceptually local to the node hosting the DefraDB instance, but currently there
-	// is no means to update the local value so that it differs from the (global) schema name.
-	Name string
-
-	// ID is the local identifier of this collection.
-	//
-	// It is immutable.
+	// immutable
 	ID uint32
 
-	// The ID of the schema version that this collection is at.
+	// immutable once set
+	GlobalID immutable.Option[string]
+
+	// These properties become immutable if/when GlobalID is set
+	Sources         []any
 	SchemaVersionID string
+	MergeMethod     MergeMethod
 
-	// BaseQuery contains the base query of this view, if this collection is a view.
-	//
-	// The query will be saved, and then may be accessed by other actors on demand.  Actor defined
-	// aggregates, filters and other logic (such as LensVM transforms) will execute on top of this
-	// base query before the result is returned to the actor.
-	BaseQuery *request.Select
-
-	// Indexes contains the secondary indexes that this Collection has.
-	Indexes []IndexDescription
+	// Always mutable
+	Name        immutable.Option[string]
+	Indexes     []IndexDescription
+	CacheMethod CacheMethod
 }
+
+type BaseSource struct {
+	ID        uint32
+	Name      string
+	Transform immutable.Option[model.Lens]
+}
+
+type QuerySource struct {
+	BaseSource
+	BaseQuery request.Select
+}
+
+type CollectionSource struct {
+	BaseSource
+	SourceCollectionID uint32
+}
+
+type DataStoreSource struct {
+	BaseSource
+}
+
+type MergeMethod uint32
+
+const (
+	MERGE_METHOD_NONE MergeMethod = 0
+	MERGE_METHOD_LWW  MergeMethod = 1 //*
+	// etc
+)
+
+type CacheMethod uint32
+
+const (
+	CACHE_METHOD_NONE     CacheMethod = 0
+	CACHE_METHOD_PER_ITEM CacheMethod = 1
+	// etc
+)
 
 // IDString returns the collection ID as a string.
 func (col CollectionDescription) IDString() string {
