@@ -65,6 +65,30 @@ func (db *db) addView(
 		return nil, err
 	}
 
+	existingTypeNames := map[string]struct{}{}
+	for _, col := range existingCollections {
+		var typeName string
+		if col.Description().Name == "" {
+			panic("gfdd")
+			typeName = col.Schema().Name
+		} else {
+			typeName = col.Description().Name
+		}
+		existingTypeNames[typeName] = struct{}{}
+	}
+
+	for _, def := range newDefinitions {
+		if def.Description.Name != "" {
+			// We don't need to check the View name here, as duplication checks for
+			// the collection/view exist elsewhere and will be handled there.
+			continue
+		}
+
+		if _, alreadyExists := existingTypeNames[def.Schema.Name]; alreadyExists {
+			return nil, client.NewErrSchemaTypeAlreadyExist(def.Schema.Name)
+		}
+	}
+
 	existingDefinitions := make([]client.CollectionDefinition, len(existingCollections))
 	for i := range existingCollections {
 		existingDefinitions[i] = existingCollections[i].Definition()
