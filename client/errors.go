@@ -28,6 +28,7 @@ const (
 	errUnknownCRDT                 string = "unknown crdt"
 	errCRDTKindMismatch            string = "CRDT type %s can't be assigned to field kind %s"
 	errInvalidCRDTType             string = "CRDT type not supported"
+	errSchemaTypeAlreadyExist      string = "schema type already exists"
 )
 
 // Errors returnable from this package.
@@ -35,16 +36,17 @@ const (
 // This list is incomplete and undefined errors may also be returned.
 // Errors returned from this package may be tested against these errors with errors.Is.
 var (
-	ErrFieldNotExist       = errors.New(errFieldNotExist)
-	ErrUnexpectedType      = errors.New(errUnexpectedType)
-	ErrFieldNotObject      = errors.New("trying to access field on a non object type")
-	ErrValueTypeMismatch   = errors.New("value does not match indicated type")
-	ErrDocumentNotFound    = errors.New("no document for the given ID exists")
-	ErrInvalidUpdateTarget = errors.New("the target document to update is of invalid type")
-	ErrInvalidUpdater      = errors.New("the updater of a document is of invalid type")
-	ErrInvalidDeleteTarget = errors.New("the target document to delete is of invalid type")
-	ErrMalformedDocID      = errors.New("malformed document ID, missing either version or cid")
-	ErrInvalidDocIDVersion = errors.New("invalid document ID version")
+	ErrFieldNotExist          = errors.New(errFieldNotExist)
+	ErrUnexpectedType         = errors.New(errUnexpectedType)
+	ErrFieldNotObject         = errors.New("trying to access field on a non object type")
+	ErrValueTypeMismatch      = errors.New("value does not match indicated type")
+	ErrDocumentNotFound       = errors.New("no document for the given ID exists")
+	ErrInvalidUpdateTarget    = errors.New("the target document to update is of invalid type")
+	ErrInvalidUpdater         = errors.New("the updater of a document is of invalid type")
+	ErrInvalidDeleteTarget    = errors.New("the target document to delete is of invalid type")
+	ErrMalformedDocID         = errors.New("malformed document ID, missing either version or cid")
+	ErrInvalidDocIDVersion    = errors.New("invalid document ID version")
+	ErrSchemaTypeAlreadyExist = errors.New(errSchemaTypeAlreadyExist)
 )
 
 // NewErrFieldNotExist returns an error indicating that the given field does not exist.
@@ -144,4 +146,11 @@ func NewErrInvalidCRDTType(name, crdtType string) error {
 
 func NewErrCRDTKindMismatch(cType, kind string) error {
 	return errors.New(fmt.Sprintf(errCRDTKindMismatch, cType, kind))
+}
+
+func NewErrSchemaTypeAlreadyExist(name string) error {
+	return errors.New(
+		errSchemaTypeAlreadyExist,
+		errors.NewKV("Name", name),
+	)
 }

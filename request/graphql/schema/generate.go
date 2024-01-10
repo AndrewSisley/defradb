@@ -421,7 +421,7 @@ func (g *Generator) buildTypes(
 
 		// check if type exists
 		if _, ok := g.manager.schema.TypeMap()[objectName]; ok {
-			return nil, NewErrSchemaTypeAlreadyExist(objectName)
+			return nil, client.NewErrSchemaTypeAlreadyExist(objectName)
 		}
 
 		objconf := gql.ObjectConfig{

@@ -17,7 +17,6 @@ const (
 	errFieldMissingRelation       string = "field missing associated relation"
 	errRelationMissingField       string = "relation missing field"
 	errAggregateTargetNotFound    string = "aggregate target not found"
-	errSchemaTypeAlreadyExist     string = "schema type already exists"
 	errObjectNotFoundDuringThunk  string = "object not found whilst executing fields thunk"
 	errTypeNotFound               string = "no type found for given name"
 	errRelationNotFound           string = "no relation found"
@@ -33,7 +32,6 @@ var (
 	ErrFieldMissingRelation       = errors.New(errFieldMissingRelation)
 	ErrRelationMissingField       = errors.New(errRelationMissingField)
 	ErrAggregateTargetNotFound    = errors.New(errAggregateTargetNotFound)
-	ErrSchemaTypeAlreadyExist     = errors.New(errSchemaTypeAlreadyExist)
 	ErrObjectNotFoundDuringThunk  = errors.New(errObjectNotFoundDuringThunk)
 	ErrTypeNotFound               = errors.New(errTypeNotFound)
 	ErrRelationNotFound           = errors.New(errRelationNotFound)
@@ -84,13 +82,6 @@ func NewErrAggregateTargetNotFound(objectName, target string) error {
 		errAggregateTargetNotFound,
 		errors.NewKV("Object", objectName),
 		errors.NewKV("Target", target),
-	)
-}
-
-func NewErrSchemaTypeAlreadyExist(name string) error {
-	return errors.New(
-		errSchemaTypeAlreadyExist,
-		errors.NewKV("Name", name),
 	)
 }
 
