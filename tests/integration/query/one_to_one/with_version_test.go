@@ -14,7 +14,6 @@ import (
 	"testing"
 
 	testUtils "github.com/sourcenetwork/defradb/tests/integration"
-	"github.com/stretchr/testify/require"
 )
 
 func TestQueryOneToOne_WithVersionOnOuter(t *testing.T) {
@@ -78,7 +77,5 @@ func TestQueryOneToOne_WithVersionOnOuter(t *testing.T) {
 		},
 	}
 
-	require.Panics(t,
-		func() { testUtils.ExecuteTestCase(t, test) },
-	)
+	testUtils.ExecuteTestCase(t, test)
 }
