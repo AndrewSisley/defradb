@@ -319,7 +319,7 @@ func (p *Planner) Scan(
 // we call Next() on the underlying scanNode only
 // once every 2 Next() calls on the multiScan
 type multiScanNode struct {
-	scanNode   *scanNode
+	scanNode   planNode
 	numReaders int
 	numCalls   int
 
@@ -353,7 +353,7 @@ func (n *multiScanNode) Next() (bool, error) {
 }
 
 func (n *multiScanNode) Value() core.Doc {
-	return n.scanNode.documentIterator.Value()
+	return n.scanNode.Value()
 }
 
 func (n *multiScanNode) Spans(spans core.Spans) {

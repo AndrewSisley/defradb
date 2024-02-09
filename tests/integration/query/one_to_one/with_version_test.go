@@ -26,7 +26,7 @@ func TestQueryOneToOne_WithVersionOnOuter(t *testing.T) {
 						name: String
 						author: Author
 					}
-				
+
 					type Author {
 						name: String
 						published: Book @primary

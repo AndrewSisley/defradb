@@ -482,7 +482,10 @@ func (p *Planner) walkAndReplacePlan(planNode, target, replace planNode) error {
 		node.replaceRoot(replace)
 	case *pipeNode:
 		/* Do nothing - pipe nodes should not be replaced */
-	// @todo: add more nodes that apply here
+	case *multiScanNode:
+		if _, ok := replace.(*scanNode); ok {
+			//node.scanNode = replacementScan
+		}
 	default:
 		return client.NewErrUnhandledType("plan", node)
 	}
@@ -501,6 +504,14 @@ func walkAndFindPlanType[T planNode](planNode planNode) (T, bool) {
 
 	targetType, isTargetType := src.(T)
 	if !isTargetType {
+		if p, ok := planNode.(*parallelNode); ok {
+			for _, n := range p.Children() {
+				targetType, isTargetType = walkAndFindPlanType[T](n)
+				if isTargetType {
+					return targetType, true
+				}
+			}
+		}
 		return walkAndFindPlanType[T](planNode.Source())
 	}
 

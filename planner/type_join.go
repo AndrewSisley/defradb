@@ -641,8 +641,13 @@ func getScanNode(plan planNode) *scanNode {
 		if node == nil {
 			if topSelect, ok := plan.(*selectTopNode); ok {
 				node = topSelect.selectNode
+			} else {
+				if _, ok := plan.(*parallelNode); ok {
+					panic("gdsa")
+				}
 			}
 		}
 	}
+	panic("hgfds")
 	return nil
 }

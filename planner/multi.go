@@ -115,11 +115,14 @@ func (p *parallelNode) Next() (bool, error) {
 		var err error
 		// isMerge := false
 		switch n := plan.(type) {
-		case *scanNode, *typeIndexJoin:
+		case *typeIndexJoin:
+			next, err = p.nextMerge(i, n)
+		case *scanNode:
 			// isMerge = true
 			next, err = p.nextMerge(i, n)
 		case *dagScanNode:
-			next, err = p.nextAppend(i, n)
+			// temp disabled to test join
+			//next, err = p.nextAppend(i, n)
 		}
 		if err != nil {
 			return false, err
@@ -173,7 +176,13 @@ func (p *parallelNode) nextAppend(index int, plan planNode) (bool, error) {
 	return true, nil
 }
 
-func (p *parallelNode) Source() planNode { return p.multiscan }
+func (p *parallelNode) Source() planNode {
+	if p.multiscan == nil {
+		// We have to do this because of the silly way that go handles nil checks for typed items
+		return nil
+	}
+	return p.multiscan
+}
 
 func (p *parallelNode) Children() []planNode {
 	return p.children
@@ -185,6 +194,27 @@ func (p *parallelNode) addChild(fieldIndex int, node planNode) {
 }
 
 func (s *selectNode) addSubPlan(fieldIndex int, newPlan planNode) error {
+	if _, ok := newPlan.(*dagScanNode); ok {
+		return nil
+	}
+
+	// Temp dumb way to see if everything else works
+	switch sourceNode := s.source.(type) {
+	//case *scanNode, *pipeNode: //the join works when this happens
+	//	s.source = newPlan
+	case *parallelNode:
+		sourceNode.addChild(fieldIndex, newPlan)
+	default:
+		multinode := &parallelNode{
+			p:         s.planner,
+			docMapper: docMapper{s.source.DocumentMap()},
+		}
+		multinode.addChild(-1, s.source)
+		multinode.addChild(fieldIndex, newPlan)
+		s.source = multinode
+	}
+	return nil
+
 	switch sourceNode := s.source.(type) {
 	// if its a scan node, we either replace or create a multinode
 	case *scanNode, *pipeNode:
@@ -192,13 +222,33 @@ func (s *selectNode) addSubPlan(fieldIndex int, newPlan planNode) error {
 		case *scanNode, *typeIndexJoin:
 			s.source = newPlan
 		case *dagScanNode:
-			m := &parallelNode{
+			origScan, _ := walkAndFindPlanType[*dagScanNode](newPlan)
+			if origScan == nil {
+				panic("gfd")
+				return ErrFailedToFindScanNode
+			}
+			// create our new multiscanner
+			multiscan := &multiScanNode{scanNode: origScan}
+			// replace our current source internal scanNode with our new multiscanner
+			if err := s.planner.walkAndReplacePlan(s.source, origScan, multiscan); err != nil {
+				return err
+			}
+			// create multinode
+			multinode := &parallelNode{
 				p:         s.planner,
+				multiscan: multiscan,
 				docMapper: docMapper{s.source.DocumentMap()},
 			}
-			m.addChild(-1, s.source)
-			m.addChild(fieldIndex, newPlan)
-			s.source = m
+			multinode.addChild(-1, s.source)
+			multiscan.addReader()
+			// replace our new node internal scanNode with our new multiscanner
+			if err := s.planner.walkAndReplacePlan(newPlan, origScan, multiscan); err != nil {
+				return err
+			}
+			// add our newly updated plan to the multinode
+			multinode.addChild(fieldIndex, newPlan)
+			multiscan.addReader()
+			s.source = multinode
 		default:
 			return client.NewErrUnhandledType("sub plan", newPlan)
 		}
@@ -235,7 +285,36 @@ func (s *selectNode) addSubPlan(fieldIndex int, newPlan planNode) error {
 	case *parallelNode:
 		switch newPlan.(type) {
 		// We have a internal multiscanNode on our MultiNode
+		/*case *typeIndexJoin:
+		s.source = newPlan
+		origScan, _ := walkAndFindPlanType[*scanNode](newPlan)
+		if origScan == nil {
+			return ErrFailedToFindScanNode
+		}
+		// create our new multiscanner
+		multiscan := &multiScanNode{scanNode: origScan}
+		// replace our current source internal scanNode with our new multiscanner
+		if err := s.planner.walkAndReplacePlan(s.source, origScan, multiscan); err != nil {
+			return err
+		}
+		if sourceNode.multiscan == nil {
+			sourceNode.multiscan = multiscan
+		}
+		// replace our new node internal scanNode with our new multiscanner
+		if err := s.planner.walkAndReplacePlan(newPlan, origScan, multiscan); err != nil {
+			return err
+		}
+		// add our newly updated plan to the multinode
+		sourceNode.addChild(fieldIndex, newPlan)
+		if sourceNode.multiscan != nil {
+			sourceNode.multiscan.addReader()
+		}
+		return nil*/
 		case *scanNode, *typeIndexJoin:
+			/*if sourceNode.multiscan == nil {
+				sourceNode.addChild(fieldIndex, newPlan)
+				return nil
+			}*/
 			// replace our new node internal scanNode with our existing multiscanner
 			if err := s.planner.walkAndReplacePlan(newPlan, sourceNode.multiscan.Source(), sourceNode.multiscan); err != nil {
 				return err
