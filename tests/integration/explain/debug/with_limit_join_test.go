@@ -19,13 +19,19 @@ import (
 
 var limitTypeJoinPattern = dataMap{
 	"root": dataMap{
-		"scanNode": dataMap{},
+		"scanNode": []dataMap{},
 	},
 	"subType": dataMap{
-		"selectTopNode": dataMap{
-			"limitNode": dataMap{
-				"selectNode": dataMap{
-					"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"limitNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -34,15 +40,23 @@ var limitTypeJoinPattern = dataMap{
 
 var debugLimitTypeJoinManyPattern = dataMap{
 	"root": dataMap{
-		"multiScanNode": dataMap{
-			"scanNode": dataMap{},
+		"multiScanNode": []dataMap{
+			{
+				"scanNode": []dataMap{},
+			},
 		},
 	},
 	"subType": dataMap{
-		"selectTopNode": dataMap{
-			"limitNode": dataMap{
-				"selectNode": dataMap{
-					"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"limitNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -71,10 +85,16 @@ func TestDebugExplainRequestWithOnlyLimitOnRelatedChild(t *testing.T) {
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"selectNode": dataMap{
-									"typeIndexJoin": dataMap{
-										"typeJoinMany": limitTypeJoinPattern,
+							"selectTopNode": []dataMap{
+								{
+									"selectNode": []dataMap{
+										{
+											"typeIndexJoin": []dataMap{
+												{
+													"typeJoinMany": limitTypeJoinPattern,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -110,10 +130,16 @@ func TestDebugExplainRequestWithOnlyOffsetOnRelatedChild(t *testing.T) {
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"selectNode": dataMap{
-									"typeIndexJoin": dataMap{
-										"typeJoinMany": limitTypeJoinPattern,
+							"selectTopNode": []dataMap{
+								{
+									"selectNode": []dataMap{
+										{
+											"typeIndexJoin": []dataMap{
+												{
+													"typeJoinMany": limitTypeJoinPattern,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -149,10 +175,16 @@ func TestDebugExplainRequestWithBothLimitAndOffsetOnRelatedChild(t *testing.T) {
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"selectNode": dataMap{
-									"typeIndexJoin": dataMap{
-										"typeJoinMany": limitTypeJoinPattern,
+							"selectTopNode": []dataMap{
+								{
+									"selectNode": []dataMap{
+										{
+											"typeIndexJoin": []dataMap{
+												{
+													"typeJoinMany": limitTypeJoinPattern,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -188,11 +220,19 @@ func TestDebugExplainRequestWithLimitOnRelatedChildAndBothLimitAndOffsetOnParent
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"limitNode": dataMap{
-									"selectNode": dataMap{
-										"typeIndexJoin": dataMap{
-											"typeJoinMany": limitTypeJoinPattern,
+							"selectTopNode": []dataMap{
+								{
+									"limitNode": []dataMap{
+										{
+											"selectNode": []dataMap{
+												{
+													"typeIndexJoin": []dataMap{
+														{
+															"typeJoinMany": limitTypeJoinPattern,
+														},
+													},
+												},
+											},
 										},
 									},
 								},

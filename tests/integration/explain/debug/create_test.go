@@ -19,10 +19,16 @@ import (
 
 var createPattern = dataMap{
 	"explain": dataMap{
-		"createNode": dataMap{
-			"selectTopNode": dataMap{
-				"selectNode": dataMap{
-					"scanNode": dataMap{},
+		"createNode": []dataMap{
+			{
+				"selectTopNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
+					},
 				},
 			},
 		},

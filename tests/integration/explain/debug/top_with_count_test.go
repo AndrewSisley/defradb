@@ -21,14 +21,18 @@ var topLevelCountPattern = dataMap{
 	"explain": dataMap{
 		"topLevelNode": []dataMap{
 			{
-				"selectTopNode": dataMap{
-					"selectNode": dataMap{
-						"scanNode": dataMap{},
+				"selectTopNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
 					},
 				},
 			},
 			{
-				"countNode": dataMap{},
+				"countNode": []dataMap{},
 			},
 		},
 	},

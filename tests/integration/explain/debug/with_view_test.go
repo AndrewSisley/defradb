@@ -18,12 +18,22 @@ import (
 
 var viewPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"selectNode": dataMap{
-				"viewNode": dataMap{
-					"selectTopNode": dataMap{
-						"selectNode": dataMap{
-							"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"selectNode": []dataMap{
+					{
+						"viewNode": []dataMap{
+							{
+								"selectTopNode": []dataMap{
+									{
+										"selectNode": []dataMap{
+											{
+												"scanNode": []dataMap{},
+											},
+										},
+									},
+								},
+							},
 						},
 					},
 				},

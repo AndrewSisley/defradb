@@ -19,10 +19,16 @@ import (
 
 var orderPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"orderNode": dataMap{
-				"selectNode": dataMap{
-					"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"orderNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
+					},
 				},
 			},
 		},

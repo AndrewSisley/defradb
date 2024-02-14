@@ -19,10 +19,16 @@ import (
 
 var sumPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"sumNode": dataMap{
-				"selectNode": dataMap{
-					"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"sumNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
+					},
 				},
 			},
 		},

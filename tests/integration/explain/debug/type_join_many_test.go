@@ -38,10 +38,16 @@ func TestDebugExplainRequestWithAOneToManyJoin(t *testing.T) {
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"selectNode": dataMap{
-									"typeIndexJoin": dataMap{
-										"typeJoinMany": normalTypeJoinPattern,
+							"selectTopNode": []dataMap{
+								{
+									"selectNode": []dataMap{
+										{
+											"typeIndexJoin": []dataMap{
+												{
+													"typeJoinMany": normalTypeJoinPattern,
+												},
+											},
+										},
 									},
 								},
 							},

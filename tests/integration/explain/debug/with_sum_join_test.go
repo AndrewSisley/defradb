@@ -19,11 +19,19 @@ import (
 
 var debugSumTypeIndexJoinManyPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"sumNode": dataMap{
-				"selectNode": dataMap{
-					"typeIndexJoin": dataMap{
-						"typeJoinMany": normalTypeJoinPattern,
+		"selectTopNode": []dataMap{
+			{
+				"sumNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"typeIndexJoin": []dataMap{
+									{
+										"typeJoinMany": normalTypeJoinPattern,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -116,18 +124,28 @@ func TestDebugExplainRequestWithSumOnOneToManyJoinedFieldWithManySources(t *test
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"sumNode": dataMap{
-									"selectNode": dataMap{
-										"parallelNode": []dataMap{
-											{
-												"typeIndexJoin": dataMap{
-													"typeJoinMany": debugTypeJoinPattern,
-												},
-											},
-											{
-												"typeIndexJoin": dataMap{
-													"typeJoinMany": debugTypeJoinPattern,
+							"selectTopNode": []dataMap{
+								{
+									"sumNode": []dataMap{
+										{
+											"selectNode": []dataMap{
+												{
+													"parallelNode": []dataMap{
+														{
+															"typeIndexJoin": []dataMap{
+																{
+																	"typeJoinMany": debugTypeJoinPattern,
+																},
+															},
+														},
+														{
+															"typeIndexJoin": []dataMap{
+																{
+																	"typeJoinMany": debugTypeJoinPattern,
+																},
+															},
+														},
+													},
 												},
 											},
 										},

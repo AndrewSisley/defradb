@@ -19,10 +19,16 @@ import (
 
 var countPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"countNode": dataMap{
-				"selectNode": dataMap{
-					"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"countNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
+					},
 				},
 			},
 		},

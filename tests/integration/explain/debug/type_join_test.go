@@ -19,12 +19,16 @@ import (
 
 var normalTypeJoinPattern = dataMap{
 	"root": dataMap{
-		"scanNode": dataMap{},
+		"scanNode": []dataMap{},
 	},
 	"subType": dataMap{
-		"selectTopNode": dataMap{
-			"selectNode": dataMap{
-				"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"selectNode": []dataMap{
+					{
+						"scanNode": []dataMap{},
+					},
+				},
 			},
 		},
 	},
@@ -32,14 +36,20 @@ var normalTypeJoinPattern = dataMap{
 
 var debugTypeJoinPattern = dataMap{
 	"root": dataMap{
-		"multiScanNode": dataMap{
-			"scanNode": dataMap{},
+		"multiScanNode": []dataMap{
+			{
+				"scanNode": []dataMap{},
+			},
 		},
 	},
 	"subType": dataMap{
-		"selectTopNode": dataMap{
-			"selectNode": dataMap{
-				"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"selectNode": []dataMap{
+					{
+						"scanNode": []dataMap{},
+					},
+				},
 			},
 		},
 	},
@@ -73,22 +83,32 @@ func TestDebugExplainRequestWith2SingleJoinsAnd1ManyJoin(t *testing.T) {
 				ExpectedFullGraph: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"selectNode": dataMap{
-									"parallelNode": []dataMap{
+							"selectTopNode": []dataMap{
+								{
+									"selectNode": []dataMap{
 										{
-											"typeIndexJoin": dataMap{
-												"typeJoinOne": debugTypeJoinPattern,
-											},
-										},
-										{
-											"typeIndexJoin": dataMap{
-												"typeJoinMany": debugTypeJoinPattern,
-											},
-										},
-										{
-											"typeIndexJoin": dataMap{
-												"typeJoinOne": debugTypeJoinPattern,
+											"parallelNode": []dataMap{
+												{
+													"typeIndexJoin": []dataMap{
+														{
+															"typeJoinOne": debugTypeJoinPattern,
+														},
+													},
+												},
+												{
+													"typeIndexJoin": []dataMap{
+														{
+															"typeJoinMany": debugTypeJoinPattern,
+														},
+													},
+												},
+												{
+													"typeIndexJoin": []dataMap{
+														{
+															"typeJoinOne": debugTypeJoinPattern,
+														},
+													},
+												},
 											},
 										},
 									},

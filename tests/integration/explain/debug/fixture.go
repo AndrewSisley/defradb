@@ -14,9 +14,13 @@ type dataMap = map[string]any
 
 var basicPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"selectNode": dataMap{
-				"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"selectNode": []dataMap{
+					{
+						"scanNode": []dataMap{},
+					},
+				},
 			},
 		},
 	},

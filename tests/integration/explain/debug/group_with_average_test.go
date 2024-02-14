@@ -19,14 +19,28 @@ import (
 
 var debugGroupAveragePattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"averageNode": dataMap{
-				"countNode": dataMap{
-					"sumNode": dataMap{
-						"groupNode": dataMap{
-							"selectNode": dataMap{
-								"pipeNode": dataMap{
-									"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"averageNode": []dataMap{
+					{
+						"countNode": []dataMap{
+							{
+								"sumNode": []dataMap{
+									{
+										"groupNode": []dataMap{
+											{
+												"selectNode": []dataMap{
+													{
+														"pipeNode": []dataMap{
+															{
+																"scanNode": []dataMap{},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},

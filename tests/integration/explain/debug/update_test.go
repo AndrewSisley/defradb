@@ -19,10 +19,16 @@ import (
 
 var updatePattern = dataMap{
 	"explain": dataMap{
-		"updateNode": dataMap{
-			"selectTopNode": dataMap{
-				"selectNode": dataMap{
-					"scanNode": dataMap{},
+		"updateNode": []dataMap{
+			{
+				"selectTopNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
+					},
 				},
 			},
 		},

@@ -19,10 +19,16 @@ import (
 
 var deletePattern = dataMap{
 	"explain": dataMap{
-		"deleteNode": dataMap{
-			"selectTopNode": dataMap{
-				"selectNode": dataMap{
-					"scanNode": dataMap{},
+		"deleteNode": []dataMap{
+			{
+				"selectTopNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
+					},
 				},
 			},
 		},

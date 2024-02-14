@@ -19,13 +19,25 @@ import (
 
 var debugAverageTypeIndexJoinManyPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"averageNode": dataMap{
-				"countNode": dataMap{
-					"sumNode": dataMap{
-						"selectNode": dataMap{
-							"typeIndexJoin": dataMap{
-								"typeJoinMany": normalTypeJoinPattern,
+		"selectTopNode": []dataMap{
+			{
+				"averageNode": []dataMap{
+					{
+						"countNode": []dataMap{
+							{
+								"sumNode": []dataMap{
+									{
+										"selectNode": []dataMap{
+											{
+												"typeIndexJoin": []dataMap{
+													{
+														"typeJoinMany": normalTypeJoinPattern,
+													},
+												},
+											},
+										},
+									},
+								},
 							},
 						},
 					},
@@ -83,20 +95,34 @@ func TestDebugExplainRequestWithAverageOnMultipleJoinedFieldsWithFilter(t *testi
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"averageNode": dataMap{
-									"countNode": dataMap{
-										"sumNode": dataMap{
-											"selectNode": dataMap{
-												"parallelNode": []dataMap{
-													{
-														"typeIndexJoin": dataMap{
-															"typeJoinMany": debugTypeJoinPattern,
-														},
-													},
-													{
-														"typeIndexJoin": dataMap{
-															"typeJoinMany": debugTypeJoinPattern,
+							"selectTopNode": []dataMap{
+								{
+									"averageNode": []dataMap{
+										{
+											"countNode": []dataMap{
+												{
+													"sumNode": []dataMap{
+														{
+															"selectNode": []dataMap{
+																{
+																	"parallelNode": []dataMap{
+																		{
+																			"typeIndexJoin": []dataMap{
+																				{
+																					"typeJoinMany": debugTypeJoinPattern,
+																				},
+																			},
+																		},
+																		{
+																			"typeIndexJoin": []dataMap{
+																				{
+																					"typeJoinMany": debugTypeJoinPattern,
+																				},
+																			},
+																		},
+																	},
+																},
+															},
 														},
 													},
 												},

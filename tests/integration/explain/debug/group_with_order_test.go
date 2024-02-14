@@ -19,12 +19,22 @@ import (
 
 var debugGroupOrderPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"orderNode": dataMap{
-				"groupNode": dataMap{
-					"selectNode": dataMap{
-						"pipeNode": dataMap{
-							"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"orderNode": []dataMap{
+					{
+						"groupNode": []dataMap{
+							{
+								"selectNode": []dataMap{
+									{
+										"pipeNode": []dataMap{
+											{
+												"scanNode": []dataMap{},
+											},
+										},
+									},
+								},
+							},
 						},
 					},
 				},

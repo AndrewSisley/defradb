@@ -19,12 +19,22 @@ import (
 
 var averagePattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"averageNode": dataMap{
-				"countNode": dataMap{
-					"sumNode": dataMap{
-						"selectNode": dataMap{
-							"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"averageNode": []dataMap{
+					{
+						"countNode": []dataMap{
+							{
+								"sumNode": []dataMap{
+									{
+										"selectNode": []dataMap{
+											{
+												"scanNode": []dataMap{},
+											},
+										},
+									},
+								},
+							},
 						},
 					},
 				},

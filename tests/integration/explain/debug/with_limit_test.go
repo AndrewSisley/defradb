@@ -19,10 +19,16 @@ import (
 
 var limitPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"limitNode": dataMap{
-				"selectNode": dataMap{
-					"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"limitNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
+					},
 				},
 			},
 		},

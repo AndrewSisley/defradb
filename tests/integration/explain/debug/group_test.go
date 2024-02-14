@@ -19,11 +19,19 @@ import (
 
 var groupPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"groupNode": dataMap{
-				"selectNode": dataMap{
-					"pipeNode": dataMap{
-						"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"groupNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"pipeNode": []dataMap{
+									{
+										"scanNode": []dataMap{},
+									},
+								},
+							},
+						},
 					},
 				},
 			},

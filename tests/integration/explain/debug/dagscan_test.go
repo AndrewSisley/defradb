@@ -19,9 +19,13 @@ import (
 
 var dagScanPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"selectNode": dataMap{
-				"dagScanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"selectNode": []dataMap{
+					{
+						"dagScanNode": []dataMap{},
+					},
+				},
 			},
 		},
 	},

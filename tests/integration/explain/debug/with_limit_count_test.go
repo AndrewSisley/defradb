@@ -39,18 +39,28 @@ func TestDebugExplainRequestWithOnlyLimitOnRelatedChildWithCount(t *testing.T) {
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"countNode": dataMap{
-									"selectNode": dataMap{
-										"parallelNode": []dataMap{
-											{
-												"typeIndexJoin": dataMap{
-													"typeJoinMany": debugLimitTypeJoinManyPattern,
-												},
-											},
-											{
-												"typeIndexJoin": dataMap{
-													"typeJoinMany": debugTypeJoinPattern,
+							"selectTopNode": []dataMap{
+								{
+									"countNode": []dataMap{
+										{
+											"selectNode": []dataMap{
+												{
+													"parallelNode": []dataMap{
+														{
+															"typeIndexJoin": []dataMap{
+																{
+																	"typeJoinMany": debugLimitTypeJoinManyPattern,
+																},
+															},
+														},
+														{
+															"typeIndexJoin": []dataMap{
+																{
+																	"typeJoinMany": debugTypeJoinPattern,
+																},
+															},
+														},
+													},
 												},
 											},
 										},
@@ -89,19 +99,31 @@ func TestDebugExplainRequestWithLimitArgsOnParentAndRelatedChildWithCount(t *tes
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"limitNode": dataMap{
-									"countNode": dataMap{
-										"selectNode": dataMap{
-											"parallelNode": []dataMap{
+							"selectTopNode": []dataMap{
+								{
+									"limitNode": []dataMap{
+										{
+											"countNode": []dataMap{
 												{
-													"typeIndexJoin": dataMap{
-														"typeJoinMany": debugLimitTypeJoinManyPattern,
-													},
-												},
-												{
-													"typeIndexJoin": dataMap{
-														"typeJoinMany": debugTypeJoinPattern,
+													"selectNode": []dataMap{
+														{
+															"parallelNode": []dataMap{
+																{
+																	"typeIndexJoin": []dataMap{
+																		{
+																			"typeJoinMany": debugLimitTypeJoinManyPattern,
+																		},
+																	},
+																},
+																{
+																	"typeIndexJoin": []dataMap{
+																		{
+																			"typeJoinMany": debugTypeJoinPattern,
+																		},
+																	},
+																},
+															},
+														},
 													},
 												},
 											},

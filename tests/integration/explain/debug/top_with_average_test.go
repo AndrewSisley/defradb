@@ -21,20 +21,24 @@ var topLevelAveragePattern = dataMap{
 	"explain": dataMap{
 		"topLevelNode": []dataMap{
 			{
-				"selectTopNode": dataMap{
-					"selectNode": dataMap{
-						"scanNode": dataMap{},
+				"selectTopNode": []dataMap{
+					{
+						"selectNode": []dataMap{
+							{
+								"scanNode": []dataMap{},
+							},
+						},
 					},
 				},
 			},
 			{
-				"sumNode": dataMap{},
+				"sumNode": []dataMap{},
 			},
 			{
-				"countNode": dataMap{},
+				"countNode": []dataMap{},
 			},
 			{
-				"averageNode": dataMap{},
+				"averageNode": []dataMap{},
 			},
 		},
 	},

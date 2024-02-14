@@ -19,12 +19,22 @@ import (
 
 var debugGroupLimitPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"limitNode": dataMap{
-				"groupNode": dataMap{
-					"selectNode": dataMap{
-						"pipeNode": dataMap{
-							"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"limitNode": []dataMap{
+					{
+						"groupNode": []dataMap{
+							{
+								"selectNode": []dataMap{
+									{
+										"pipeNode": []dataMap{
+											{
+												"scanNode": []dataMap{},
+											},
+										},
+									},
+								},
+							},
 						},
 					},
 				},

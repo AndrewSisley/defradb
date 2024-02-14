@@ -42,10 +42,16 @@ func TestDebugExplainRequestWithRelatedAndRegularFilter(t *testing.T) {
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"selectNode": dataMap{
-									"typeIndexJoin": dataMap{
-										"typeJoinMany": normalTypeJoinPattern,
+							"selectTopNode": []dataMap{
+								{
+									"selectNode": []dataMap{
+										{
+											"typeIndexJoin": []dataMap{
+												{
+													"typeJoinMany": normalTypeJoinPattern,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -85,17 +91,25 @@ func TestDebugExplainRequestWithManyRelatedFilters(t *testing.T) {
 				ExpectedPatterns: []dataMap{
 					{
 						"explain": dataMap{
-							"selectTopNode": dataMap{
-								"selectNode": dataMap{
-									"parallelNode": []dataMap{
+							"selectTopNode": []dataMap{
+								{
+									"selectNode": []dataMap{
 										{
-											"typeIndexJoin": dataMap{
-												"typeJoinMany": debugTypeJoinPattern,
-											},
-										},
-										{
-											"typeIndexJoin": dataMap{
-												"typeJoinMany": debugTypeJoinPattern,
+											"parallelNode": []dataMap{
+												{
+													"typeIndexJoin": []dataMap{
+														{
+															"typeJoinMany": debugTypeJoinPattern,
+														},
+													},
+												},
+												{
+													"typeIndexJoin": []dataMap{
+														{
+															"typeJoinMany": debugTypeJoinPattern,
+														},
+													},
+												},
 											},
 										},
 									},

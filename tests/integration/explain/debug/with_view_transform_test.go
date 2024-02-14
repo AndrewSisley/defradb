@@ -22,13 +22,25 @@ import (
 
 var transformViewPattern = dataMap{
 	"explain": dataMap{
-		"selectTopNode": dataMap{
-			"selectNode": dataMap{
-				"viewNode": dataMap{
-					"lensNode": dataMap{
-						"selectTopNode": dataMap{
-							"selectNode": dataMap{
-								"scanNode": dataMap{},
+		"selectTopNode": []dataMap{
+			{
+				"selectNode": []dataMap{
+					{
+						"viewNode": []dataMap{
+							{
+								"lensNode": []dataMap{
+									{
+										"selectTopNode": []dataMap{
+											{
+												"selectNode": []dataMap{
+													{
+														"scanNode": []dataMap{},
+													},
+												},
+											},
+										},
+									},
+								},
 							},
 						},
 					},
