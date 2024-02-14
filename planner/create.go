@@ -131,7 +131,7 @@ func (n *createNode) Close() error {
 	return n.results.Close()
 }
 
-func (n *createNode) Source() planNode { return n.results }
+func (n *createNode) Sources() []planNode { return []planNode{n.results} }
 
 // Explain method returns a map containing all attributes of this node that
 // are to be explained, subscribes / opts-in this node to be an explainablePlanNode.

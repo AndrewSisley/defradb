@@ -227,7 +227,7 @@ func (n *scanNode) Close() error {
 	return n.fetcher.Close()
 }
 
-func (n *scanNode) Source() planNode { return nil }
+func (n *scanNode) Sources() []planNode { return nil }
 
 // explainSpans explains the spans attribute.
 func (n *scanNode) explainSpans() []map[string]any {
@@ -360,8 +360,8 @@ func (n *multiScanNode) Spans(spans core.Spans) {
 	n.scanNode.Spans(spans)
 }
 
-func (n *multiScanNode) Source() planNode {
-	return n.scanNode
+func (n *multiScanNode) Sources() []planNode {
+	return []planNode{n.scanNode}
 }
 
 func (n *multiScanNode) Kind() string {

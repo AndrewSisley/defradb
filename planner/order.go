@@ -208,7 +208,7 @@ func (n *orderNode) Close() error {
 	return nil
 }
 
-func (n *orderNode) Source() planNode { return n.plan }
+func (n *orderNode) Sources() []planNode { return []planNode{n.plan} }
 
 // allSortStrategy is the simplest sort strategy available.
 // it consumes all the data into the underlying valueNode

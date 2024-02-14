@@ -143,20 +143,20 @@ func buildDebugExplainGraph(source planNode) (map[string]any, error) {
 		explainGraph[nodeLabelTitle] = explainGraphBuilder
 
 	default:
-		var explainGraphBuilder = map[string]any{}
+		multiChildExplainGraph := []map[string]any{}
+		for _, childSource := range node.Sources() {
+			if childSource.Kind() == topLevelNodeKind {
+				continue
+			}
 
-		// If not the last child then keep walking the graph to find more plan nodes.
-		// Also make sure the next source / child isn't a recursive `topLevelNode`.
-		if next := node.Source(); next != nil && next.Kind() != topLevelNodeKind {
-			var err error
-			explainGraphBuilder, err = buildDebugExplainGraph(next)
+			childExplainGraph, err := buildDebugExplainGraph(childSource)
 			if err != nil {
 				return nil, err
 			}
+			multiChildExplainGraph = append(multiChildExplainGraph, childExplainGraph)
 		}
-		// Add the graph of the next node under current node.
 		nodeLabelTitle := strcase.ToLowerCamel(node.Kind())
-		explainGraph[nodeLabelTitle] = explainGraphBuilder
+		explainGraph[nodeLabelTitle] = multiChildExplainGraph
 	}
 
 	return explainGraph, nil
@@ -227,8 +227,8 @@ func buildSimpleExplainGraph(source planNode) (map[string]any, error) {
 
 		// If not the last child then keep walking and explaining the root graph,
 		// as long as there are more explainable nodes left under root.
-		if node.Source() != nil {
-			indexJoinRootExplainGraph, err := buildSimpleExplainGraph(node.Source())
+		if len(node.Sources()) != 0 {
+			indexJoinRootExplainGraph, err := buildSimpleExplainGraph(node.Sources()[0])
 			if err != nil {
 				return nil, err
 			}
@@ -251,10 +251,11 @@ func buildSimpleExplainGraph(source planNode) (map[string]any, error) {
 			explainGraphBuilder = map[string]any{}
 		}
 
+		sources := node.Sources()
 		// If not the last child then keep walking the graph to find more explainable nodes.
 		// Also make sure the next source / child isn't a recursive `topLevelNode`.
-		if next := node.Source(); next != nil && next.Kind() != topLevelNodeKind {
-			nextExplainGraph, err := buildSimpleExplainGraph(next)
+		if len(sources) != 0 && sources[0].Kind() != topLevelNodeKind {
+			nextExplainGraph, err := buildSimpleExplainGraph(sources[0])
 			if err != nil {
 				return nil, err
 			}
@@ -268,9 +269,13 @@ func buildSimpleExplainGraph(source planNode) (map[string]any, error) {
 		explainGraph[explainNodeLabelTitle] = explainGraphBuilder
 
 	default:
+		sources := node.Sources()
+		if len(sources) == 0 {
+			return explainGraph, nil
+		}
 		// Node is neither a MultiNode nor an "explainable" node. Skip over it but walk it's child(ren).
 		var err error
-		explainGraph, err = buildSimpleExplainGraph(source.Source())
+		explainGraph, err = buildSimpleExplainGraph(sources[0])
 		if err != nil {
 			return nil, err
 		}
@@ -313,8 +318,9 @@ func collectExecuteExplainInfo(executedPlan planNode) (map[string]any, error) {
 			executeExplainBuilder = map[string]any{}
 		}
 
-		if next := executedNode.Source(); next != nil && next.Kind() != topLevelNodeKind {
-			nextExplainGraph, err := collectExecuteExplainInfo(next)
+		sources := executedNode.Sources()
+		if len(sources) != 0 && sources[0].Kind() != topLevelNodeKind {
+			nextExplainGraph, err := collectExecuteExplainInfo(sources[0])
 			if err != nil {
 				return nil, err
 			}
@@ -326,8 +332,12 @@ func collectExecuteExplainInfo(executedPlan planNode) (map[string]any, error) {
 		executeExplainInfo[explainNodeLabelTitle] = executeExplainBuilder
 
 	default:
+		sources := executedPlan.Sources()
+		if len(sources) == 0 {
+			return executeExplainInfo, nil
+		}
 		var err error
-		executeExplainInfo, err = collectExecuteExplainInfo(executedPlan.Source())
+		executeExplainInfo, err = collectExecuteExplainInfo(sources[0])
 		if err != nil {
 			return nil, err
 		}

@@ -73,7 +73,7 @@ func (n *valuesNode) Value() core.Doc {
 	return n.docs.At(n.docIndex)
 }
 
-func (n *valuesNode) Source() planNode { return nil }
+func (n *valuesNode) Sources() []planNode { return nil }
 
 // SortAll actually sorts all the data within the docContainer object
 func (n *valuesNode) SortAll() {

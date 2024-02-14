@@ -43,7 +43,7 @@ type planNode interface {
 
 	// Source returns the child planNode that generates the source values for this plan.
 	// If a plan has no source, nil is returned.
-	Source() planNode
+	Sources() []planNode
 
 	// Kind tells the name of concrete planNode type.
 	Kind() string
@@ -463,15 +463,17 @@ func (p *Planner) expandLimitPlan(topNodeSelect *selectTopNode, parentPlan *sele
 // walkAndReplace walks through the provided plan, and searches for an instance
 // of the target plan, and replaces it with the replace plan
 func (p *Planner) walkAndReplacePlan(planNode, target, replace planNode) error {
-	src := planNode.Source()
-	if src == nil {
+	sources := planNode.Sources()
+	if len(sources) == 0 {
 		return nil
 	}
 
-	// not our target plan
-	// walk into the next plan
-	if src != target {
-		return p.walkAndReplacePlan(src, target, replace)
+	for _, src := range sources {
+		// not our target plan
+		// walk into the next plan
+		if src != target {
+			return p.walkAndReplacePlan(src, target, replace)
+		}
 	}
 
 	// We've found our plan, figure out what type our current plan is
@@ -503,11 +505,25 @@ func walkAndFindPlanType[T planNode](planNode planNode) (T, bool) {
 	}
 
 	targetType, isTargetType := src.(T)
-	if !isTargetType {
-		return walkAndFindPlanType[T](planNode.Source())
+	if isTargetType {
+		return targetType, true
 	}
 
-	return targetType, true
+	sources := planNode.Sources()
+	if len(sources) == 0 {
+		var defaultT T
+		return defaultT, false
+	}
+
+	for _, source := range sources {
+		result, found := walkAndFindPlanType[T](source)
+		if found {
+			return result, true
+		}
+	}
+
+	var defaultT T
+	return defaultT, false
 }
 
 // executeRequest executes the plan graph that represents the request that was made.

@@ -130,7 +130,7 @@ func (n *typeIndexJoin) Close() error {
 	return n.joinPlan.Close()
 }
 
-func (n *typeIndexJoin) Source() planNode { return n.joinPlan }
+func (n *typeIndexJoin) Sources() []planNode { return []planNode{n.joinPlan} }
 
 func (n *typeIndexJoin) simpleExplain() (map[string]any, error) {
 	const (
@@ -521,7 +521,7 @@ func (join *invertibleTypeJoin) Spans(spans core.Spans) {
 	join.root.Spans(spans)
 }
 
-func (join *invertibleTypeJoin) Source() planNode { return join.root }
+func (join *invertibleTypeJoin) Sources() []planNode { return []planNode{join.root} }
 
 func (tj *invertibleTypeJoin) invert() {
 	tj.dir.invert()
@@ -637,11 +637,14 @@ func getScanNode(plan planNode) *scanNode {
 		if ok {
 			return scanNode
 		}
-		node = node.Source()
-		if node == nil {
-			if topSelect, ok := plan.(*selectTopNode); ok {
-				node = topSelect.selectNode
+		for _, source := range node.Sources() {
+			scanNode = getScanNode(source)
+			if scanNode != nil {
+				return scanNode
 			}
+		}
+		if topSelect, ok := plan.(*selectTopNode); ok {
+			node = topSelect.selectNode
 		}
 	}
 	return nil

@@ -99,8 +99,8 @@ func (n *viewNode) Value() core.Doc {
 	return doc
 }
 
-func (n *viewNode) Source() planNode {
-	return n.source
+func (n *viewNode) Sources() []planNode {
+	return []planNode{n.source}
 }
 
 func (n *viewNode) Kind() string {

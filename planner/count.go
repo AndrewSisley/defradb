@@ -66,7 +66,7 @@ func (n *countNode) Spans(spans core.Spans) { n.plan.Spans(spans) }
 
 func (n *countNode) Close() error { return n.plan.Close() }
 
-func (n *countNode) Source() planNode { return n.plan }
+func (n *countNode) Sources() []planNode { return []planNode{n.plan} }
 
 func (n *countNode) simpleExplain() (map[string]any, error) {
 	sourceExplanations := make([]map[string]any, len(n.aggregateMapping))

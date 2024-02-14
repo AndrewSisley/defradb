@@ -73,7 +73,7 @@ func (n *selectTopNode) Spans(spans core.Spans) { n.planNode.Spans(spans) }
 
 func (n *selectTopNode) Value() core.Doc { return n.planNode.Value() }
 
-func (n *selectTopNode) Source() planNode { return n.planNode }
+func (n *selectTopNode) Sources() []planNode { return []planNode{n.planNode} }
 
 // Explain method for selectTopNode returns no attributes but is used to
 // subscribe / opt-into being an explainablePlanNode.
@@ -402,7 +402,7 @@ func (n *selectNode) addTypeIndexJoin(subSelect *mapper.Select) error {
 	return nil
 }
 
-func (n *selectNode) Source() planNode { return n.source }
+func (n *selectNode) Sources() []planNode { return []planNode{n.source} }
 
 func (p *Planner) SelectFromSource(
 	selectReq *mapper.Select,

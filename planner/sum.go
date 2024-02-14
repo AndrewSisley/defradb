@@ -154,7 +154,7 @@ func (n *sumNode) Spans(spans core.Spans) { n.plan.Spans(spans) }
 
 func (n *sumNode) Close() error { return n.plan.Close() }
 
-func (n *sumNode) Source() planNode { return n.plan }
+func (n *sumNode) Sources() []planNode { return []planNode{n.plan} }
 
 func (n *sumNode) simpleExplain() (map[string]any, error) {
 	sourceExplanations := make([]map[string]any, len(n.aggregateMapping))

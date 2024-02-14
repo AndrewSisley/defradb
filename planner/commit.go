@@ -124,7 +124,7 @@ func (n *dagScanNode) Close() error {
 	return n.fetcher.Close()
 }
 
-func (n *dagScanNode) Source() planNode { return nil }
+func (n *dagScanNode) Sources() []planNode { return nil }
 
 func (n *dagScanNode) simpleExplain() (map[string]any, error) {
 	simpleExplainMap := map[string]any{}

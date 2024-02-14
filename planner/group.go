@@ -143,7 +143,7 @@ func (n *groupNode) Close() error {
 	return nil
 }
 
-func (n *groupNode) Source() planNode { return n.dataSources[0].Source() }
+func (n *groupNode) Sources() []planNode { return []planNode{n.dataSources[0].Source()} } //todo - should this return many?
 
 func (n *groupNode) Next() (bool, error) {
 	n.execInfo.iterations++

@@ -173,7 +173,7 @@ func (p *parallelNode) nextAppend(index int, plan planNode) (bool, error) {
 	return true, nil
 }
 
-func (p *parallelNode) Source() planNode { return p.multiscan }
+func (p *parallelNode) Sources() []planNode { return p.children }
 
 func (p *parallelNode) Children() []planNode {
 	return p.children
@@ -237,8 +237,10 @@ func (s *selectNode) addSubPlan(fieldIndex int, newPlan planNode) error {
 		// We have a internal multiscanNode on our MultiNode
 		case *scanNode, *typeIndexJoin:
 			// replace our new node internal scanNode with our existing multiscanner
-			if err := s.planner.walkAndReplacePlan(newPlan, sourceNode.multiscan.Source(), sourceNode.multiscan); err != nil {
-				return err
+			for _, multiScanSource := range sourceNode.multiscan.Sources() {
+				if err := s.planner.walkAndReplacePlan(newPlan, multiScanSource, sourceNode.multiscan); err != nil {
+					return err
+				}
 			}
 			sourceNode.multiscan.addReader()
 		}

@@ -96,7 +96,7 @@ func (n *lensNode) Next() (bool, error) {
 	}
 
 	sourceDoc := n.source.Value()
-	sourceLensDoc := n.source.Source().DocumentMap().ToMap(sourceDoc)
+	sourceLensDoc := n.source.Sources()[0].DocumentMap().ToMap(sourceDoc)
 
 	err = n.input.Put(sourceLensDoc)
 	if err != nil {
@@ -154,8 +154,8 @@ func (n *lensNode) toDoc(mapDoc map[string]any) (core.Doc, error) {
 	}, nil
 }
 
-func (n *lensNode) Source() planNode {
-	return n.source
+func (n *lensNode) Sources() []planNode {
+	return []planNode{n.source}
 }
 
 func (n *lensNode) Kind() string {

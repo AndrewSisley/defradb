@@ -84,8 +84,8 @@ func (n *deleteNode) Close() error {
 	return n.source.Close()
 }
 
-func (n *deleteNode) Source() planNode {
-	return n.source
+func (n *deleteNode) Sources() []planNode {
+	return []planNode{n.source}
 }
 
 func (n *deleteNode) simpleExplain() (map[string]any, error) {

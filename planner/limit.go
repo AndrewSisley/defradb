@@ -88,7 +88,7 @@ func (n *limitNode) Next() (bool, error) {
 	return true, nil
 }
 
-func (n *limitNode) Source() planNode { return n.plan }
+func (n *limitNode) Sources() []planNode { return []planNode{n.plan} }
 
 func (n *limitNode) simpleExplain() (map[string]any, error) {
 	simpleExplainMap := map[string]any{

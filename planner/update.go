@@ -115,7 +115,7 @@ func (n *updateNode) Close() error {
 	return n.results.Close()
 }
 
-func (n *updateNode) Source() planNode { return n.results }
+func (n *updateNode) Sources() []planNode { return []planNode{n.results} }
 
 func (n *updateNode) simpleExplain() (map[string]any, error) {
 	simpleExplainMap := map[string]any{}

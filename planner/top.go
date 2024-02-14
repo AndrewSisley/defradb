@@ -111,8 +111,8 @@ func (n *topLevelNode) Close() error {
 	return nil
 }
 
-func (n *topLevelNode) Source() planNode {
-	return nil
+func (n *topLevelNode) Sources() []planNode {
+	return n.children
 }
 
 // Children() makes topLevelNode into a MultiNode.
