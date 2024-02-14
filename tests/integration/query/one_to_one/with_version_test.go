@@ -10,12 +10,19 @@
 
 package one_to_one
 
+import (
+	"testing"
+
+	testUtils "github.com/sourcenetwork/defradb/tests/integration"
+	"github.com/stretchr/testify/require"
+)
+
 // This test documents unwanted behaviour, see the linked ticket for more info:
 // https://github.com/sourcenetwork/defradb/issues/1709
 //
 // It is currently commented out because the panic is caught in the CLI and HTTP clients
 // and we have no good way atm to skip it.
-/*func TestQueryOneToOne_WithVersionOnOuter(t *testing.T) {
+func TestQueryOneToOne_WithVersionOnOuter(t *testing.T) {
 	test := testUtils.TestCase{
 		Description: "Embedded commits query within one-one query",
 		Actions: []any{
@@ -80,4 +87,3 @@ package one_to_one
 		func() { testUtils.ExecuteTestCase(t, test) },
 	)
 }
-*/
