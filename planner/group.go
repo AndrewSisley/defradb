@@ -143,7 +143,18 @@ func (n *groupNode) Close() error {
 	return nil
 }
 
-func (n *groupNode) Sources() []planNode { return []planNode{n.dataSources[0].Source()} } //todo - should this return many?
+func (n *groupNode) Sources() []planNode {
+	sources := make([]planNode, 0, len(n.dataSources))
+	for _, source := range n.dataSources {
+		if source.childSource != nil {
+			sources = append(sources, source.childSource)
+		}
+		if source.parentSource != nil {
+			//sources = append(sources, source.parentSource)
+		}
+	}
+	return sources
+}
 
 func (n *groupNode) Next() (bool, error) {
 	n.execInfo.iterations++
