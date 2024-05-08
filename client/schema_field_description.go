@@ -71,10 +71,37 @@ type ObjectKind string
 // ObjectKind represents arrays of objects (foreign and embedded), such as `[User]`.
 type ObjectArrayKind string
 
+// SchemaKind represents singular schema-only objects (foreign and embedded).
+//
+// The string-value is the schema root, e.g. `"bafkreigsnu67poxm3663e7vl5cncl6pxdzndcc7jf66cnnvxzw5uko5iuu"`.
+type SchemaKind struct {
+	// problem - this is not yet known in some cases, e.g. from an SDL
+	// objects can be recursive, so this might be a problem
+	// solved - discussed in standup, have self ref type for now, and error on more complex recursion, long term solved by schema packages
+	SchemaRoot string
+}
+
+// SchemaArrayKind represents arrays of schema-only objects (foreign and embedded).
+//
+// The string-value is the schema root surrounded by square brackets, e.g.
+// `"[bafkreigsnu67poxm3663e7vl5cncl6pxdzndcc7jf66cnnvxzw5uko5iuu]"`.
+type SchemaArrayKind struct {
+	SchemaRoot string
+}
+
+// thought - this is a bit ugly
+// thought - this does not need to live in `client`
+type PlaceholderObjectKind struct {
+	ObjectName string
+}
+
 var _ FieldKind = ScalarKind(0)
 var _ FieldKind = ScalarArrayKind(0)
 var _ FieldKind = ObjectKind("")
 var _ FieldKind = ObjectArrayKind("")
+var _ FieldKind = (*SchemaKind)(nil)
+
+//var _ FieldKind = (*SchemaArrayKind)(nil)
 
 func (k ScalarKind) String() string {
 	switch k {
@@ -214,6 +241,30 @@ func (k ObjectArrayKind) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + k.String() + `"`), nil
 }
 
+func (k SchemaKind) String() string {
+	return k.SchemaRoot
+}
+
+func (k SchemaKind) Underlying() string {
+	return k.SchemaRoot
+}
+
+func (k SchemaKind) IsNillable() bool {
+	return true
+}
+
+func (k SchemaKind) IsObject() bool {
+	return true
+}
+
+func (k SchemaKind) IsObjectArray() bool {
+	return false
+}
+
+func (k SchemaKind) IsArray() bool {
+	return false
+}
+
 // Note: These values are serialized and persisted in the database, avoid modifying existing values.
 const (
 	FieldKind_None                  ScalarKind      = 0
@@ -303,8 +354,45 @@ func parseFieldKind(bytes json.RawMessage) (FieldKind, error) {
 		return FieldKind_None, nil
 	}
 
-	if bytes[0] != '"' {
-		// If the Kind is not represented by a string, assume try to parse it to an int, as
+	switch bytes[0] {
+	case '"':
+		var strKind string
+		err := json.Unmarshal(bytes, &strKind)
+		if err != nil {
+			return nil, err
+		}
+
+		kind, ok := FieldKindStringToEnumMapping[strKind]
+		if ok {
+			return kind, nil
+		}
+
+		// If we don't find the string representation of this type in the
+		// scalar mapping, assume it is an object - if it is not, validation
+		// will catch this later.  If it is unknown we have no way of telling
+		// as to whether the user thought it was a scalar or an object anyway.
+		if strKind[0] == '[' {
+			return ObjectArrayKind(strings.Trim(strKind, "[]")), nil
+		}
+		return ObjectKind(strKind), nil
+
+	case '{':
+		var objectMap map[string]any
+		err := json.Unmarshal(bytes, &objectMap)
+		if err != nil {
+			return nil, err
+		}
+
+		if schemaRoot, ok := objectMap["SchemaRoot"]; ok {
+			return SchemaKind{
+				SchemaRoot: schemaRoot.(string),
+			}, nil
+		} else {
+			panic("todo")
+		}
+
+	default:
+		// If the Kind is not represented by a string or and object, assume try to parse it to an int, as
 		// that is the only other type we support.
 		var intKind uint8
 		err := json.Unmarshal(bytes, &intKind)
@@ -320,24 +408,4 @@ func parseFieldKind(bytes json.RawMessage) (FieldKind, error) {
 			return ScalarKind(intKind), nil
 		}
 	}
-
-	var strKind string
-	err := json.Unmarshal(bytes, &strKind)
-	if err != nil {
-		return nil, err
-	}
-
-	kind, ok := FieldKindStringToEnumMapping[strKind]
-	if ok {
-		return kind, nil
-	}
-
-	// If we don't find the string representation of this type in the
-	// scalar mapping, assume it is an object - if it is not, validation
-	// will catch this later.  If it is unknown we have no way of telling
-	// as to whether the user thought it was a scalar or an object anyway.
-	if strKind[0] == '[' {
-		return ObjectArrayKind(strings.Trim(strKind, "[]")), nil
-	}
-	return ObjectKind(strKind), nil
 }
