@@ -17,6 +17,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -137,6 +138,7 @@ func ExecuteTestCase(
 	t testing.TB,
 	testCase TestCase,
 ) {
+	parallelize(t)
 	flattenActions(&testCase)
 	collectionNames := getCollectionNames(testCase)
 	changeDetector.PreTestChecks(t, collectionNames)
@@ -570,6 +572,31 @@ func flattenActions(testCase *TestCase) {
 		}
 	}
 	testCase.Actions = newActions
+}
+
+var executedTestNames = map[string]struct{}{}
+var executedTestNamesLock sync.RWMutex
+
+// parallelize calls [t.Parallel()] for tests that support it.
+//
+// It will block until all other supporting tests reach this point.
+func parallelize(t testing.TB) {
+	executedTestNamesLock.RLock()
+	// A handful of test funcs define multiple test cases, parallelizing these is not supported
+	if _, ok := executedTestNames[t.Name()]; !ok {
+		executedTestNamesLock.RUnlock()
+
+		// Benchmarks do not support parallel execution
+		if tt, ok := t.(*testing.T); ok {
+			tt.Parallel()
+
+			executedTestNamesLock.Lock()
+			executedTestNames[t.Name()] = struct{}{}
+			executedTestNamesLock.Unlock()
+		}
+	} else {
+		executedTestNamesLock.RUnlock()
+	}
 }
 
 // getActionRange returns the index of the first action to be run, and the last.
