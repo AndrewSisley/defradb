@@ -17,6 +17,7 @@ import (
 		"github.com/wundergraph/graphql-go-tools/v2/pkg/asttransform"
 		"github.com/wundergraph/graphql-go-tools/v2/pkg/operationreport"
 	*/
+
 	"github.com/sourcenetwork/graphql-go/language/ast"
 
 	"github.com/sourcenetwork/defradb/client"
