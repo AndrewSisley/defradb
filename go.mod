@@ -109,7 +109,7 @@ require (
 	github.com/go-openapi/swag v0.22.8 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.15.1 // indirect
+	github.com/go-playground/validator/v10 v10.15.5 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
@@ -156,7 +156,7 @@ require (
 	github.com/jorrizza/ed2curve25519 v0.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kilic/bls12-381 v0.1.1-0.20210503002446-7b7597926c69 // indirect
-	github.com/klauspost/compress v1.17.7 // indirect
+	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/koron/go-ssdp v0.0.4 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
@@ -241,6 +241,7 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/wasmerio/wasmer-go v1.0.4 // indirect
 	github.com/whyrusleeping/go-keyspace v0.0.0-20160322163242-5b898ac5add1 // indirect
+	github.com/wundergraph/graphql-go-tools/v2 v2.0.0-rc.54
 	github.com/x448/float16 v0.8.4 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/otel v1.27.0 // indirect
