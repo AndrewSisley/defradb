@@ -13,6 +13,8 @@ package encryption
 import (
 	"testing"
 
+	"github.com/sourcenetwork/immutable"
+
 	testUtils "github.com/sourcenetwork/defradb/tests/integration"
 )
 
@@ -64,7 +66,7 @@ func TestDocEncryption_WithEncryptionSecondaryRelations_ShouldStoreEncryptedComm
 				`,
 				Results: []map[string]any{
 					{
-						"delta":     encrypt(testUtils.CBORValue("Chris"), userDocID, ""),
+						"delta":     testUtils.NewEncryptedValue(0, 0, immutable.None[string](), testUtils.CBORValue("Chris")),
 						"docID":     userDocID,
 						"fieldName": "name",
 					},
@@ -74,17 +76,17 @@ func TestDocEncryption_WithEncryptionSecondaryRelations_ShouldStoreEncryptedComm
 						"fieldName": nil,
 					},
 					{
-						"delta":     encrypt(testUtils.CBORValue("Sony"), deviceDocID, ""),
+						"delta":     testUtils.NewEncryptedValue(1, 0, immutable.None[string](), testUtils.CBORValue("Sony")),
 						"docID":     deviceDocID,
 						"fieldName": "manufacturer",
 					},
 					{
-						"delta":     encrypt(testUtils.CBORValue("Walkman"), deviceDocID, ""),
+						"delta":     testUtils.NewEncryptedValue(1, 0, immutable.None[string](), testUtils.CBORValue("Walkman")),
 						"docID":     deviceDocID,
 						"fieldName": "model",
 					},
 					{
-						"delta":     encrypt(testUtils.CBORValue(userDocID), deviceDocID, ""),
+						"delta":     testUtils.NewEncryptedValue(1, 0, immutable.None[string](), testUtils.CBORValue(userDocID)),
 						"docID":     deviceDocID,
 						"fieldName": "owner_id",
 					},

@@ -23,6 +23,7 @@ import (
 
 	"github.com/bxcodec/faker/support/slice"
 	"github.com/fxamacker/cbor/v2"
+	ds "github.com/ipfs/go-datastore"
 	"github.com/sourcenetwork/corelog"
 	"github.com/sourcenetwork/immutable"
 	"github.com/stretchr/testify/assert"
@@ -1776,6 +1777,7 @@ func executeRequest(
 			action.Asserter,
 			nodeID,
 			anyOfByFieldKey,
+			action.IgnoreOrder,
 		)
 	}
 
@@ -1841,6 +1843,7 @@ func executeSubscriptionRequest(
 							// anyof is not yet supported by subscription requests
 							0,
 							map[docFieldKey][]any{},
+							false,
 						)
 
 						assertExpectedErrorRaised(s.t, s.testCase.Description, action.ExpectedError, expectedErrorRaised)
@@ -1914,6 +1917,7 @@ func assertRequestResults(
 	asserter ResultAsserter,
 	nodeID int,
 	anyOfByField map[docFieldKey][]any,
+	ignoreOrder bool,
 ) bool {
 	// we skip assertion benchmark because you don't specify expected result for benchmark.
 	if AssertErrors(s.t, s.testCase.Description, result.Errors, expectedError) || s.isBench {
@@ -1952,40 +1956,125 @@ func assertRequestResults(
 			),
 		)
 
-		for field, actualValue := range result {
-			expectedValue := expectedResult[field]
-
-			switch r := expectedValue.(type) {
-			case AnyOf:
-				assertResultsAnyOf(s.t, s.clientType, r, actualValue)
-
-				dfk := docFieldKey{docIndex, field}
-				valueSet := anyOfByField[dfk]
-				valueSet = append(valueSet, actualValue)
-				anyOfByField[dfk] = valueSet
-			case DocIndex:
-				expectedDocID := s.documents[r.CollectionIndex][r.Index].ID().String()
-				assertResultsEqual(
-					s.t,
-					s.clientType,
-					expectedDocID,
-					actualValue,
-					fmt.Sprintf("node: %v, doc: %v", nodeID, docIndex),
+		if ignoreOrder {
+			var isEqual bool
+			for _, expectedResult := range expectedResults {
+				isResultEqual := assertRequestResult(
+					s,
+					nodeID,
+					docIndex,
+					result,
+					expectedResult,
+					anyOfByField,
+					ignoreOrder,
 				)
-
-			default:
-				assertResultsEqual(
-					s.t,
-					s.clientType,
-					expectedValue,
-					actualValue,
-					fmt.Sprintf("node: %v, doc: %v", nodeID, docIndex),
+				if isResultEqual {
+					isEqual = true
+					break
+				}
+			}
+			if !isEqual {
+				assertRequestResult(
+					s,
+					nodeID,
+					docIndex,
+					result,
+					expectedResults[docIndex],
+					anyOfByField,
+					false,
 				)
 			}
+		} else {
+			assertRequestResult(
+				s,
+				nodeID,
+				docIndex,
+				result,
+				expectedResult,
+				anyOfByField,
+				ignoreOrder,
+			)
 		}
 	}
 
 	return false
+}
+
+func assertRequestResult(
+	s *state,
+	nodeID int,
+	docIndex int,
+	result map[string]any,
+	expectedResult map[string]any,
+	anyOfByField map[docFieldKey][]any,
+	dontAssert bool,
+) bool {
+	for field, actualValue := range result {
+		expectedValue := expectedResult[field]
+
+		switch r := expectedValue.(type) {
+		case AnyOf:
+			assertResultsAnyOf(s.t, s.clientType, r, actualValue)
+
+			dfk := docFieldKey{docIndex, field}
+			valueSet := anyOfByField[dfk]
+			valueSet = append(valueSet, actualValue)
+			anyOfByField[dfk] = valueSet
+		case DocIndex:
+			expectedDocID := s.documents[r.CollectionIndex][r.Index].ID().String()
+			isEqual := assertResultsEqual(
+				s.t,
+				s.clientType,
+				expectedDocID,
+				actualValue,
+				dontAssert,
+				fmt.Sprintf("node: %v, doc: %v", nodeID, docIndex),
+			)
+			if !isEqual {
+				return false
+			}
+
+		case *EncryptedValue:
+			expectedDocID := s.documents[r.DocIndex.CollectionIndex][r.DocIndex.Index].ID().String()
+			storeKey := ds.NewKey(fmt.Sprintf("%s/%s", expectedDocID, r.FieldID.Value()))
+			encryptionKey, err := datastore.MultiStoreFrom(s.nodes[nodeID].Rootstore()).Encstore().Get(s.ctx, storeKey)
+			require.NoError(s.t, err)
+
+			actual, ok := actualValue.([]byte)
+			var decryptedValue []byte
+			if ok {
+				decryptedValue, err = encryption.DecryptAES(actual, encryptionKey)
+				require.NoError(s.t, err)
+			}
+
+			isEqual := assertResultsEqual(
+				s.t,
+				s.clientType,
+				r.Value,
+				decryptedValue,
+				dontAssert,
+				fmt.Sprintf("node: %v, doc: %v", nodeID, docIndex),
+			)
+			if !isEqual {
+				return false
+			}
+
+		default:
+			isEqual := assertResultsEqual(
+				s.t,
+				s.clientType,
+				expectedValue,
+				actualValue,
+				dontAssert,
+				fmt.Sprintf("node: %v, doc: %v", nodeID, docIndex),
+			)
+			if !isEqual {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 func assertExpectedErrorRaised(t testing.TB, description string, expectedError string, wasRaised bool) {

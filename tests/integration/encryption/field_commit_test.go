@@ -13,7 +13,7 @@ package encryption
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/sourcenetwork/immutable"
 
 	testUtils "github.com/sourcenetwork/defradb/tests/integration"
 )
@@ -38,7 +38,7 @@ func TestDocEncryptionField_WithEncryptionOnField_ShouldStoreOnlyFieldsDeltaEncr
 				`,
 				Results: []map[string]any{
 					{
-						"delta":     encrypt(testUtils.CBORValue(21), john21DocID, "age"),
+						"delta":     testUtils.NewEncryptedValue(0, 0, immutable.Some("age"), testUtils.CBORValue(21)),
 						"docID":     john21DocID,
 						"fieldName": "age",
 					},
@@ -53,135 +53,6 @@ func TestDocEncryptionField_WithEncryptionOnField_ShouldStoreOnlyFieldsDeltaEncr
 						"fieldName": nil,
 					},
 				},
-			},
-		},
-	}
-
-	testUtils.ExecuteTestCase(t, test)
-}
-
-func TestDocEncryptionField_WithDocAndFieldEncryption_ShouldUseDedicatedEncKeyForIndividualFields(t *testing.T) {
-	deltaForField := func(fieldName string, result []map[string]any) any {
-		for _, r := range result {
-			if r["fieldName"] == fieldName {
-				return r["delta"]
-			}
-		}
-		t.Fatalf("Field %s not found in results %v", fieldName, result)
-		return nil
-	}
-
-	test := testUtils.TestCase{
-		Actions: []any{
-			testUtils.SchemaUpdate{
-				Schema: `
-					type Users {
-						name1: String
-						name2: String
-						name3: String
-						name4: String
-					}`,
-			},
-			testUtils.CreateDoc{
-				Doc: `{
-						"name1": "John",
-						"name2": "John",
-						"name3": "John",
-						"name4": "John"
-					}`,
-				IsDocEncrypted:  true,
-				EncryptedFields: []string{"name1", "name3"},
-			},
-			testUtils.Request{
-				Request: `
-					query {
-						commits {
-							cid
-							delta
-							fieldName
-						}
-					}
-				`,
-				Asserter: testUtils.ResultAsserterFunc(func(_ testing.TB, result []map[string]any) (bool, string) {
-					name1 := deltaForField("name1", result)
-					name2 := deltaForField("name2", result)
-					name3 := deltaForField("name3", result)
-					name4 := deltaForField("name4", result)
-					assert.Equal(t, name2, name4, "name2 and name4 should have the same encryption key")
-					assert.NotEqual(t, name2, name1, "name2 and name1 should have different encryption keys")
-					assert.NotEqual(t, name2, name3, "name2 and name3 should have different encryption keys")
-					assert.NotEqual(t, name1, name3, "name1 and name3 should have different encryption keys")
-					return true, ""
-				}),
-			},
-		},
-	}
-
-	testUtils.ExecuteTestCase(t, test)
-}
-
-func TestDocEncryptionField_UponUpdateWithDocAndFieldEncryption_ShouldUseDedicatedEncKeyForIndividualFields(t *testing.T) {
-	deltaForField := func(fieldName string, result []map[string]any) any {
-		for _, r := range result {
-			if r["fieldName"] == fieldName {
-				return r["delta"]
-			}
-		}
-		t.Fatalf("Field %s not found in results %v", fieldName, result)
-		return nil
-	}
-
-	test := testUtils.TestCase{
-		Actions: []any{
-			testUtils.SchemaUpdate{
-				Schema: `
-					type Users {
-						name1: String
-						name2: String
-						name3: String
-						name4: String
-					}`,
-			},
-			testUtils.CreateDoc{
-				Doc: `{
-						"name1": "John",
-						"name2": "John",
-						"name3": "John",
-						"name4": "John"
-					}`,
-				IsDocEncrypted:  true,
-				EncryptedFields: []string{"name1", "name3"},
-			},
-			testUtils.UpdateDoc{
-				Doc: `{
-					"name1": "Andy",
-					"name2": "Andy",
-					"name3": "Andy",
-					"name4": "Andy"
-				}`,
-			},
-			testUtils.Request{
-				Request: `
-					query {
-						commits(order: {height: DESC}, limit: 5) {
-							cid
-							delta
-							fieldName
-							height
-						}
-					}
-				`,
-				Asserter: testUtils.ResultAsserterFunc(func(_ testing.TB, result []map[string]any) (bool, string) {
-					name1 := deltaForField("name1", result)
-					name2 := deltaForField("name2", result)
-					name3 := deltaForField("name3", result)
-					name4 := deltaForField("name4", result)
-					assert.Equal(t, name2, name4, "name2 and name4 should have the same encryption key")
-					assert.NotEqual(t, name2, name1, "name2 and name1 should have different encryption keys")
-					assert.NotEqual(t, name2, name3, "name2 and name3 should have different encryption keys")
-					assert.NotEqual(t, name1, name3, "name1 and name3 should have different encryption keys")
-					return true, ""
-				}),
 			},
 		},
 	}

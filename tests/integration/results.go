@@ -45,15 +45,31 @@ func assertResultsAnyOf(t testing.TB, client ClientType, expected AnyOf, actual 
 // assertResultsEqual asserts that actual result is equal to the expected result.
 //
 // The comparison is relaxed when using client types other than goClientType.
-func assertResultsEqual(t testing.TB, client ClientType, expected any, actual any, msgAndArgs ...any) {
+func assertResultsEqual(
+	t testing.TB,
+	client ClientType,
+	expected any,
+	actual any,
+	dontAssert bool,
+	msgAndArgs ...any,
+) bool {
 	switch client {
 	case HTTPClientType, CLIClientType:
 		if !areResultsEqual(expected, actual) {
-			assert.EqualValues(t, expected, actual, msgAndArgs...)
+			if dontAssert {
+				return assert.ObjectsAreEqualValues(expected, actual)
+			} else {
+				assert.EqualValues(t, expected, actual, msgAndArgs...)
+			}
 		}
 	default:
-		assert.EqualValues(t, expected, actual, msgAndArgs...)
+		if dontAssert {
+			return assert.ObjectsAreEqualValues(expected, actual)
+		} else {
+			assert.EqualValues(t, expected, actual, msgAndArgs...)
+		}
 	}
+	return true
 }
 
 // areResultsAnyOf returns true if any of the expected results are of equal value.

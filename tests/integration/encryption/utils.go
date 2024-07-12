@@ -11,7 +11,6 @@
 package encryption
 
 import (
-	"github.com/sourcenetwork/defradb/internal/encryption"
 	testUtils "github.com/sourcenetwork/defradb/tests/integration"
 )
 
@@ -42,14 +41,4 @@ func updateUserCollectionSchema() testUtils.SchemaUpdate {
 	return testUtils.SchemaUpdate{
 		Schema: userCollectionGQLSchema,
 	}
-}
-
-// encrypt encrypts the given plain text with a deterministic encryption key.
-// We also want to make sure different keys are generated for different docs and fields
-// and that's why we use the docID and fieldName to generate the key.
-func encrypt(plaintext []byte, docID, fieldName string) []byte {
-	const keyLength = 32
-	const testEncKey = "examplekey1234567890examplekey12"
-	val, _ := encryption.EncryptAES(plaintext, []byte(fieldName + docID + testEncKey)[0:keyLength])
-	return val
 }

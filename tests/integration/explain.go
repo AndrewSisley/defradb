@@ -170,6 +170,7 @@ func assertExplainRequestResults(
 					s.clientType,
 					action.ExpectedFullGraph[index],
 					actualResult,
+					false,
 					s.testCase.Description,
 				)
 			}
@@ -189,6 +190,7 @@ func assertExplainRequestResults(
 				s.clientType,
 				action.ExpectedPatterns[index],
 				actualResultWithoutAttributes,
+				false,
 				s.testCase.Description,
 			)
 		}
@@ -229,6 +231,7 @@ func assertExplainTargetCase(
 			s.clientType,
 			targetCase.ExpectedAttributes,
 			foundActualTarget,
+			false,
 			s.testCase.Description,
 		)
 	}

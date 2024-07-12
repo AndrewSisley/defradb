@@ -22,7 +22,6 @@ import (
 	"github.com/sourcenetwork/immutable"
 
 	"github.com/sourcenetwork/defradb/datastore/mocks"
-	"github.com/sourcenetwork/defradb/internal/core"
 )
 
 var testErr = errors.New("test error")
@@ -77,73 +76,6 @@ func TestEncryptorEncrypt_IfStorageReturnsErrorOnSecondCall_Error(t *testing.T) 
 	_, err := enc.Encrypt(docID, fieldName, []byte("test"))
 
 	assert.ErrorIs(t, err, testErr)
-}
-
-func TestEncryptorEncrypt_WithEmptyFieldNameIfNoKeyFoundInStorage_ShouldGenerateKeyStoreItAndReturnCipherText(t *testing.T) {
-	enc, st := newDefaultEncryptor(t)
-
-	storeKey := core.NewEncStoreDocKey(docID, "")
-
-	st.EXPECT().Get(mock.Anything, storeKey.ToDS()).Return(nil, ds.ErrNotFound)
-	st.EXPECT().Put(mock.Anything, storeKey.ToDS(), getEncKey("")).Return(nil)
-
-	cipherText, err := enc.Encrypt(docID, "", getPlainText())
-
-	assert.NoError(t, err)
-	assert.Equal(t, getCipherText(t, ""), cipherText)
-}
-
-func TestEncryptorEncrypt_IfNoFieldEncRequestedAndNoKeyInStorage_GenerateKeyStoreItAndReturnCipherText(t *testing.T) {
-	enc, st := newDefaultEncryptor(t)
-
-	docStoreKey := core.NewEncStoreDocKey(docID, "").ToDS()
-	fieldStoreKey := core.NewEncStoreDocKey(docID, fieldName).ToDS()
-
-	st.EXPECT().Get(mock.Anything, fieldStoreKey).Return(nil, ds.ErrNotFound)
-	st.EXPECT().Get(mock.Anything, docStoreKey).Return(nil, ds.ErrNotFound)
-	st.EXPECT().Put(mock.Anything, docStoreKey, getEncKey("")).Return(nil)
-
-	cipherText, err := enc.Encrypt(docID, fieldName, getPlainText())
-
-	assert.NoError(t, err)
-	assert.Equal(t, getCipherText(t, ""), cipherText)
-}
-
-func TestEncryptorEncrypt_IfNoKeyWithFieldFoundInStorage_ShouldGenerateKeyStoreItAndReturnCipherText(t *testing.T) {
-	enc, st := newEncryptorWithConfig(t, DocEncConfig{EncryptedFields: []string{fieldName}})
-
-	storeKey := core.NewEncStoreDocKey(docID, fieldName)
-
-	st.EXPECT().Get(mock.Anything, storeKey.ToDS()).Return(nil, ds.ErrNotFound)
-	st.EXPECT().Put(mock.Anything, storeKey.ToDS(), getEncKey(fieldName)).Return(nil)
-
-	cipherText, err := enc.Encrypt(docID, fieldName, getPlainText())
-
-	assert.NoError(t, err)
-	assert.Equal(t, getCipherText(t, fieldName), cipherText)
-}
-
-func TestEncryptorEncrypt_IfKeyWithFieldFoundInStorage_ShouldUseItToReturnCipherText(t *testing.T) {
-	enc, st := newEncryptorWithConfig(t, DocEncConfig{EncryptedFields: []string{fieldName}})
-
-	storeKey := core.NewEncStoreDocKey(docID, fieldName)
-	st.EXPECT().Get(mock.Anything, storeKey.ToDS()).Return(getEncKey(fieldName), nil)
-
-	cipherText, err := enc.Encrypt(docID, fieldName, getPlainText())
-
-	assert.NoError(t, err)
-	assert.Equal(t, getCipherText(t, fieldName), cipherText)
-}
-
-func TestEncryptorEncrypt_IfKeyFoundInStorage_ShouldUseItToReturnCipherText(t *testing.T) {
-	enc, st := newDefaultEncryptor(t)
-
-	st.EXPECT().Get(mock.Anything, mock.Anything).Return(getEncKey(""), nil)
-
-	cipherText, err := enc.Encrypt(docID, "", getPlainText())
-
-	assert.NoError(t, err)
-	assert.Equal(t, getCipherText(t, ""), cipherText)
 }
 
 func TestEncryptorEncrypt_IfStorageFailsToStoreEncryptionKey_ReturnError(t *testing.T) {

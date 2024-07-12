@@ -488,6 +488,8 @@ type Request struct {
 	// Used to identify the transaction for this to run against. Optional.
 	TransactionID immutable.Option[int]
 
+	IgnoreOrder bool
+
 	// The request to execute.
 	Request string
 
@@ -666,4 +668,23 @@ type BackupImport struct {
 	// String can be a partial, and the test will pass if an error is returned that
 	// contains this string.
 	ExpectedError string
+}
+
+type EncryptedValue struct {
+	DocIndex DocIndex
+	FieldID  immutable.Option[string]
+	Value    any
+}
+
+func NewEncryptedValue(
+	collectionIndex int,
+	docIndex int,
+	fieldID immutable.Option[string],
+	value any,
+) *EncryptedValue {
+	return &EncryptedValue{
+		DocIndex: NewDocIndex(collectionIndex, docIndex),
+		FieldID:  fieldID,
+		Value:    value,
+	}
 }
