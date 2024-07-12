@@ -876,27 +876,44 @@ func refreshDocuments(
 			// purpose.
 			collection := getNodeCollections(action.NodeID, s.collections)[0][action.CollectionID]
 
-			// We need to add the existing documents in the order in which the test case lists them
-			// otherwise they cannot be referenced correctly by other actions.
-			doc, err := client.NewDocFromJSON([]byte(action.Doc), collection.Definition())
+			var doc *client.Document
+			var docs []*client.Document
+			var err error
+			if action.DocMap != nil {
+				substituteRelations(s, action)
+				// We need to add the existing documents in the order in which the test case lists them
+				// otherwise they cannot be referenced correctly by other actions.
+				doc, err = client.NewDocFromMap(action.DocMap, collection.Definition())
+				docs = append(docs, doc)
+			} else if client.IsJSONArray([]byte(action.Doc)) {
+				docs, err = client.NewDocsFromJSON([]byte(action.Doc), collection.Definition())
+			} else {
+				// We need to add the existing documents in the order in which the test case lists them
+				// otherwise they cannot be referenced correctly by other actions.
+				doc, err = client.NewDocFromJSON([]byte(action.Doc), collection.Definition())
+				docs = append(docs, doc)
+			}
+
 			if err != nil {
 				// If an err has been returned, ignore it - it may be expected and if not
 				// the test will fail later anyway
 				continue
 			}
 
-			ctx := makeContextForDocCreate(s, s.ctx, &action)
+			for _, doc := range docs {
+				ctx := makeContextForDocCreate(s, s.ctx, &action)
 
-			// The document may have been mutated by other actions, so to be sure we have the latest
-			// version without having to worry about the individual update mechanics we fetch it.
-			doc, err = collection.Get(ctx, doc.ID(), false)
-			if err != nil {
-				// If an err has been returned, ignore it - it may be expected and if not
-				// the test will fail later anyway
-				continue
+				// The document may have been mutated by other actions, so to be sure we have the latest
+				// version without having to worry about the individual update mechanics we fetch it.
+				doc, err = collection.Get(ctx, doc.ID(), false)
+				if err != nil {
+					// If an err has been returned, ignore it - it may be expected and if not
+					// the test will fail later anyway
+					continue
+				}
+
+				s.documents[action.CollectionID] = append(s.documents[action.CollectionID], doc)
 			}
-
-			s.documents[action.CollectionID] = append(s.documents[action.CollectionID], doc)
 		}
 	}
 }
