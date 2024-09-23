@@ -385,7 +385,7 @@ func (mp *mergeProcessor) processBlock(
 	}
 
 	for _, link := range dagBlock.Links {
-		nd, err := mp.blockLS.Load(linking.LinkContext{Ctx: ctx}, link.Link, coreblock.SchemaPrototype)
+		nd, err := mp.blockLS.Load(linking.LinkContext{Ctx: ctx}, link, coreblock.SchemaPrototype)
 		if err != nil {
 			return err
 		}
@@ -395,7 +395,7 @@ func (mp *mergeProcessor) processBlock(
 			return err
 		}
 
-		if err := mp.processBlock(ctx, childBlock, link.Link); err != nil {
+		if err := mp.processBlock(ctx, childBlock, link); err != nil {
 			return err
 		}
 	}

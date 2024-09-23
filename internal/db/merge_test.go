@@ -233,7 +233,7 @@ func (d *dagBuilder) generateCompositeUpdate(lsys *linking.LinkSystem, fields ma
 		heads = append(heads, from.link)
 	}
 
-	links := []coreblock.DAGLink{}
+	links := []cidlink.Link{}
 	for field, val := range fields {
 		d.fieldsHeight[field]++
 		// Generate new Block and save to lsys
@@ -252,10 +252,7 @@ func (d *dagBuilder) generateCompositeUpdate(lsys *linking.LinkSystem, fields ma
 		if err != nil {
 			return compositeInfo{}, err
 		}
-		links = append(links, coreblock.DAGLink{
-			Name: field,
-			Link: fieldBlockLink.(cidlink.Link),
-		})
+		links = append(links, fieldBlockLink.(cidlink.Link))
 	}
 
 	compositeBlock := coreblock.Block{

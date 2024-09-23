@@ -46,7 +46,7 @@ type MerkleClock interface {
 	AddDelta(
 		ctx context.Context,
 		delta core.Delta,
-		links ...coreblock.DAGLink,
+		links ...cidlink.Link,
 	) (cidlink.Link, []byte, error)
 	// ProcessBlock processes a block and updates the CRDT state.
 	ProcessBlock(ctx context.Context, block *coreblock.Block, cid cidlink.Link) error

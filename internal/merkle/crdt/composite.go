@@ -17,7 +17,6 @@ import (
 
 	"github.com/sourcenetwork/defradb/client"
 	"github.com/sourcenetwork/defradb/internal/core"
-	coreblock "github.com/sourcenetwork/defradb/internal/core/block"
 	corecrdt "github.com/sourcenetwork/defradb/internal/core/crdt"
 	"github.com/sourcenetwork/defradb/internal/merkle/clock"
 )
@@ -57,7 +56,7 @@ func NewMerkleCompositeDAG(
 // Delete sets the values of CompositeDAG for a delete.
 func (m *MerkleCompositeDAG) Delete(
 	ctx context.Context,
-	links []coreblock.DAGLink,
+	links []cidlink.Link,
 ) (cidlink.Link, []byte, error) {
 	delta := m.reg.Set(client.Deleted)
 	link, b, err := m.clock.AddDelta(ctx, delta, links...)
@@ -70,9 +69,9 @@ func (m *MerkleCompositeDAG) Delete(
 
 // Save the value of the composite CRDT to DAG.
 func (m *MerkleCompositeDAG) Save(ctx context.Context, data any) (cidlink.Link, []byte, error) {
-	links, ok := data.([]coreblock.DAGLink)
+	links, ok := data.([]cidlink.Link)
 	if !ok {
-		return cidlink.Link{}, nil, NewErrUnexpectedValueType(client.COMPOSITE, []coreblock.DAGLink{}, data)
+		return cidlink.Link{}, nil, NewErrUnexpectedValueType(client.COMPOSITE, []cidlink.Link{}, data)
 	}
 
 	delta := m.reg.Set(client.Active)

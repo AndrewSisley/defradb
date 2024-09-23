@@ -320,7 +320,7 @@ func (vf *VersionedFetcher) seekNext(c cid.Cid, topParent bool) error {
 	}
 
 	for _, l := range block.Links {
-		err := vf.seekNext(l.Link.Cid, false)
+		err := vf.seekNext(l.Cid, false)
 		if err != nil {
 			return err
 		}
@@ -358,16 +358,17 @@ func (vf *VersionedFetcher) merge(c cid.Cid) error {
 	// handle subgraphs
 	for _, l := range block.Links {
 		// get node
-		subBlock, err := vf.getDAGBlock(l.Link.Cid)
+		subBlock, err := vf.getDAGBlock(l.Cid)
 		if err != nil {
 			return err
 		}
 
-		field, ok := vf.col.Definition().GetFieldByName(l.Name)
+		linkName := subBlock.GetFieldName()
+		field, ok := vf.col.Definition().GetFieldByName(linkName)
 		if !ok {
-			return client.NewErrFieldNotExist(l.Name)
+			return client.NewErrFieldNotExist(linkName)
 		}
-		if err := vf.processBlock(uint32(field.ID), subBlock, l.Link, field.Typ, field.Kind, l.Name); err != nil {
+		if err := vf.processBlock(uint32(field.ID), subBlock, l, field.Typ, field.Kind, linkName); err != nil {
 			return err
 		}
 	}

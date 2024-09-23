@@ -403,16 +403,9 @@ func (n *dagScanNode) dagBlockToNodeDoc(block *coreblock.Block) (core.Doc, error
 				return core.Doc{}, err
 			}
 
-			var linkName string
-			if parsedChildBlock.Delta.LWWRegDelta != nil {
-				linkName = parsedChildBlock.Delta.LWWRegDelta.FieldName
-			} else if parsedChildBlock.Delta.CounterDelta != nil {
-				linkName = parsedChildBlock.Delta.CounterDelta.FieldName
-			}
-
 			link := linksMapping.NewDoc()
-			linksMapping.SetFirstOfName(&link, request.LinksNameFieldName, linkName)
-			linksMapping.SetFirstOfName(&link, request.LinksCidFieldName, l.Link.Cid.String())
+			linksMapping.SetFirstOfName(&link, request.LinksNameFieldName, parsedChildBlock.GetFieldName())
+			linksMapping.SetFirstOfName(&link, request.LinksCidFieldName, l.Cid.String())
 
 			links[i] = link
 			i++

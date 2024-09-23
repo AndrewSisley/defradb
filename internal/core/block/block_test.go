@@ -52,11 +52,8 @@ func generateBlocks(lsys *linking.LinkSystem) (cidlink.Link, error) {
 				Status:          1,
 			},
 		},
-		Links: []DAGLink{
-			{
-				Name: "name",
-				Link: fieldBlockLink.(cidlink.Link),
-			},
+		Links: []cidlink.Link{
+			fieldBlockLink.(cidlink.Link),
 		},
 	}
 	compositeBlockLink, err := lsys.Store(ipld.LinkContext{}, GetLinkPrototype(), compositeBlock.GenerateNode())
@@ -96,11 +93,8 @@ func generateBlocks(lsys *linking.LinkSystem) (cidlink.Link, error) {
 		Heads: []cidlink.Link{
 			compositeBlockLink.(cidlink.Link),
 		},
-		Links: []DAGLink{
-			{
-				Name: "name",
-				Link: fieldUpdateBlockLink.(cidlink.Link),
-			},
+		Links: []cidlink.Link{
+			fieldUpdateBlockLink.(cidlink.Link),
 		},
 	}
 	compositeUpdateBlockLink, err := lsys.Store(

@@ -92,7 +92,7 @@ func (mc *MerkleClock) putEncBlock(
 func (mc *MerkleClock) AddDelta(
 	ctx context.Context,
 	delta core.Delta,
-	links ...coreblock.DAGLink,
+	links ...cidlink.Link,
 ) (cidlink.Link, []byte, error) {
 	heads, height, err := mc.headset.List(ctx)
 	if err != nil {

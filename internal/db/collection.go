@@ -29,7 +29,6 @@ import (
 	"github.com/sourcenetwork/defradb/errors"
 	"github.com/sourcenetwork/defradb/event"
 	"github.com/sourcenetwork/defradb/internal/core"
-	coreblock "github.com/sourcenetwork/defradb/internal/core/block"
 	"github.com/sourcenetwork/defradb/internal/db/base"
 	"github.com/sourcenetwork/defradb/internal/db/description"
 	"github.com/sourcenetwork/defradb/internal/db/fetcher"
@@ -632,7 +631,7 @@ func (c *collection) save(
 	//	=> 		instantiate MerkleCRDT objects
 	//	=> 		Set/Publish new CRDT values
 	primaryKey := c.getPrimaryKeyFromDocID(doc.ID())
-	links := make([]coreblock.DAGLink, 0)
+	links := make([]cidlink.Link, 0)
 	for k, v := range doc.Fields() {
 		val, err := doc.GetValueWithField(v)
 		if err != nil {
@@ -702,7 +701,7 @@ func (c *collection) save(
 				return cid.Undef, err
 			}
 
-			links = append(links, coreblock.NewDAGLink(k, link))
+			links = append(links, link)
 		}
 	}
 
@@ -911,7 +910,7 @@ func (c *collection) exists(
 func (c *collection) saveCompositeToMerkleCRDT(
 	ctx context.Context,
 	dsKey core.DataStoreKey,
-	links []coreblock.DAGLink,
+	links []cidlink.Link,
 	status client.DocumentStatus,
 ) (cidlink.Link, []byte, error) {
 	txn := mustGetContextTxn(ctx)
