@@ -376,6 +376,8 @@ func (n *dagScanNode) dagBlockToNodeDoc(block *coreblock.Block) (core.Doc, error
 	// links
 	linksIndexes := n.commitSelect.DocumentMapping.IndexesByName[request.LinksFieldName]
 
+	store := n.planner.txn.Blockstore()
+
 	for _, linksIndex := range linksIndexes {
 		links := make([]core.Doc, len(block.Heads)+len(block.Links))
 		linksMapping := n.commitSelect.DocumentMapping.ChildMappings[linksIndex]
@@ -391,8 +393,25 @@ func (n *dagScanNode) dagBlockToNodeDoc(block *coreblock.Block) (core.Doc, error
 		}
 
 		for _, l := range block.Links {
+			childBlock, err := store.Get(n.planner.ctx, l.Cid)
+			if err != nil {
+				return core.Doc{}, err
+			}
+
+			parsedChildBlock, err := coreblock.GetFromBytes(childBlock.RawData())
+			if err != nil {
+				return core.Doc{}, err
+			}
+
+			var linkName string
+			if parsedChildBlock.Delta.LWWRegDelta != nil {
+				linkName = parsedChildBlock.Delta.LWWRegDelta.FieldName
+			} else if parsedChildBlock.Delta.CounterDelta != nil {
+				linkName = parsedChildBlock.Delta.CounterDelta.FieldName
+			}
+
 			link := linksMapping.NewDoc()
-			linksMapping.SetFirstOfName(&link, request.LinksNameFieldName, l.Name)
+			linksMapping.SetFirstOfName(&link, request.LinksNameFieldName, linkName)
 			linksMapping.SetFirstOfName(&link, request.LinksCidFieldName, l.Link.Cid.String())
 
 			links[i] = link
