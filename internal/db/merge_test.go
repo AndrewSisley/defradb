@@ -22,7 +22,6 @@ import (
 
 	"github.com/sourcenetwork/defradb/client"
 	"github.com/sourcenetwork/defradb/event"
-	"github.com/sourcenetwork/defradb/internal/core"
 	coreblock "github.com/sourcenetwork/defradb/internal/core/block"
 	"github.com/sourcenetwork/defradb/internal/core/crdt"
 )
@@ -228,14 +227,13 @@ type compositeInfo struct {
 }
 
 func (d *dagBuilder) generateCompositeUpdate(lsys *linking.LinkSystem, fields map[string]any, from compositeInfo) (compositeInfo, error) {
-	links := []coreblock.DAGLink{}
+	heads := []cidlink.Link{}
 	newPriority := from.height + 1
 	if from.link.ByteLen() != 0 {
-		links = append(links, coreblock.DAGLink{
-			Name: core.HEAD,
-			Link: from.link,
-		})
+		heads = append(heads, from.link)
 	}
+
+	links := []coreblock.DAGLink{}
 	for field, val := range fields {
 		d.fieldsHeight[field]++
 		// Generate new Block and save to lsys
@@ -270,6 +268,7 @@ func (d *dagBuilder) generateCompositeUpdate(lsys *linking.LinkSystem, fields ma
 				Status:          1,
 			},
 		},
+		Heads: heads,
 		Links: links,
 	}
 
