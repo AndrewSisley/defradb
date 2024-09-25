@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/fxamacker/cbor/v2"
+	"github.com/ipfs/go-datastore/query"
 	"github.com/sourcenetwork/corelog"
 	"github.com/sourcenetwork/immutable"
 	"github.com/stretchr/testify/assert"
@@ -1956,6 +1957,21 @@ func executeRequest(
 		ctx := db.SetContextTxn(s.ctx, txn)
 		identity := getIdentity(s, nodeID, action.Identity)
 		ctx = db.SetContextIdentity(ctx, identity)
+
+		r, e := node.Rootstore().Query(ctx, query.Query{
+			Prefix: "/db/blocks",
+		})
+		if e != nil {
+			panic(e.Error())
+		}
+
+		t := 0
+		rr, h := r.NextSync()
+		for h {
+			t += rr.Size
+			rr, h = r.NextSync()
+		}
+		panic(fmt.Sprint(t))
 
 		var options []client.RequestOption
 		if action.OperationName.HasValue() {

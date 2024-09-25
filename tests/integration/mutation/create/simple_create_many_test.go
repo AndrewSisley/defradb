@@ -25,6 +25,7 @@ func TestMutationCreateMany(t *testing.T) {
 					type Users {
 						name: String
 						age: Int
+						email: String
 					}
 				`,
 			},
@@ -32,13 +33,59 @@ func TestMutationCreateMany(t *testing.T) {
 				Doc: `[ 
 					{
 						"name": "John",
-						"age": 27
+						"age": 27,
+						"email": "foo"
 					},
 					{
-						"name": "Islam",
-						"age": 33
+						"name": "Islam1",
+						"age": 27,
+						"email": "foo"
+					},
+					{
+						"name": "Islam2",
+						"age": 27,
+						"email": "foo"
+					},
+					{
+						"name": "Islam3",
+						"age": 27,
+						"email": "foo"
+					},
+					{
+						"name": "Islam4",
+						"age": 27,
+						"email": "foo"
+					},
+					{
+						"name": "Islam5",
+						"age": 27,
+						"email": "foo"
+					},
+					{
+						"name": "Islam6",
+						"age": 27,
+						"email": "foo"
+					},
+					{
+						"name": "Islam7",
+						"age": 27,
+						"email": "foo"
+					},
+					{
+						"name": "Islam8",
+						"age": 27,
+						"email": "foo"
+					},
+					{
+						"name": "Islam9",
+						"age": 27,
+						"email": "foo"
 					}
 				]`,
+			},
+			testUtils.UpdateWithFilter{
+				Filter:  `{age: {_eq: 27}}`,
+				Updater: `{"age": 28}`,
 			},
 			testUtils.Request{
 				Request: `
