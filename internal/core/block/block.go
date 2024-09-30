@@ -133,8 +133,8 @@ func (block *Block) IPLDSchemaBytes() []byte {
 	return []byte(`
 		type Block struct {
 			delta       CRDT
-			heads       [Link]
-			links       [Link]
+			heads       optional [Link]
+			links       optional [Link]
 			encryption  optional Link
 		}
 	`)
@@ -177,6 +177,14 @@ func New(delta core.Delta, links []cidlink.Link, heads ...cid.Cid) *Block {
 
 	blockLinks := make([]cidlink.Link, 0, len(links))
 	blockLinks = append(blockLinks, links...)
+
+	if len(headLinks) == 0 {
+		headLinks = nil
+	}
+
+	if len(blockLinks) == 0 {
+		blockLinks = nil
+	}
 
 	return &Block{
 		Heads: headLinks,
