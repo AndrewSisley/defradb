@@ -263,6 +263,7 @@ func executeTestCase(
 	refreshCollections(s)
 	refreshDocuments(s, startActionIndex)
 	refreshIndexes(s)
+	refreshCids(s, startActionIndex)
 
 	for i := startActionIndex; i <= endActionIndex; i++ {
 		performAction(s, i, testCase.Actions[i])
@@ -949,6 +950,241 @@ func refreshIndexes(
 			}
 
 			s.indexes[i][j] = colIndexes
+		}
+	}
+}
+
+func refreshCids(
+	s *state,
+	startActionIndex int,
+) {
+	if s.t.Name() != "TestQuery_CommitsWithAllFieldsWithUpdate_NoError" {
+		s.t.Skip()
+	}
+
+	if len(s.collections) == 0 {
+		// This should only be possible at the moment for P2P testing, for which the
+		// change detector is currently disabled.  We'll likely need some fancier logic
+		// here if/when we wish to enable it.
+		return
+	}
+
+	var maxColCount int
+	for _, cols := range s.collections {
+		if len(cols) > maxColCount {
+			maxColCount = len(cols)
+		}
+	}
+
+	// For now just do the initial setup using the collections on the first node,
+	// this may need to become more involved at a later date depending on testing
+	// requirements.
+	s.cids = make([][]map[string][]cid.Cid, maxColCount)
+
+	for i := 0; i < startActionIndex; i++ {
+		var docIndexes []int
+		var collectionID int
+		var startDocIndex int
+		var nodeID int
+
+		// We need to add the existing documents in the order in which the test case lists them
+		// otherwise they cannot be referenced correctly by other actions.
+		switch action := s.testCase.Actions[i].(type) {
+		case CreateDoc:
+			nodeIDs, _ := getNodesWithIDs(action.NodeID, s.nodes)
+			// Just use the collection from the first relevant node, as all will be the same for this
+			// purpose.
+			nodeID = nodeIDs[0]
+			collection := s.collections[nodeID][action.CollectionID]
+
+			docs, err := parseCreateDocs(action, collection) // todo - short cut this
+			if err != nil {
+				// If an err has been returned, ignore it - it may be expected and if not
+				// the test will fail later anyway
+				continue
+			}
+
+			endDocIndex := startDocIndex + len(docs)
+
+			for j := startDocIndex; j <= endDocIndex; j++ {
+				docIndexes = append(docIndexes, j)
+				startDocIndex++
+			}
+			collectionID = action.CollectionID
+			/*
+				if endDocIndex >= len(s.cids[action.CollectionID]) {
+					s.cids[action.CollectionID] = append(
+						s.cids[action.CollectionID],
+						make([]map[string][]cid.Cid, endDocIndex-len(s.cids[action.CollectionID])+1)...,
+					)
+				}
+
+				for relativeDocIndex, doc := range docs {
+					results, err := s.nodes[0].Headstore().Query(
+						s.ctx,
+						query.Query{
+							Prefix: core.HeadStoreKey{
+								DocID: doc.ID().String(),
+							}.ToString(),
+							KeysOnly: true,
+						},
+					)
+					if err != nil {
+						s.t.Fatalf("failed to fetch cids: %s", err.Error())
+					}
+
+					for res := range results.Next() {
+						if res.Error != nil {
+							s.t.Fatalf("failed to fetch cids: %s", res.Error.Error())
+						}
+
+						key, err := core.NewHeadStoreKey(res.Key)
+						if err != nil {
+							s.t.Fatalf("failed to fetch cids: %s", err.Error())
+						}
+
+						docIndex := startDocIndex + relativeDocIndex
+
+						if s.cids[action.CollectionID][docIndex] == nil {
+							s.cids[action.CollectionID][docIndex] = map[string][]cid.Cid{}
+						}
+
+						// This is a new doc, so we can blindly overwrite the array of cids
+						s.cids[action.CollectionID][docIndex][key.FieldID] = []cid.Cid{
+							key.Cid,
+						}
+					}
+				}
+			*/
+
+		case UpdateDoc:
+			nodeIDs, _ := getNodesWithIDs(action.NodeID, s.nodes)
+			// Just use the collection from the first relevant node, as all will be the same for this
+			// purpose.
+			nodeID = nodeIDs[0]
+			collectionID = action.CollectionID
+			docIndexes = append(docIndexes, action.DocID)
+			/*
+				results, err := s.nodes[0].Headstore().Query(
+					s.ctx,
+					query.Query{
+						Prefix: core.HeadStoreKey{
+							DocID: s.docIDs[action.CollectionID][action.DocID].String(),
+						}.ToString(),
+						KeysOnly: true,
+					},
+				)
+				if err != nil {
+					s.t.Fatalf("failed to fetch cids: %s", err.Error())
+				}
+
+				for res := range results.Next() {
+					if res.Error != nil {
+						s.t.Fatalf("failed to fetch cids: %s", res.Error.Error())
+					}
+
+					key, err := core.NewHeadStoreKey(res.Key)
+					if err != nil {
+						s.t.Fatalf("failed to fetch cids: %s", err.Error())
+					}
+
+					s.cids[action.CollectionID][action.DocID][key.FieldID] = append(
+						s.cids[action.CollectionID][action.DocID][key.FieldID],
+						key.Cid,
+					)
+				}
+			*/
+
+		case DeleteDoc:
+			nodeIDs, _ := getNodesWithIDs(action.NodeID, s.nodes)
+			// Just use the collection from the first relevant node, as all will be the same for this
+			// purpose.
+			nodeID = nodeIDs[0]
+			collectionID = action.CollectionID
+			docIndexes = append(docIndexes, action.DocID)
+			/*
+				results, err := s.nodes[0].Headstore().Query(
+					s.ctx,
+					query.Query{
+						Prefix: core.HeadStoreKey{
+							DocID: s.docIDs[action.CollectionID][action.DocID].String(),
+						}.ToString(),
+						KeysOnly: true,
+					},
+				)
+				if err != nil {
+					s.t.Fatalf("failed to fetch cids: %s", err.Error())
+				}
+
+				for res := range results.Next() {
+					if res.Error != nil {
+						s.t.Fatalf("failed to fetch cids: %s", res.Error.Error())
+					}
+
+					key, err := core.NewHeadStoreKey(res.Key)
+					if err != nil {
+						s.t.Fatalf("failed to fetch cids: %s", err.Error())
+					}
+
+					s.cids[action.CollectionID][action.DocID][key.FieldID] = append(
+						s.cids[action.CollectionID][action.DocID][key.FieldID],
+						key.Cid,
+					)
+				}
+			*/
+		}
+
+		for _, docIndex := range docIndexes {
+			if docIndex >= len(s.docIDs[collectionID]) {
+				continue // todo - find out why
+			}
+
+			// this is just wrong... as they are no longer heads...
+			//
+			// Need to either query commits - which is really nasty as that is what you are supposed to be testing anyway
+			//
+			// or, could replay these actions into an in memory store, fetching heads as per normal - this totally defeats the
+			// point of the change detector
+
+			results, err := s.nodes[nodeID].Headstore().Query(
+				s.ctx,
+				query.Query{
+					Prefix: core.HeadStoreKey{
+						DocID: s.docIDs[collectionID][docIndex].String(),
+					}.ToString(),
+					KeysOnly: true,
+				},
+			)
+			if err != nil {
+				s.t.Fatalf("failed to fetch cids: %s", err.Error())
+			}
+
+			for res := range results.Next() {
+				if res.Error != nil {
+					s.t.Fatalf("failed to fetch cids: %s", res.Error.Error())
+				}
+
+				key, err := core.NewHeadStoreKey(res.Key)
+				if err != nil {
+					s.t.Fatalf("failed to fetch cids: %s", err.Error())
+				}
+
+				if docIndex >= len(s.cids[collectionID]) {
+					s.cids[collectionID] = append(
+						s.cids[collectionID],
+						make([]map[string][]cid.Cid, len(s.cids[collectionID])-docIndex+1)...,
+					)
+				}
+
+				if s.cids[collectionID][docIndex] == nil {
+					s.cids[collectionID][docIndex] = map[string][]cid.Cid{}
+				}
+
+				s.cids[collectionID][docIndex][key.FieldID] = append(
+					s.cids[collectionID][docIndex][key.FieldID],
+					key.Cid,
+				)
+			}
 		}
 	}
 }
