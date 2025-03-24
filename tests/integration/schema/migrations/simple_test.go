@@ -60,7 +60,7 @@ func TestSchemaMigrationDoesNotErrorGivenUnknownSchemaRoots(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: "does not exist",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{
@@ -139,7 +139,7 @@ func TestSchemaMigrationGetMigrationsReturnsMultiple(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: "does not exist",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{
@@ -167,7 +167,7 @@ func TestSchemaMigrationGetMigrationsReturnsMultiple(t *testing.T) {
 						SchemaVersionID: "bafkreiahhaeagyfsxaxmv3d665qvnbtyn3ts6jshhghy5bijwztbe7efpq",
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 3,
+								SourceSchemaVersionID: "bafkreia3o3cetvcnnxyu5spucimoos77ifungfmacxdkva4zah2is3aooe",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{
@@ -247,7 +247,7 @@ func TestSchemaMigrationReplacesExistingMigationBasedOnSourceID(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: "a",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{
@@ -270,7 +270,7 @@ func TestSchemaMigrationReplacesExistingMigationBasedOnSourceID(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: "a",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{

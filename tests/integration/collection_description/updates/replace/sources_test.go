@@ -27,7 +27,7 @@ func TestColDescrUpdateReplaceSources_Errors(t *testing.T) {
 			testUtils.PatchCollection{
 				Patch: `
 					[
-						{ "op": "replace", "path": "/1/Sources", "value": [{"SourceCollectionID": 1}] }
+						{ "op": "replace", "path": "/1/Sources", "value": [{"SourceSchemaVersionID": "oinsbfauauf"}] }
 					]
 				`,
 				ExpectedError: "collection sources cannot be added or removed. CollectionID: 1",

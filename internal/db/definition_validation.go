@@ -433,11 +433,11 @@ func validateSourcesNotRedefined(
 			if i >= len(oldColSources) {
 				continue // Avoid out-of-bounds panic
 			}
-			if newColSources[i].SourceCollectionID != oldColSources[i].SourceCollectionID {
+			if newColSources[i].SourceSchemaVersionID != oldColSources[i].SourceSchemaVersionID {
 				errs = append(errs, NewErrCollectionSourceIDMutated(
 					newCol.ID,
-					newColSources[i].SourceCollectionID,
-					oldColSources[i].SourceCollectionID,
+					newColSources[i].SourceSchemaVersionID,
+					oldColSources[i].SourceSchemaVersionID,
 				))
 			}
 		}

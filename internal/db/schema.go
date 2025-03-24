@@ -408,7 +408,7 @@ func (db *DB) updateSchema(
 		definitions := make([]client.CollectionDefinition, 0, len(cols))
 
 		for _, col := range cols {
-			previousID := col.ID
+			previousSchemaVersionID := col.SchemaVersionID
 
 			// The collection version may exist before the schema version was created locally.  This is
 			// because migrations for the globally known schema version may have been registered locally
@@ -422,7 +422,7 @@ func (db *DB) updateSchema(
 				for _, source := range sources {
 					// Make sure that this collection is the parent of the current [col], and not part of
 					// another collection set that happens to be using the same schema.
-					if source.SourceCollectionID == previousID {
+					if source.SourceSchemaVersionID == previousSchemaVersionID {
 						if existingCol.RootID == client.OrphanRootID {
 							existingCol.RootID = col.RootID
 						}
@@ -464,8 +464,8 @@ func (db *DB) updateSchema(
 				col.SchemaVersionID = schema.VersionID
 				col.Sources = []any{
 					&client.CollectionSource{
-						SourceCollectionID: previousID,
-						Transform:          migration,
+						SourceSchemaVersionID: previousSchemaVersionID,
+						Transform:             migration,
 					},
 				}
 

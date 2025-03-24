@@ -149,7 +149,7 @@ func TestSchemaUpdates_WithBranchingSchema(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: schemaVersion1ID,
 							},
 						},
 					},
@@ -162,7 +162,7 @@ func TestSchemaUpdates_WithBranchingSchema(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: schemaVersion1ID,
 							},
 						},
 					},
@@ -281,7 +281,7 @@ func TestSchemaUpdates_WithPatchOnBranchedSchema(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: schemaVersion1ID,
 							},
 						},
 					},
@@ -293,7 +293,7 @@ func TestSchemaUpdates_WithPatchOnBranchedSchema(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: schemaVersion1ID,
 							},
 						},
 					},
@@ -306,7 +306,7 @@ func TestSchemaUpdates_WithPatchOnBranchedSchema(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 3,
+								SourceSchemaVersionID: schemaVersion3ID,
 							},
 						},
 					},
@@ -395,7 +395,7 @@ func TestSchemaUpdates_WithBranchingSchemaAndSetActiveSchemaToOtherBranch(t *tes
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: schemaVersion1ID,
 							},
 						},
 					},
@@ -407,7 +407,7 @@ func TestSchemaUpdates_WithBranchingSchemaAndSetActiveSchemaToOtherBranch(t *tes
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: schemaVersion1ID,
 							},
 						},
 					},
@@ -530,7 +530,7 @@ func TestSchemaUpdates_WithBranchingSchemaAndSetActiveSchemaToOtherBranchThenPat
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: schemaVersion1ID,
 							},
 						},
 					},
@@ -542,7 +542,7 @@ func TestSchemaUpdates_WithBranchingSchemaAndSetActiveSchemaToOtherBranchThenPat
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: schemaVersion1ID,
 							},
 						},
 					},
@@ -555,7 +555,7 @@ func TestSchemaUpdates_WithBranchingSchemaAndSetActiveSchemaToOtherBranchThenPat
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 2,
+								SourceSchemaVersionID: schemaVersion2ID,
 							},
 						},
 					},

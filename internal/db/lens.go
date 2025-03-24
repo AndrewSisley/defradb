@@ -72,13 +72,13 @@ func (db *DB) setMigration(ctx context.Context, cfg client.LensConfig) error {
 				// by another migration.  This can happen if the migrations are added in an unusual order, before
 				// their schemas have been defined locally.
 				dstCol.Sources = append(dstCol.Sources, &client.CollectionSource{
-					SourceCollectionID: sourceCol.ID,
+					SourceSchemaVersionID: sourceCol.SchemaVersionID,
 				})
 				dstCols[i] = dstCol
 			}
 
 			for _, source := range dstCol.CollectionSources() {
-				if source.SourceCollectionID == sourceCol.ID {
+				if source.SourceSchemaVersionID == sourceCol.SchemaVersionID {
 					isDstCollectionFound = true
 					break dstColsLoop
 				}
@@ -100,7 +100,7 @@ func (db *DB) setMigration(ctx context.Context, cfg client.LensConfig) error {
 				IsMaterialized:  true,
 				Sources: []any{
 					&client.CollectionSource{
-						SourceCollectionID: sourceCol.ID,
+						SourceSchemaVersionID: sourceCol.SchemaVersionID,
 						// The transform will be set later, when updating all destination collections
 						// whether they are newly created or not.
 					},

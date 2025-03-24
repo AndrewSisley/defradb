@@ -60,7 +60,7 @@ func TestSchemaMigrationGetMigrationsWithTxn(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceCollectionID: 1,
+								SourceSchemaVersionID: "does not exist",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{

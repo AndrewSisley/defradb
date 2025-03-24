@@ -155,19 +155,17 @@ func getCollectionHistory(
 	}
 
 	history := map[schemaVersionID]*collectionHistoryLink{}
-	schemaVersionsByColID := map[uint32]schemaVersionID{}
 
 	for _, col := range cols {
 		// Convert the temporary types to the cleaner return type:
 		history[col.SchemaVersionID] = &collectionHistoryLink{
 			collection: &col,
 		}
-		schemaVersionsByColID[col.ID] = col.SchemaVersionID
 	}
 
 	for _, historyItem := range history {
 		for _, source := range historyItem.collection.CollectionSources() {
-			srcSchemaVersion := schemaVersionsByColID[source.SourceCollectionID]
+			srcSchemaVersion := source.SourceSchemaVersionID
 			src := history[srcSchemaVersion]
 			historyItem.previous = append(
 				historyItem.previous,

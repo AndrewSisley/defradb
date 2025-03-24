@@ -27,7 +27,7 @@ func TestColDescrUpdateAddSources_Errors(t *testing.T) {
 			testUtils.PatchCollection{
 				Patch: `
 					[
-						{ "op": "add", "path": "/1/Sources/-", "value": {"SourceCollectionID": 1} }
+						{ "op": "add", "path": "/1/Sources/-", "value": {"SourceSchemaVersionID": "nibvavfafa"} }
 					]
 				`,
 				ExpectedError: "collection sources cannot be added or removed. CollectionID: 1",

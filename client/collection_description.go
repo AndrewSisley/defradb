@@ -138,12 +138,11 @@ type QuerySource struct {
 //
 // Typically these are used to link together multiple schema versions into the same dataset.
 type CollectionSource struct {
-	// SourceCollectionID is the local identifier of the source [CollectionDescription] from which to
-	// share data.
+	// SourceSchemaVersionID is the ID of the schema version that this collection sources items from.
 	//
-	// This is a bi-directional relationship, and documents in the host collection instance will also
-	// be available to the source collection instance.
-	SourceCollectionID uint32
+	// This is a bi-directional relationship, and documents at the host schema version will also
+	// be available to the source schema version.
+	SourceSchemaVersionID string
 
 	// Transform is a optional Lens configuration.  If specified, data drawn from the source will have the
 	// transform applied before being returned by any operation on the host collection instance.
@@ -263,8 +262,8 @@ func (c *CollectionDescription) UnmarshalJSON(bytes []byte) error {
 				return err
 			}
 			sourceValue = &querySource
-		} else if _, ok := source["SourceCollectionID"]; ok {
-			// This must be a CollectionSource, as only the `CollectionSource` type has a `SourceCollectionID` field
+		} else if _, ok := source["SourceSchemaVersionID"]; ok {
+			// This must be a CollectionSource, as only the `CollectionSource` type has a `SourceSchemaVersionID` field
 			var collectionSource CollectionSource
 			err := json.Unmarshal(sourceJson, &collectionSource)
 			if err != nil {

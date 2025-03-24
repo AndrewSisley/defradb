@@ -594,7 +594,7 @@ func NewErrCollectionSourcesCannotBeAddedRemoved(colID uint32) error {
 	)
 }
 
-func NewErrCollectionSourceIDMutated(colID uint32, newSrcID uint32, oldSrcID uint32) error {
+func NewErrCollectionSourceIDMutated(colID uint32, newSrcID string, oldSrcID string) error {
 	return errors.New(
 		errCollectionSourceIDMutated,
 		errors.NewKV("CollectionID", colID),
