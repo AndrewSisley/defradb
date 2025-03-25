@@ -66,6 +66,7 @@ var configFlags = map[string]string{
 	"keyring-backend":    "keyring.backend",
 	"keyring-path":       "keyring.path",
 	"no-keyring":         "keyring.disabled",
+	"acp-type":           "acp.type",
 	"source-hub-address": "acp.sourceHub.address",
 	"development":        "development",
 	"secret-file":        "secretfile",

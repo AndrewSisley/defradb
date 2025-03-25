@@ -275,6 +275,11 @@ func MakeStartCommand() *cobra.Command {
 		"no-signing",
 		cfg.GetBool(configFlags["no-signing"]),
 		"Disable signing of commits.")
+	cmd.PersistentFlags().String(
+		"acp-type",
+		cfg.GetString(configFlags["acp.type"]),
+		"Specify the acp engine to use (supported: none, local, source-hub)",
+	)
 	return cmd
 }
 
