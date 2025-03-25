@@ -40,7 +40,7 @@ func (a *StartCli) Execute() {
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(a.s.T, err)
 
-	args := []string{"start", "--no-keyring", "--store=memory"}
+	args := []string{"start", "--no-keyring", "--store=memory", "--acp-type=none"}
 
 	a.s.Url = listener.Addr().String()
 	a.s.RootDir = a.s.T.TempDir()
