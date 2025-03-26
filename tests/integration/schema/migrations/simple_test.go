@@ -60,7 +60,8 @@ func TestSchemaMigrationDoesNotErrorGivenUnknownSchemaRoots(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceSchemaVersionID: "does not exist",
+								SourceSchemaVersionID:      "does not exist",
+								DestinationSchemaVersionID: "also does not exist",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{
@@ -139,7 +140,8 @@ func TestSchemaMigrationGetMigrationsReturnsMultiple(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceSchemaVersionID: "does not exist",
+								SourceSchemaVersionID:      "does not exist",
+								DestinationSchemaVersionID: "also does not exist",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{
@@ -167,7 +169,8 @@ func TestSchemaMigrationGetMigrationsReturnsMultiple(t *testing.T) {
 						SchemaVersionID: "bafkreiahhaeagyfsxaxmv3d665qvnbtyn3ts6jshhghy5bijwztbe7efpq",
 						Sources: []any{
 							&client.CollectionSource{
-								SourceSchemaVersionID: "bafkreia3o3cetvcnnxyu5spucimoos77ifungfmacxdkva4zah2is3aooe",
+								SourceSchemaVersionID:      "bafkreia3o3cetvcnnxyu5spucimoos77ifungfmacxdkva4zah2is3aooe",
+								DestinationSchemaVersionID: "bafkreiahhaeagyfsxaxmv3d665qvnbtyn3ts6jshhghy5bijwztbe7efpq",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{
@@ -247,7 +250,8 @@ func TestSchemaMigrationReplacesExistingMigationBasedOnSourceID(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceSchemaVersionID: "a",
+								SourceSchemaVersionID:      "a",
+								DestinationSchemaVersionID: "b",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{
@@ -270,7 +274,8 @@ func TestSchemaMigrationReplacesExistingMigationBasedOnSourceID(t *testing.T) {
 						IsMaterialized:  true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceSchemaVersionID: "a",
+								SourceSchemaVersionID:      "a",
+								DestinationSchemaVersionID: "c",
 								Transform: immutable.Some(
 									model.Lens{
 										Lenses: []model.LensModule{

@@ -190,7 +190,8 @@ func TestColDescrUpdateReplaceName_RemoveExistingName(t *testing.T) {
 						IsMaterialized: true,
 						Sources: []any{
 							&client.CollectionSource{
-								SourceSchemaVersionID: "bafkreia3o3cetvcnnxyu5spucimoos77ifungfmacxdkva4zah2is3aooe",
+								SourceSchemaVersionID:      "bafkreia3o3cetvcnnxyu5spucimoos77ifungfmacxdkva4zah2is3aooe",
+								DestinationSchemaVersionID: "bafkreigtjpibdyrvmwvu7wbzatqpgavczrauj4huog2cvskwrgak6m7qgi",
 							},
 						},
 					},

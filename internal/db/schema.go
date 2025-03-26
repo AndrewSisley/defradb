@@ -464,8 +464,9 @@ func (db *DB) updateSchema(
 				col.SchemaVersionID = schema.VersionID
 				col.Sources = []any{
 					&client.CollectionSource{
-						SourceSchemaVersionID: previousSchemaVersionID,
-						Transform:             migration,
+						SourceSchemaVersionID:      previousSchemaVersionID,
+						DestinationSchemaVersionID: schema.VersionID,
+						Transform:                  migration,
 					},
 				}
 

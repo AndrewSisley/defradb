@@ -72,7 +72,8 @@ func (db *DB) setMigration(ctx context.Context, cfg client.LensConfig) error {
 				// by another migration.  This can happen if the migrations are added in an unusual order, before
 				// their schemas have been defined locally.
 				dstCol.Sources = append(dstCol.Sources, &client.CollectionSource{
-					SourceSchemaVersionID: sourceCol.SchemaVersionID,
+					SourceSchemaVersionID:      sourceCol.SchemaVersionID,
+					DestinationSchemaVersionID: dstCol.SchemaVersionID,
 				})
 				dstCols[i] = dstCol
 			}
@@ -100,7 +101,8 @@ func (db *DB) setMigration(ctx context.Context, cfg client.LensConfig) error {
 				IsMaterialized:  true,
 				Sources: []any{
 					&client.CollectionSource{
-						SourceSchemaVersionID: sourceCol.SchemaVersionID,
+						SourceSchemaVersionID:      sourceCol.SchemaVersionID,
+						DestinationSchemaVersionID: cfg.DestinationSchemaVersionID,
 						// The transform will be set later, when updating all destination collections
 						// whether they are newly created or not.
 					},

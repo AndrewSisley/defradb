@@ -144,6 +144,8 @@ type CollectionSource struct {
 	// be available to the source schema version.
 	SourceSchemaVersionID string
 
+	DestinationSchemaVersionID string
+
 	// Transform is a optional Lens configuration.  If specified, data drawn from the source will have the
 	// transform applied before being returned by any operation on the host collection instance.
 	//
