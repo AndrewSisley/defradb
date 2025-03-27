@@ -70,7 +70,7 @@ func new(
 	collectionHistory map[schemaVersionID]*targetedCollectionHistoryLink,
 ) Lens {
 	targetSource := enumerable.NewQueue[LensDoc]()
-	outputPipe := enumerable.Concat[LensDoc](targetSource)
+	outputPipe := enumerable.Concat(targetSource)
 
 	return &lens{
 		lensRegistry:       lensRegistry,
@@ -161,7 +161,7 @@ func (l *lens) Next() (bool, error) {
 				}
 				// It is a source of the schemaVersion junction pipe, other schema versions
 				// may also join as sources to this junction pipe
-				junctionPipe = enumerable.Concat[LensDoc](versionInputPipe)
+				junctionPipe = enumerable.Concat(versionInputPipe)
 				l.lensPipesBySchemaVersionIDs[historyLocation.collection.SchemaVersionID] = junctionPipe
 			}
 
