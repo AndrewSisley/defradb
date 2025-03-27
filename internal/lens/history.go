@@ -24,7 +24,8 @@ import (
 // links to the previous and next version items if they exist.
 type collectionHistoryLink struct {
 	// The collection as this point in history.
-	collection *client.CollectionDescription
+	collection      *client.CollectionDescription
+	schemaVersionID string
 
 	// The history link to the next collection versions, if there are some
 	// (for the most recent schema version this will be empty).
@@ -148,35 +149,44 @@ func getCollectionHistory(
 	ctx context.Context,
 	txn datastore.Txn,
 	schemaRoot string,
-) (map[schemaVersionID]*collectionHistoryLink, error) {
-	cols, err := description.GetCollectionsBySchemaRoot(ctx, txn, schemaRoot)
+) (map[schemaVersionID]*collectionHistoryLink, error) { // todo - the implementation of this func is quite sketchy, revist...
+	cols, err := description.GetCollectionsBySchemaRoot(ctx, txn, schemaRoot) // todo - return single item
 	if err != nil {
 		return nil, err
 	}
 
 	history := map[schemaVersionID]*collectionHistoryLink{}
 
-	for _, col := range cols {
-		// Convert the temporary types to the cleaner return type:
-		history[col.SchemaVersionID] = &collectionHistoryLink{
-			collection: &col,
+	col := cols[0]
+	// Convert the temporary types to the cleaner return type:
+	history[col.SchemaVersionID] = &collectionHistoryLink{
+		collection:      &col,
+		schemaVersionID: col.SchemaVersionID,
+	}
+
+	for _, source := range col.CollectionSources() {
+		history[source.DestinationSchemaVersionID] = &collectionHistoryLink{
+			collection:      &col,
+			schemaVersionID: source.DestinationSchemaVersionID,
+		}
+		history[source.SourceSchemaVersionID] = &collectionHistoryLink{
+			collection:      &col,
+			schemaVersionID: source.SourceSchemaVersionID,
 		}
 	}
 
-	for _, historyItem := range history {
-		for _, source := range historyItem.collection.CollectionSources() {
-			srcSchemaVersion := source.SourceSchemaVersionID
-			src := history[srcSchemaVersion]
-			historyItem.previous = append(
-				historyItem.previous,
-				src,
-			)
+	for _, source := range col.CollectionSources() {
+		src := history[source.SourceSchemaVersionID]
+		dst := history[source.DestinationSchemaVersionID]
+		dst.previous = append(
+			dst.previous,
+			src,
+		)
 
-			src.next = append(
-				src.next,
-				historyItem,
-			)
-		}
+		src.next = append(
+			src.next,
+			dst,
+		)
 	}
 
 	return history, nil

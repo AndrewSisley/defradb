@@ -278,10 +278,52 @@ func (db *DB) setActiveSchemaVersion(
 	}
 
 	for _, col := range colsWithRoot {
-		if col.SchemaVersionID == schemaVersionID {
-			col.Name = immutable.Some(newName)
-		} else {
-			col.Name = immutable.None[string]()
+		col.Name = immutable.Some(newName)
+		col.SchemaVersionID = schemaVersionID
+
+		indexDescriptions, err := db.fetchCollectionIndexDescriptions(ctx, col.RootID)
+		if err != nil {
+			return err
+		}
+		col.Indexes = indexDescriptions
+
+		col.SchemaVersionID = schema.VersionID
+
+		indexesToRemove := map[int]struct{}{}
+		for i, localField := range col.Fields { // todo - must not give new ids to old fields! (make sure this is tested)
+			if _, ok := schema.GetFieldByName(localField.Name); !ok {
+				indexesToRemove[i] = struct{}{}
+			}
+		}
+
+		originalFields := col.Fields
+		col.Fields = []client.CollectionFieldDescription{}
+		for i, field := range originalFields {
+			if _, ok := indexesToRemove[i]; !ok {
+				col.Fields = append(col.Fields, field)
+			}
+		}
+
+		for _, globalField := range schema.Fields {
+			_, exists := col.GetFieldByName(globalField.Name)
+			if !exists {
+				col.Fields = append(
+					col.Fields,
+					client.CollectionFieldDescription{
+						Name: globalField.Name,
+					},
+				)
+			}
+		}
+
+		err = db.setFieldIDs(ctx, []client.CollectionDefinition{
+			{
+				Schema:      schema,
+				Description: col,
+			},
+		})
+		if err != nil {
+			return err
 		}
 
 		_, err = description.SaveCollection(ctx, txn, col)

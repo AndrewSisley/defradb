@@ -328,11 +328,16 @@ func (n *dagScanNode) dagBlockToNodeDoc(block *coreblock.Block) (core.Doc, error
 	schemaVersionId := block.Delta.GetSchemaVersionID()
 	n.commitSelect.DocumentMapping.SetFirstOfName(&commit, request.SchemaVersionIDFieldName, schemaVersionId)
 
+	schema, err := n.planner.db.GetSchemaByVersionID(n.planner.ctx, schemaVersionId)
+	if err != nil {
+		return core.Doc{}, err // todo - might need to handle not found
+	}
+
 	cols, err := n.planner.db.GetCollections(
 		n.planner.ctx,
 		client.CollectionFetchOptions{
 			IncludeInactive: immutable.Some(true),
-			SchemaVersionID: immutable.Some(schemaVersionId),
+			SchemaRoot:      immutable.Some(schema.Root),
 		},
 	)
 	if err != nil {

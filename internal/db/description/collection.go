@@ -88,6 +88,14 @@ func SaveCollection(
 		}
 	}
 
+	if existing.SchemaVersionID != "" && existing.ID == desc.ID {
+		schemaVersionKey := keys.NewCollectionSchemaVersionKey(existing.SchemaVersionID, desc.ID)
+		err = txn.Systemstore().Delete(ctx, schemaVersionKey.Bytes())
+		if err != nil {
+			return client.CollectionDescription{}, err
+		}
+	}
+
 	// The need for this key is temporary, we should replace it with the global collection ID
 	// https://github.com/sourcenetwork/defradb/issues/1085
 	schemaVersionKey := keys.NewCollectionSchemaVersionKey(desc.SchemaVersionID, desc.ID)
