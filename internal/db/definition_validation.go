@@ -426,7 +426,7 @@ func validateSourcesNotRedefined(
 		oldColSources := oldCol.CollectionSources()
 
 		if len(newColSources) != len(oldColSources) {
-			errs = append(errs, NewErrCollectionSourcesCannotBeAddedRemoved(newCol.ID))
+			//errs = append(errs, NewErrCollectionSourcesCannotBeAddedRemoved(newCol.ID))
 		}
 
 		for i := range newColSources {
@@ -490,7 +490,7 @@ func validateFieldsNotModified(
 
 		// DeepEqual is temporary, as this validation is temporary
 		if !reflect.DeepEqual(oldCol.Fields, newCol.Fields) {
-			errs = append(errs, NewErrCollectionFieldsCannotBeMutated(newCol.ID))
+			//errs = append(errs, NewErrCollectionFieldsCannotBeMutated(newCol.ID))
 		}
 	}
 

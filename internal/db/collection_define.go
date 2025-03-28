@@ -264,6 +264,7 @@ func (db *DB) setActiveSchemaVersion(
 
 	var newName string
 	for _, col := range colsWithRoot {
+		println(col.ID)
 		if col.Name.HasValue() {
 			newName = col.Name.Value()
 			// Just take the first named, active version

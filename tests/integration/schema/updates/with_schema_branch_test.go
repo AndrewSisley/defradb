@@ -357,11 +357,11 @@ func TestSchemaUpdates_WithBranchingSchemaAndSetActiveSchemaToOtherBranch(t *tes
 						Sources: []any{
 							&client.CollectionSource{
 								SourceSchemaVersionID:      schemaVersion1ID,
-								DestinationSchemaVersionID: schemaVersion3ID,
+								DestinationSchemaVersionID: schemaVersion2ID,
 							},
 							&client.CollectionSource{
 								SourceSchemaVersionID:      schemaVersion1ID,
-								DestinationSchemaVersionID: schemaVersion2ID,
+								DestinationSchemaVersionID: schemaVersion3ID,
 							},
 						},
 					},

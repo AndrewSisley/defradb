@@ -47,6 +47,7 @@ func (db *DB) setMigration(ctx context.Context, cfg client.LensConfig) error {
 		if err != nil {
 			return err
 		}
+		panic("DSFa")
 
 		desc := client.CollectionDescription{
 			ID:              uint32(colID),

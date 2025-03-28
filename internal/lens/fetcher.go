@@ -136,6 +136,7 @@ func (f *lensedFetcher) FetchNext(ctx context.Context) (fetcher.EncodedDocument,
 	if err != nil {
 		return nil, fetcher.ExecInfo{}, err
 	}
+	panic(f.col.Description().ID)
 
 	if doc == nil {
 		return nil, execInfo, nil

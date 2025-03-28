@@ -55,6 +55,10 @@ func (db *DB) setCollectionID(ctx context.Context, newCollections []client.Colle
 			newCollections[i].Description.ID = uint32(colID)
 		}
 
+		if newCollections[i].Description.ID != 1 {
+			panic("FDgsf")
+		}
+
 		if newCollections[i].Description.RootID == 0 {
 			newCollections[i].Description.RootID = uint32(colID)
 		}
