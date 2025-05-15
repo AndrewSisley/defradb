@@ -329,3 +329,103 @@ func TestView_SimpleWithTransformReturningFewerDocsThanInput(t *testing.T) {
 
 	testUtils.ExecuteTestCase(t, test)
 }
+
+func TestView_SimpleWithTransformReturningFewerDocsThanInput_WithInlineArray(t *testing.T) {
+	test := testUtils.TestCase{
+		Actions: []any{
+			testUtils.SchemaUpdate{
+				Schema: `
+					type User {
+						name: String
+						preferredPublicKey: String
+						limbs: [String]
+					}
+				`,
+			},
+			testUtils.CreateView{
+				Query: `
+					User {
+						name
+						preferredPublicKey
+						limbs
+					}
+				`,
+				SDL: `
+					type UserView @materialized(if: false) {
+						name: String
+						preferredPublicKey: String
+						limbs: [String]
+					}
+				`,
+				Transform: immutable.Some(model.Lens{
+					Lenses: []model.LensModule{
+						{
+							Path: lenses.FilterModulePath,
+							Arguments: map[string]any{
+								"src":   "preferredPublicKey",
+								"value": "mgndsfbvfybnf82y3bunsfbaafnmjsgnansgsbfahfbhafnajfnkjafhafbsakbg",
+							},
+						},
+					},
+				}),
+			},
+			testUtils.CreateDoc{
+				Doc: `{
+					"name":               "John",
+					"preferredPublicKey": "mgndsfbvfybnf82y3bunsfbaafnmjsgnansgsbfahfbhafnajfnkjafhafbsakbg",
+					"limbs": [
+						"Right arm",
+						"Left leg",
+						"Longggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg left leg"
+					]
+				}`,
+			},
+			testUtils.CreateDoc{
+				Doc: `{
+					"name":               "Fred",
+					"preferredPublicKey": "86257168748",
+					"limbs": [
+						"Left arm",
+						"Left leg"
+					]
+				}`,
+			},
+			testUtils.CreateDoc{
+				Doc: `{
+					"name":               "Shahzad",
+					"preferredPublicKey": "bhsasbfonfikmiamIFMAIMf",
+					"limbs": [
+						"Right leg",
+						"Left leg"
+					]
+				}`,
+			},
+			testUtils.Request{
+				Request: `
+					query {
+						UserView {
+							name
+							preferredPublicKey
+							limbs
+						}
+					}
+				`,
+				Results: map[string]any{
+					"UserView": []map[string]any{
+						{
+							"name":               "John",
+							"preferredPublicKey": "mgndsfbvfybnf82y3bunsfbaafnmjsgnansgsbfahfbhafnajfnkjafhafbsakbg",
+							"limbs": []string{
+								"Right arm",
+								"Left leg",
+								"Longgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg leg",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	testUtils.ExecuteTestCase(t, test)
+}
