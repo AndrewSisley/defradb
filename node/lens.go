@@ -52,7 +52,7 @@ func DefaultLensOptions() *LensOptions {
 type LenOpt func(*LensOptions)
 
 // WithLensRuntime returns an option that sets the lens registry runtime.
-func WithLensRuntime(runtime LensRuntimeType) Option {
+func WithLensRuntime(runtime LensRuntimeType) LenOpt {
 	return func(o *LensOptions) {
 		o.lensRuntime = runtime
 	}
@@ -61,7 +61,7 @@ func WithLensRuntime(runtime LensRuntimeType) Option {
 // WithLensPoolSize sets the maximum number of cached migrations instances to preserve per schema version.
 //
 // Will default to `5` if not set.
-func WithLensPoolSize(size int) Option {
+func WithLensPoolSize(size int) LenOpt {
 	return func(o *LensOptions) {
 		o.lensPoolSize = size
 	}
