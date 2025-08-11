@@ -38,6 +38,16 @@ var templateDataGenerators = map[string]func(*state.State, int) map[string]strin
 
 		return res
 	},
+	"DocID": func(s *state.State, _ int) map[string]string { // todo - maybe two sets/replaces, one for node-agnostic, and one for node?
+		res := map[string]string{}
+		for collectionIndex, docIDs := range s.DocIDs {
+			for docIndex, docID := range docIDs {
+				res["DocID"+strconv.Itoa(collectionIndex)+"-"+strconv.Itoa(docIndex)] = docID.String()
+			}
+		}
+
+		return res
+	},
 }
 
 // replace returns a new string with any templating placholders (see "text/template") with data drawn
