@@ -262,6 +262,10 @@ func (w *CWrapper) SyncDocuments(
 	return nil
 }
 
+func (db *CWrapper) SyncCollections(ctx context.Context, versionIDs ...string) error {
+	panic("todo")
+}
+
 func (w *CWrapper) BasicImport(ctx context.Context, filepath string) error {
 	panic("not implemented")
 }

@@ -114,6 +114,10 @@ func (w *Wrapper) SyncDocuments(
 	return w.client.SyncDocuments(ctx, collectionName, docIDs)
 }
 
+func (txn *Wrapper) SyncCollections(ctx context.Context, versionIDs ...string) error {
+	panic("todo")
+}
+
 func (w *Wrapper) BasicImport(ctx context.Context, filepath string) error {
 	return w.client.BasicImport(ctx, filepath)
 }

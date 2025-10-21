@@ -234,3 +234,7 @@ func (c *Client) SyncDocuments(
 	_, err = c.http.request(httpReq)
 	return err
 }
+
+func (db *Client) SyncCollections(ctx context.Context, versionIDs ...string) error {
+	panic("todo")
+}

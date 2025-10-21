@@ -220,3 +220,23 @@ func (db *DB) SyncDocuments(ctx context.Context, collectionName string, docIDs [
 	}
 	return db.p2p.SyncDocuments(ctx, collectionName, docIDs)
 }
+
+// WARNING: This function does not respect transactions.
+func (db *DB) SyncCollections(ctx context.Context, versionIDs ...string) error {
+	if db.p2p == nil {
+		return ErrNoP2P
+	}
+
+	ctx, txn, err := ensureContextTxn(ctx, db, false)
+	if err != nil {
+		return err
+	}
+	defer txn.Discard()
+
+	err = db.p2p.SyncCollections(ctx, versionIDs...)
+	if err != nil {
+		return err
+	}
+
+	return txn.Commit()
+}

@@ -204,6 +204,10 @@ func (w *Wrapper) SyncDocuments(
 	return err
 }
 
+func (txn *Wrapper) SyncCollections(ctx context.Context, versionIDs ...string) error {
+	panic("todo")
+}
+
 func (w *Wrapper) BasicImport(ctx context.Context, filepath string) error {
 	args := []string{"client", "backup", "import"}
 	args = append(args, filepath)

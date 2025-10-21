@@ -62,6 +62,7 @@ func (a *AddSchema) Execute() {
 
 		a.s.Ctx = getContextWithIdentity(a.s.Ctx, a.s, a.Identity, nodeID)
 		results, err := node.AddSchema(a.s.Ctx, schema)
+
 		resetStateContext(a.s)
 		expectedErrorRaised := assertError(a.s.T, err, a.ExpectedError)
 

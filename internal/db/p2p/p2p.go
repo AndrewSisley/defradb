@@ -14,6 +14,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 	"time"
 
@@ -25,6 +26,7 @@ import (
 
 	"github.com/sourcenetwork/corelog"
 	"github.com/sourcenetwork/immutable"
+	lens "github.com/sourcenetwork/lens/host-go/node"
 
 	"github.com/sourcenetwork/defradb/acp/dac"
 	"github.com/sourcenetwork/defradb/acp/identity"
@@ -93,6 +95,7 @@ type P2P struct {
 
 	ctx  context.Context
 	db   DB
+	lens *lens.Node
 	host client.Host
 
 	// replicators is a map from collection CollectionID => peerId => list of addresses.
@@ -136,10 +139,17 @@ func (proc *pushLogCommProcessor) ProcessRequest(
 }
 
 // New returns a new configured P2P instance.
-func New(ctx context.Context, db DB, host client.Host, nodeIdentity immutable.Option[identity.Identity]) (*P2P, error) {
+func New(
+	ctx context.Context,
+	db DB,
+	lens *lens.Node,
+	host client.Host,
+	nodeIdentity immutable.Option[identity.Identity],
+) (*P2P, error) {
 	p := P2P{
 		ctx:                  ctx,
 		db:                   db,
+		lens:                 lens,
 		host:                 host,
 		identityProtocol:     protocol.NewIdentityProtocol(host, db.GetNodeIdentityToken),
 		replicators:          make(map[string]map[string][]string),
@@ -266,8 +276,21 @@ func (p *P2P) hasAccess(ctx context.Context, pid string, c cid.Cid) bool {
 
 	block, err := coreblock.GetFromBytes(rawblock.RawData())
 	if err != nil {
+		if strings.Contains(err.Error(), "invalid key: \"modules\" is not a field in type Block") { // todo :)
+			return true
+		}
+		if strings.Contains(err.Error(), "invalid key: \"lens\" is not a field in type Block") { // todo :)
+			return true
+		}
+		if strings.Contains(err.Error(), "invalid key: \"wasmBytes\" is not a field in type Block") { // todo :)
+			return true
+		}
 		log.ErrorE("Failed to get doc from block", err)
 		return false
+	}
+
+	if block.Delta.IsDefinition() {
+		return true
 	}
 
 	cols, err := clientTxn.GetCollections(
