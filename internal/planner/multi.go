@@ -244,17 +244,43 @@ func (n *selectNode) addSubPlan(fieldIndex int, newPlan planNode) error {
 
 	// we already have an existing parallelNode as our source
 	case *parallelNode:
-		switch newPlan.(type) {
-		// We have a internal multiscanNode on our MultiNode
-		case *scanNode, *typeIndexJoin:
-			// replace our new node internal scanNode with our existing multiscanner
-			if err := n.planner.walkAndReplacePlan(newPlan, sourceNode.multiscan.Source(), sourceNode.multiscan); err != nil {
-				return err
+		if sourceNode.multiscan != nil {
+			switch newPlan.(type) {
+			// We have a internal multiscanNode on our MultiNode
+			case *scanNode, *typeIndexJoin:
+				// replace our new node internal scanNode with our existing multiscanner
+				if err := n.planner.walkAndReplacePlan(newPlan, sourceNode.multiscan.Source(), sourceNode.multiscan); err != nil {
+					return err
+				}
+				sourceNode.multiscan.addReader()
 			}
-			sourceNode.multiscan.addReader()
-		}
 
-		sourceNode.addChild(fieldIndex, newPlan)
+			sourceNode.addChild(fieldIndex, newPlan)
+		} else {
+			/*
+				origScan, _ := walkAndFindPlanType[*scanNode](newPlan)
+				if origScan == nil {
+					return ErrFailedToFindScanNode
+				}
+				// create our new multiscanner
+				multiscan := &multiScanNode{scanNode: origScan}
+				// replace our current source internal scanNode with our new multiscanner
+				if err := n.planner.walkAndReplacePlan(n.source, origScan, multiscan); err != nil {
+					return err
+				}
+
+				sourceNode.multiscan = multiscan
+				sourceNode.source = multiscan
+				multiscan.addReader()
+
+				// replace our new node internal scanNode with our new multiscanner
+				if err := n.planner.walkAndReplacePlan(newPlan, origScan, multiscan); err != nil {
+					return err
+				}
+			*/
+
+			sourceNode.addChild(fieldIndex, newPlan)
+		}
 	}
 	return nil
 }
