@@ -15,7 +15,6 @@ import (
 
 	"github.com/sourcenetwork/defradb/client"
 	"github.com/sourcenetwork/defradb/client/request"
-	"github.com/sourcenetwork/defradb/internal/core"
 	"github.com/sourcenetwork/defradb/internal/datastore"
 	"github.com/sourcenetwork/defradb/internal/db/fetcher"
 	"github.com/sourcenetwork/defradb/internal/db/id"
@@ -318,110 +317,4 @@ func (p *Planner) Scan(
 		return nil, err
 	}
 	return scan, nil
-}
-
-// multiScanNode is a buffered scanNode that has
-// multiple readers. Each reader is unaware of the
-// others, so we need a system, that will correctly
-// manage *when* to increment through the scanNode
-// plan.
-//
-// If we have two readers on our multiScanNode, then
-// we call Next() on the underlying scanNode only
-// once every 2 Next() calls on the multiScan
-//
-// NOTE: calling Init() on multiScanNode is subject to counting as well and as such
-// doesn't not provide idempotency guarantees. Counting is purely for performance
-// reasons and removing it should be safe.
-type multiScanNode struct {
-	scanNode   *scanNode
-	numReaders int
-	nextCount  int
-	initCount  int
-	startCount int
-	closeCount int
-
-	nextResult bool
-	err        error
-}
-
-// Init initializes the multiScanNode.
-// NOTE: this function is subject to counting based on the number of readers and as such
-// doesn't not provide idempotency guarantees. Counting is purely for performance
-// reasons and removing it should be safe.
-func (n *multiScanNode) Init() error {
-	n.countAndCall(&n.initCount, func() error {
-		return n.scanNode.Init()
-	})
-	return n.err
-}
-
-func (n *multiScanNode) Start() error {
-	n.countAndCall(&n.startCount, func() error {
-		return n.scanNode.Start()
-	})
-	return n.err
-}
-
-// countAndCall keeps track of number of requests to call a given function by checking a
-// function's count.
-// The function is only called when the count is 0.
-// If the count is equal to the number of readers, the count is reset.
-// If the function returns an error, the error is stored in the multiScanNode.
-func (n *multiScanNode) countAndCall(count *int, f func() error) {
-	if *count == 0 {
-		err := f()
-		if err != nil {
-			n.err = err
-		}
-	}
-	*count++
-
-	// if the number of calls equals the numbers of readers
-	// reset the counter, so our next call actually executes the function
-	if *count == n.numReaders {
-		*count = 0
-	}
-}
-
-// Next only calls Next() on the underlying
-// scanNode every numReaders.
-func (n *multiScanNode) Next() (bool, error) {
-	n.countAndCall(&n.nextCount, func() (err error) {
-		n.nextResult, err = n.scanNode.Next()
-		return
-	})
-
-	return n.nextResult, n.err
-}
-
-func (n *multiScanNode) Value() core.Doc {
-	return n.scanNode.documentIterator.Value()
-}
-
-func (n *multiScanNode) Prefixes(prefixes []keys.Walkable) {
-	n.scanNode.Prefixes(prefixes)
-}
-
-func (n *multiScanNode) Source() planNode {
-	return n.scanNode
-}
-
-func (n *multiScanNode) Kind() string {
-	return "multiScanNode"
-}
-
-func (n *multiScanNode) Close() error {
-	n.countAndCall(&n.closeCount, func() error {
-		return n.scanNode.Close()
-	})
-	return n.err
-}
-
-func (n *multiScanNode) DocumentMap() *core.DocumentMapping {
-	return n.scanNode.DocumentMap()
-}
-
-func (n *multiScanNode) addReader() {
-	n.numReaders++
 }

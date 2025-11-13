@@ -568,11 +568,6 @@ func (r *primaryObjectsRetriever) retrievePrimaryDocsReferencingSecondaryDoc() e
 
 func (r *primaryObjectsRetriever) collectDocs(numDocs int) ([]core.Doc, error) {
 	p := r.primarySide.plan
-	// If the primary side is a multiScanNode, we need to get the source node, as we are the only
-	// consumer (one, not multiple) of it.
-	if multiScan, ok := p.(*multiScanNode); ok {
-		p = multiScan.Source()
-	}
 	if err := p.Init(); err != nil {
 		return nil, NewErrSubTypeInit(err)
 	}

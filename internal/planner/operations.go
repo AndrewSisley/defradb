@@ -20,7 +20,6 @@ var (
 	_ planNode = (*limitNode)(nil)
 	_ planNode = (*maxNode)(nil)
 	_ planNode = (*minNode)(nil)
-	_ planNode = (*multiScanNode)(nil)
 	_ planNode = (*orderNode)(nil)
 	_ planNode = (*parallelNode)(nil)
 	_ planNode = (*pipeNode)(nil)
