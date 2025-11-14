@@ -11,7 +11,8 @@
 package planner
 
 import (
-	"github.com/sourcenetwork/defradb/client"
+	"fmt"
+
 	"github.com/sourcenetwork/defradb/internal/core"
 	"github.com/sourcenetwork/defradb/internal/keys"
 )
@@ -80,6 +81,54 @@ func (p *parallelNode) Kind() string {
 }
 
 func (p *parallelNode) Init() error {
+	newChildren := make([]planNode, len(p.children))
+	newChildIndexes := make([]int, len(p.childIndexes))
+	/*
+		endIndex := len(p.children) - 1
+		startIndex := 0
+		for i, child := range p.children {
+			switch child.(type) {
+			case *dagScanNode:
+				newChildren[endIndex] = child
+				newChildIndexes[endIndex] = p.childIndexes[i]
+				endIndex--
+			default:
+				newChildren[startIndex] = child
+				newChildIndexes[startIndex] = p.childIndexes[i]
+				startIndex++
+			}
+		}
+	*/
+	startIndex := 0
+	for i, child := range p.children {
+		switch child.(type) {
+		case *scanNode:
+			newChildren[startIndex] = child
+			newChildIndexes[startIndex] = p.childIndexes[i]
+			startIndex++
+		}
+	}
+	for i, child := range p.children {
+		switch child.(type) {
+		case *dagScanNode, *scanNode:
+			// noop
+		default:
+			newChildren[startIndex] = child
+			newChildIndexes[startIndex] = p.childIndexes[i]
+			startIndex++
+		}
+	}
+	for i, child := range p.children {
+		switch child.(type) {
+		case *dagScanNode:
+			newChildren[startIndex] = child
+			newChildIndexes[startIndex] = p.childIndexes[i]
+			startIndex++
+		}
+	}
+	p.children = newChildren
+	p.childIndexes = newChildIndexes
+
 	return p.applyToPlans(func(n planNode) error {
 		return n.Init()
 	})
@@ -109,9 +158,11 @@ func (p *parallelNode) Close() error {
 // to return true. Same with errors.
 func (p *parallelNode) Next() (bool, error) {
 	p.currentValue = p.documentMapping.NewDoc()
-
+	println("pn next------")
+	println(len(p.children))
 	var orNext bool
 	for i, plan := range p.children {
+		println(fmt.Sprintf("%T", plan))
 		var next bool
 		var err error
 		// isMerge := false
@@ -121,10 +172,13 @@ func (p *parallelNode) Next() (bool, error) {
 			next, err = p.nextMerge(i, n)
 		case *dagScanNode:
 			next, err = p.nextAppend(i, n)
+		default:
+			panic(fmt.Sprintf("%T", n))
 		}
 		if err != nil {
 			return false, err
 		}
+		println(next)
 		orNext = orNext || next
 	}
 	// if none of the children return true for next, then this will be false.
@@ -193,38 +247,51 @@ func (p *parallelNode) addChild(fieldIndex int, node planNode) {
 }
 
 func (n *selectNode) addSubPlan(fieldIndex int, newPlan planNode) error {
+	println("addSubPlan")
+	println(fieldIndex)
+	println(fmt.Sprintf("%T", newPlan))
+	println(fmt.Sprintf("%T", n.source))
 	switch sourceNode := n.source.(type) {
-	// if its a scan node, we either replace or create a multinode
-	case *scanNode, *pipeNode:
-		switch newPlan.(type) {
-		case *typeIndexJoin:
-			n.source = newPlan
-		case *dagScanNode:
-			m := &parallelNode{
-				p:         n.planner,
-				source:    newPlan,
-				docMapper: docMapper{n.source.DocumentMap()},
-			}
-			m.addChild(-1, n.source)
-			m.addChild(fieldIndex, newPlan)
-			n.source = m
-		default:
-			return client.NewErrUnhandledType("sub plan", newPlan)
-		}
-
-	case *typeIndexJoin:
+	case *scanNode, *pipeNode, *typeIndexJoin:
 		parallelNode := &parallelNode{
 			p:         n.planner,
 			source:    newPlan,
 			docMapper: docMapper{n.source.DocumentMap()},
 		}
+		_, newIsJoin := newPlan.(*typeIndexJoin)
+		_, srcIsScan := n.source.(*scanNode)
+		if newIsJoin && srcIsScan {
+			//panic("fdas")
+			//panic(fmt.Sprintf("%T", newPlan))
+			//if _, ok := newPlan.(*scanNode); !ok {
+			if _, ok := n.source.(*scanNode); !ok {
+				//parallelNode.addChild(-1, n.source)
+			}
+			//}
+		} else {
+			//parallelNode.addChild(-1, n.source)
+		}
+
 		parallelNode.addChild(-1, n.source)
 		parallelNode.addChild(fieldIndex, newPlan)
 		n.source = parallelNode
 
 	// we already have an existing parallelNode as our source
 	case *parallelNode:
+		if _, ok := newPlan.(*typeIndexJoin); ok {
+			for i, child := range sourceNode.children {
+				if _, ok := child.(*scanNode); ok {
+					sourceNode.children[i] = newPlan
+					sourceNode.childIndexes[i] = fieldIndex
+					return nil
+				}
+			}
+		}
+
 		sourceNode.addChild(fieldIndex, newPlan)
+
+	default:
+		panic(fmt.Sprintf("%T", n.source))
 	}
 	return nil
 }

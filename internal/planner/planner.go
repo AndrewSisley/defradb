@@ -319,15 +319,15 @@ func isOrderedByIndex(plan planNode) bool {
 	var scan *scanNode
 	// the typeIndexJoin has 2 scan nodes for every side of the join
 	// so we need to make sure we get the scan node that is scheduled first, i.e. more optimal
-	typeJoin := getNode[*typeIndexJoin](plan)
+	typeJoin, _ := getNode[*typeIndexJoin](plan)
 	if typeJoin != nil {
 		if j, ok := typeJoin.joinPlan.(*typeJoinOne); ok {
-			scan = getNode[*scanNode](j.getFirstSide().plan)
+			scan, _ = getNode[*scanNode](j.getFirstSide().plan)
 		} else if j, ok := typeJoin.joinPlan.(*typeJoinMany); ok {
-			scan = getNode[*scanNode](j.getFirstSide().plan)
+			scan, _ = getNode[*scanNode](j.getFirstSide().plan)
 		}
 	} else {
-		scan = getNode[*scanNode](plan)
+		scan, _ = getNode[*scanNode](plan)
 	}
 	if scan == nil || !scan.index.HasValue() {
 		return false

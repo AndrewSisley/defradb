@@ -202,10 +202,10 @@ func (n *typeIndexJoin) Explain(explainType request.ExplainType) (map[string]any
 		}
 		var subScan *scanNode
 		if joinMany, isJoinMany := n.joinPlan.(*typeJoinMany); isJoinMany {
-			subScan = getNode[*scanNode](joinMany.childSide.plan)
+			subScan, _ = getNode[*scanNode](joinMany.childSide.plan)
 		}
 		if joinOne, isJoinOne := n.joinPlan.(*typeJoinOne); isJoinOne {
-			subScan = getNode[*scanNode](joinOne.childSide.plan)
+			subScan, _ = getNode[*scanNode](joinOne.childSide.plan)
 		}
 		if subScan != nil {
 			subScanExplain, err := subScan.Explain(explainType)
@@ -371,14 +371,15 @@ func (p *Planner) newInvertableTypeJoin(
 		isFirst:            false,
 		isParent:           false,
 	}
-
+	subNode, _ := getNode[*scanNode](childSide.plan)
+	subFilter := subNode.filter
 	join := invertibleTypeJoin{
 		docMapper:  docMapper{parent.documentMapping},
 		parentSide: parentSide,
 		childSide:  childSide,
 		skipChild:  skipChild,
 		// we store child's own filter in case an index kicks in and replaces it with it's own filter
-		subFilter: getNode[*scanNode](childSide.plan).filter,
+		subFilter: subFilter,
 	}
 
 	return join, nil
@@ -443,7 +444,7 @@ func getForeignKey(node planNode, relFieldName string) string {
 
 // fetchDocWithIDAndItsSubDocs fetches a document with the given docID from the given planNode.
 func fetchDocWithIDAndItsSubDocs(node planNode, docID string) (immutable.Option[core.Doc], error) {
-	scan := getNode[*scanNode](node)
+	scan, _ := getNode[*scanNode](node)
 	if scan == nil {
 		return immutable.None[core.Doc](), nil
 	}
@@ -546,7 +547,7 @@ func (r *primaryObjectsRetriever) retrievePrimaryDocsReferencingSecondaryDoc() e
 		return client.NewErrFieldNotExist(r.primarySide.relFieldDef.Value().Name + request.RelatedObjectID)
 	}
 
-	r.primaryScan = getNode[*scanNode](r.primarySide.plan)
+	r.primaryScan, _ = getNode[*scanNode](r.primarySide.plan)
 
 	r.relIDFieldDef = relIDFieldDef
 
@@ -807,7 +808,7 @@ func (join *invertibleTypeJoin) invertJoinDirectionWithIndex(
 	fieldFilter *mapper.Filter,
 	ordering []mapper.OrderCondition,
 ) error {
-	childScan := getNode[*scanNode](join.childSide.plan)
+	childScan, _ := getNode[*scanNode](join.childSide.plan)
 	childScan.tryAddFieldWithName(join.childSide.relFieldDef.Value().Name + request.RelatedObjectID)
 	// replace child's filter with the filter that utilizes the index
 	// the original child's filter is stored in join.subFilter
@@ -839,19 +840,30 @@ func addFilterOnIDField(f *mapper.Filter, propIndex int, docID string) *mapper.F
 	return f
 }
 
-func getNode[T planNode](plan planNode) T {
+func getNode[T planNode](plan planNode) (T, bool) {
 	node := plan
 	for node != nil {
 		if node, ok := node.(T); ok {
-			return node
+			return node, true
 		}
-		node = node.Source()
-		if node == nil {
-			if topSelect, ok := plan.(*selectTopNode); ok {
-				node = topSelect.selectNode
+		switch n := node.(type) {
+		case *parallelNode:
+			for _, child := range n.Children() {
+				childSource, hasChild := getNode[T](child)
+				if hasChild {
+					node = childSource
+					break
+				}
+			}
+		default:
+			node = node.Source()
+			if node == nil {
+				if topSelect, ok := plan.(*selectTopNode); ok {
+					node = topSelect.selectNode
+				}
 			}
 		}
 	}
 	var zero T
-	return zero
+	return zero, false
 }
