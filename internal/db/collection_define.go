@@ -670,6 +670,13 @@ func (db *DB) deleteCollectionVersion(
 	ctx context.Context,
 	version client.CollectionVersion,
 ) error {
+	txn := datastore.CtxMustGetTxn(ctx)
+	shortID, err := id.GetShortCollectionID(ctx, version.CollectionID)
+	if err != nil {
+		return err
+	}
+	db.lockSet.CollectionLock(txn, shortID)
+
 	hasDocs, err := collectionHasDocuments(ctx, version)
 	if err != nil {
 		return err
