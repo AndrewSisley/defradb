@@ -40,7 +40,7 @@ type lockSet[TKey comparable] struct {
 	//
 	// All other state held by `lockset` is to support access to this property, all other mutexes exist
 	// either to manage internal access to this property, or are pointers to the mutexes within this set.
-	locksByKey map[TKey]*sync.RWMutex
+	locksByKey map[TKey]*tryLock
 	// locksByKeyLock gates access to `locksByKey`.
 	//
 	// The number of write-lock calls to this could be considerably reduced if `locksByKey` is
@@ -55,7 +55,7 @@ type lockSet[TKey comparable] struct {
 	//
 	// By mapping to the key-lock pointer here, we avoid the need to hold `locksByKeyLock`
 	// when accessing it.
-	heldRLocksByTxnID map[uint64]map[TKey]*sync.RWMutex
+	heldRLocksByTxnID map[uint64]map[TKey]*tryLock
 	txnRLockLock      sync.RWMutex
 
 	// heldLocksByTxnID is a map of a map of pointers to the mutexes contained within `locksByKey`.
@@ -64,7 +64,7 @@ type lockSet[TKey comparable] struct {
 	//
 	// By mapping to the key-lock pointer here, we avoid the need to hold `locksByKeyLock`
 	// when accessing it.
-	heldLocksByTxnID map[uint64]map[TKey]*sync.RWMutex
+	heldLocksByTxnID map[uint64]map[TKey]*tryLock
 	txnLockLock      sync.RWMutex
 
 	// allLock allows all writes to progress so long as there are no concurrent reads,
@@ -99,9 +99,9 @@ type lockSet[TKey comparable] struct {
 
 func newLockSet[TKey comparable]() *lockSet[TKey] {
 	return &lockSet[TKey]{
-		locksByKey:        map[TKey]*sync.RWMutex{},
-		heldRLocksByTxnID: map[uint64]map[TKey]*sync.RWMutex{},
-		heldLocksByTxnID:  map[uint64]map[TKey]*sync.RWMutex{},
+		locksByKey:        map[TKey]*tryLock{},
+		heldRLocksByTxnID: map[uint64]map[TKey]*tryLock{},
+		heldLocksByTxnID:  map[uint64]map[TKey]*tryLock{},
 		txnLocks:          newTxnLocks(),
 	}
 }
@@ -116,15 +116,15 @@ func newLockSet[TKey comparable]() *lockSet[TKey] {
 // read lock.
 //
 // If a lock was acquired, it will be unlocked on transaction commit/discard.
-func (l *lockSet[TKey]) Lock(txn txn, key TKey) {
+func (l *lockSet[TKey]) Lock(txn txn, key TKey, errorOnCompetingWrite bool) error {
 	l.txnLocks.Lock(txn)
 	defer l.txnLocks.Unlock(txn)
 
 	if l.hasLock(txn, key) {
-		return
+		return nil
 	}
 
-	var lock *sync.RWMutex
+	var lock *tryLock
 	if l.hasRLock(txn, key) {
 		// From an internal perspective this code appears dead, however if a user submits two
 		// concurrent operations for the same transaction, with the first acquiring a read lock,
@@ -149,6 +149,9 @@ func (l *lockSet[TKey]) Lock(txn txn, key TKey) {
 		// this case if we really want (the correctness of the code in this blog has not been verified by us).
 		lock.RUnlock()
 		l.txnRLockLock.Unlock()
+
+		// todo - multi-thread issue?
+		lock.errorOnCompetingWrite = errorOnCompetingWrite // todo - doc
 	} else {
 		// A write lock must be held as we need to write to the set if the
 		// lock key does not yet exist.  The lock cannot be unlocked
@@ -158,7 +161,7 @@ func (l *lockSet[TKey]) Lock(txn txn, key TKey) {
 		lock, ok = l.locksByKey[key]
 
 		if !ok {
-			lock = &sync.RWMutex{}
+			lock = newTryLock(errorOnCompetingWrite) //todo
 			// If the lock key does not exist yet, we must add it so
 			// that the read lock can be held if a write lock is attempted.
 			l.locksByKey[key] = lock
@@ -166,7 +169,11 @@ func (l *lockSet[TKey]) Lock(txn txn, key TKey) {
 		l.locksByKeyLock.Unlock()
 	}
 
-	lock.Lock()
+	err := lock.Lock() // todo - shouldn't error if read set the competing write...
+	if err != nil {
+		return err
+	}
+
 	// Block RLockAll from acquiring a lock until this write lock has completed, without blocking
 	// write locks to other keys.
 	l.allLock.LockA(txn)
@@ -176,7 +183,7 @@ func (l *lockSet[TKey]) Lock(txn txn, key TKey) {
 	txnID := txn.ID()
 	txnLocks, ok := l.heldLocksByTxnID[txnID]
 	if !ok {
-		txnLocks = map[TKey]*sync.RWMutex{}
+		txnLocks = map[TKey]*tryLock{}
 		l.heldLocksByTxnID[txnID] = txnLocks
 	}
 	// `l.txnLocks` protects against concurrent mutations to `txnLocks`, so we can unlock
@@ -196,6 +203,7 @@ func (l *lockSet[TKey]) Lock(txn txn, key TKey) {
 	}
 
 	txnLocks[key] = lock
+	return nil
 }
 
 // Lock blocks until the given transaction has managed to acquire the read lock for the given key.
@@ -203,10 +211,12 @@ func (l *lockSet[TKey]) Lock(txn txn, key TKey) {
 // If the transaction already has either a read or write lock, this will no-op.
 //
 // If a lock was acquired, it will be unlocked on transaction commit/discard.
-func (l *lockSet[TKey]) RLock(txn txn, key TKey) {
+func (l *lockSet[TKey]) RLock(txn txn, key TKey, isWrite bool) error {
 	l.txnLocks.Lock(txn)
 	defer l.txnLocks.Unlock(txn)
 
+	// todo - if the initial rlock is `isWrite`=false, the lock will block until the write is released - by the
+	// time the `isWrite`=true call is made, we don't know that the write was ever held!
 	if l.hasAnyLock(txn, key) {
 		// Write lock documentation:
 		//
@@ -236,7 +246,7 @@ func (l *lockSet[TKey]) RLock(txn txn, key TKey) {
 		// Thanks to the `l.txnLocks` call at the top of this RLock function, we can rule out possible
 		// race conditions in multiple concurrent actions for the same transaction acquiring read locks
 		// at roughly the same time.
-		return
+		return nil
 	}
 
 	// A write lock must be held as we need to write to the set if the
@@ -246,21 +256,24 @@ func (l *lockSet[TKey]) RLock(txn txn, key TKey) {
 	lock, ok := l.locksByKey[key]
 
 	if !ok {
-		lock = &sync.RWMutex{}
+		lock = newTryLock(false)
 		// If the lock key does not exist yet, we must add it so
 		// that the read lock can be held if a write lock is attempted.
 		l.locksByKey[key] = lock
 	}
 	l.locksByKeyLock.Unlock()
 
-	lock.RLock()
+	err := lock.RLock(isWrite)
+	if err != nil {
+		return err
+	}
 
 	l.txnRLockLock.Lock()
 
 	txnID := txn.ID()
 	txnRLocks, ok := l.heldRLocksByTxnID[txnID]
 	if !ok {
-		txnRLocks = map[TKey]*sync.RWMutex{}
+		txnRLocks = map[TKey]*tryLock{}
 		l.heldRLocksByTxnID[txnID] = txnRLocks
 	}
 	// `l.txnLocks` protects against concurrent mutations to `txnRLocks`, so we can unlock
@@ -280,6 +293,7 @@ func (l *lockSet[TKey]) RLock(txn txn, key TKey) {
 	}
 
 	txnRLocks[key] = lock
+	return nil
 }
 
 func (l *lockSet[TKey]) RLockAll(txn txn) {

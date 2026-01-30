@@ -32,8 +32,11 @@ func NewLockSet() *LockSet {
 // when the transaction is either committed or discarded.
 //
 // The acquired lock will not block other threads operating within this transaction.
-func (l *LockSet) CollectionLock(txn txn, collectionShortID uint32) {
-	l.collectionLockSet.Lock(txn, collectionShortID)
+func (l *LockSet) CollectionLock(txn txn, collectionShortID uint32, errorOnCompetingWrite bool) error {
+	// thought: errorOnCompetingWrite (and atomic-ness) can be a function option for all relevant funcs -
+	// e.g. users can chose whether a truncate call causes competing calls to error (requires NAC perm?).
+
+	return l.collectionLockSet.Lock(txn, collectionShortID, errorOnCompetingWrite)
 }
 
 // CollectionRLock acquires a read lock for the given collection short id.
@@ -47,8 +50,22 @@ func (l *LockSet) CollectionLock(txn txn, collectionShortID uint32) {
 // permit competing transaction-locks to acquire a write lock, blocking this thread's acquisition
 // of the write lock, and allowing both the other transaction's thread, and any previously
 // read-locked threads for this transaction to progress concurrently.
-func (l *LockSet) CollectionRLock(txn txn, collectionShortID uint32) {
-	l.collectionLockSet.RLock(txn, collectionShortID)
+//
+// If the `isWrite` parameter is set to true, this call may return a `corekv.ErrTxnConflict` if a write lock
+// with the `errorOnCompetingWrite` flag set to true is currently held for this collection.  This flag is
+// currently set when deleting a collection version, as actions held behind waiting for the release of the
+// lock cannot be allowed to continue upon release as the collection may have been deleted.
+func (l *LockSet) CollectionRLock(txn txn, collectionShortID uint32, isWrite bool) error {
+	return l.collectionLockSet.RLock(txn, collectionShortID, isWrite)
+}
+
+func (l *LockSet) CollectionRLockForRead(txn txn, collectionShortID uint32) {
+	// Calling `RLock` with `false` will never result in an error, so we can ignore the returned error parameter
+	_ = l.CollectionRLock(txn, collectionShortID, false)
+}
+
+func (l *LockSet) CollectionRLockForWrite(txn txn, collectionShortID uint32) error {
+	return l.CollectionRLock(txn, collectionShortID, true)
 }
 
 func (l *LockSet) RLockAll(txn txn) {

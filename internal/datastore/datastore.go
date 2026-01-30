@@ -35,14 +35,14 @@ func newDatastore(rootstore corekv.ReaderWriter, lockSet *lock.LockSet) *datasto
 }
 
 func (s *datastore) Get(ctx context.Context, key Key) ([]byte, error) {
-	s.collectionRLock(ctx, key)
+	s.collectionReadLock(ctx, key)
 
 	keyBytes := key.Bytes()
 	return s.underlying.Get(ctx, keyBytes)
 }
 
 func (s *datastore) Has(ctx context.Context, key Key) (bool, error) {
-	s.collectionRLock(ctx, key)
+	s.collectionReadLock(ctx, key)
 
 	keyBytes := key.Bytes()
 	return s.underlying.Has(ctx, keyBytes)
@@ -54,11 +54,11 @@ func (s *datastore) Iterator(ctx context.Context, opts IterOptions) (corekv.Iter
 	var end []byte
 
 	if opts.Prefix != nil {
-		s.collectionRLock(ctx, opts.Prefix)
+		s.collectionReadLock(ctx, opts.Prefix)
 		prefix = opts.Prefix.Bytes()
 	}
 	if opts.Start != nil {
-		s.collectionRLock(ctx, opts.Start)
+		s.collectionReadLock(ctx, opts.Start)
 		start = opts.Start.Bytes()
 	}
 	if opts.End != nil {
@@ -80,14 +80,20 @@ func (s *datastore) Iterator(ctx context.Context, opts IterOptions) (corekv.Iter
 }
 
 func (s *datastore) Set(ctx context.Context, key Key, value []byte) error {
-	s.collectionRLock(ctx, key)
+	err := s.collectionWriteLock(ctx, key)
+	if err != nil {
+		return err
+	}
 
 	keyBytes := key.Bytes()
 	return s.underlying.Set(ctx, keyBytes, value)
 }
 
 func (s *datastore) Delete(ctx context.Context, key Key) error {
-	s.collectionRLock(ctx, key)
+	err := s.collectionWriteLock(ctx, key)
+	if err != nil {
+		return err
+	}
 
 	keyBytes := key.Bytes()
 	return s.underlying.Delete(ctx, keyBytes)
@@ -103,7 +109,18 @@ func (s *datastore) Unsafe() corekv.ReaderWriter {
 	return s.underlying
 }
 
-func (s *datastore) collectionRLock(ctx context.Context, key Key) {
+func (s *datastore) collectionWriteLock(ctx context.Context, key Key) error {
+	colKey, isKeyedByCollection := key.(keys.CollectionedKey)
+	if !isKeyedByCollection {
+		// No-op, the key does not contain a reference to a collection,
+		// so we do not need to lock it
+		return nil
+	}
+
+	return s.lockSet.CollectionRLockForWrite(CtxMustGetTxn(ctx), colKey.GetCollectionShortID())
+}
+
+func (s *datastore) collectionReadLock(ctx context.Context, key Key) {
 	colKey, isKeyedByCollection := key.(keys.CollectionedKey)
 	if !isKeyedByCollection {
 		// No-op, the key does not contain a reference to a collection,
@@ -111,5 +128,5 @@ func (s *datastore) collectionRLock(ctx context.Context, key Key) {
 		return
 	}
 
-	s.lockSet.CollectionRLock(CtxMustGetTxn(ctx), colKey.GetCollectionShortID())
+	s.lockSet.CollectionRLockForRead(CtxMustGetTxn(ctx), colKey.GetCollectionShortID())
 }

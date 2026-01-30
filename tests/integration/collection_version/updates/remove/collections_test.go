@@ -711,7 +711,7 @@ func TestColVersionUpdateRemoveCollections_ConcurrentWrite(t *testing.T) {
 			&action.GetCollections{
 				ExpectedResults: []client.CollectionVersion{},
 			},
-			&action.Request{
+			&action.Request{ // todo - this is erroring even when the creates all fail due to txn conflict....
 				Request: `query {
 					_commits {
 						cid
@@ -720,9 +720,6 @@ func TestColVersionUpdateRemoveCollections_ConcurrentWrite(t *testing.T) {
 				Results: map[string]any{
 					"_commits": []map[string]any{},
 				},
-				// This action should not error, this is the unwanted behaviour that this
-				// test documents.
-				ExpectedError: "key not found",
 			},
 		},
 	}

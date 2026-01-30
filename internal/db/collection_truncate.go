@@ -69,7 +69,11 @@ func (c *collection) truncate(
 	}
 
 	txn := datastore.CtxMustGetTxn(ctx)
-	c.db.lockSet.CollectionLock(txn, shortID)
+
+	err = c.db.lockSet.CollectionLock(txn, shortID, false)
+	if err != nil {
+		return err
+	}
 
 	err = c.hardDeleteDocKeysAndHeadstore(ctx, shortID)
 	if err != nil {

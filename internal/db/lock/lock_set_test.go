@@ -23,22 +23,22 @@ func TestLockSet_MultipleLocksForSameTxnKey_DoNotDeadlock(t *testing.T) {
 	txn := newTxn(1)
 	lockSet := newLockSet[int]()
 
-	lockSet.Lock(txn, 1)
+	lockSet.Lock(txn, 1, false)
 	// The second Lock call must not block - we want identical keys for the same
 	// txn to be able to make as many calls as it needs whilst sharing the same
 	// underlying lock.
-	lockSet.Lock(txn, 1)
+	lockSet.Lock(txn, 1, false)
 }
 
 func TestLockSet_RLockWLockForSameTxnKey_DoNotDeadlock(t *testing.T) {
 	txn := newTxn(1)
 	lockSet := newLockSet[int]()
 
-	lockSet.RLock(txn, 1)
+	lockSet.RLock(txn, 1, false)
 	// The second Lock call must not block - we want identical keys for the same
 	// txn to be able to make as many calls as it needs whilst sharing the same
 	// underlying lock.
-	lockSet.Lock(txn, 1)
+	lockSet.Lock(txn, 1, false)
 }
 
 func TestLockSet_MultipleWLocksForDifferentTxnSameKey_Deadlocks(t *testing.T) {
@@ -46,12 +46,12 @@ func TestLockSet_MultipleWLocksForDifferentTxnSameKey_Deadlocks(t *testing.T) {
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
 	require.Never(
 		t,
 		func() bool {
 			// This call should never complete, because txn1 holds the lock
-			lockSet.Lock(txn2, 1)
+			lockSet.Lock(txn2, 1, false)
 			return true
 		},
 		timeout,
@@ -64,9 +64,9 @@ func TestLockSet_MultipleWLocksForDifferentTxnDifferentKeys_DoNotDeadlock(t *tes
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
 	// This call should not be affected by the first lock, as it is for a different key
-	lockSet.Lock(txn2, 2)
+	lockSet.Lock(txn2, 2, false)
 }
 
 func TestLockSet_RLockWLockForDifferentTxnSameKey_Deadlocks(t *testing.T) {
@@ -74,12 +74,12 @@ func TestLockSet_RLockWLockForDifferentTxnSameKey_Deadlocks(t *testing.T) {
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.RLock(txn1, 1)
+	lockSet.RLock(txn1, 1, false)
 	require.Never(
 		t,
 		func() bool {
 			// This call should never complete, because txn1 holds the lock
-			lockSet.Lock(txn2, 1)
+			lockSet.Lock(txn2, 1, false)
 			return true
 		},
 		timeout,
@@ -92,12 +92,12 @@ func TestLockSet_WLockRLockForDifferentTxnSameKey_Deadlocks(t *testing.T) {
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
 	require.Never(
 		t,
 		func() bool {
 			// This call should never complete, because txn1 holds the lock
-			lockSet.RLock(txn2, 1)
+			lockSet.RLock(txn2, 1, false)
 			return true
 		},
 		timeout,
@@ -110,14 +110,14 @@ func TestLockSet_PromotedLockWLockForDifferentTxnSameKey_Deadlocks(t *testing.T)
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.RLock(txn1, 1)
+	lockSet.RLock(txn1, 1, false)
 	// Promote the RLock to a WLock for txn1
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
 	require.Never(
 		t,
 		func() bool {
 			// This call should never complete, because txn1 holds the lock
-			lockSet.Lock(txn2, 1)
+			lockSet.Lock(txn2, 1, false)
 			return true
 		},
 		timeout,
@@ -130,14 +130,14 @@ func TestLockSet_PromotedLockRLockForDifferentTxnSameKey_Deadlocks(t *testing.T)
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.RLock(txn1, 1)
+	lockSet.RLock(txn1, 1, false)
 	// Promote the RLock to a WLock for txn1
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
 	require.Never(
 		t,
 		func() bool {
 			// This call should never complete, because txn1 holds the lock
-			lockSet.RLock(txn2, 1)
+			lockSet.RLock(txn2, 1, false)
 			return true
 		},
 		timeout,
@@ -150,14 +150,14 @@ func TestLockSet_RLockPromotedLockForDifferentTxnSameKey_Deadlocks(t *testing.T)
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.RLock(txn1, 1)
-	lockSet.RLock(txn2, 1)
+	lockSet.RLock(txn1, 1, false)
+	lockSet.RLock(txn2, 1, false)
 	require.Never(
 		t,
 		func() bool {
 			// Promote the RLock to a WLock for txn2 - this call should never complete,
 			// because txn1 holds the lock
-			lockSet.Lock(txn2, 1)
+			lockSet.Lock(txn2, 1, false)
 			return true
 		},
 		timeout,
@@ -170,16 +170,16 @@ func TestLockSet_DemotedLockRLockForDifferentTxnSameKey_Deadlocks(t *testing.T) 
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
 	// 'Demoting' the write lock should have no impact, the lockset does not demote write
 	// locks into read locks.  This test is here to enforce that.
-	lockSet.RLock(txn1, 1)
+	lockSet.RLock(txn1, 1, false)
 
 	require.Never(
 		t,
 		func() bool {
 			// This call should never complete, because txn1 holds the write lock
-			lockSet.RLock(txn2, 1)
+			lockSet.RLock(txn2, 1, false)
 			return true
 		},
 		timeout,
@@ -192,11 +192,11 @@ func TestLockSet_ClosingTxn_ClearsLocks(t *testing.T) {
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
 	txn1.Close()
 
 	// The lockset should have cleared all of txn1's locks on close, unblocking this call
-	lockSet.Lock(txn2, 1)
+	lockSet.Lock(txn2, 1, false)
 }
 
 func TestLockSet_ClosingTxn_ClearsAllLocks(t *testing.T) {
@@ -204,12 +204,12 @@ func TestLockSet_ClosingTxn_ClearsAllLocks(t *testing.T) {
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.Lock(txn1, 1)
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
+	lockSet.Lock(txn1, 1, false)
 	txn1.Close()
 
 	// The lockset should have cleared all of txn1's locks on close, unblocking this call
-	lockSet.Lock(txn2, 1)
+	lockSet.Lock(txn2, 1, false)
 }
 
 func TestLockSet_ClosingPromotedTxnLock_ClearsLock(t *testing.T) {
@@ -217,20 +217,20 @@ func TestLockSet_ClosingPromotedTxnLock_ClearsLock(t *testing.T) {
 	txn2 := newTxn(2)
 	lockSet := newLockSet[int]()
 
-	lockSet.RLock(txn1, 1)
+	lockSet.RLock(txn1, 1, false)
 	// Promote the RLock to a WLock for txn1
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
 	txn1.Close()
 
 	// The lockset should have cleared all of txn1's locks on close, unblocking this call
-	lockSet.Lock(txn2, 1)
+	lockSet.Lock(txn2, 1, false)
 }
 
 func TestLockSet_ClosingTxnMultipleTimes_Succedes(t *testing.T) {
 	txn1 := newTxn(1)
 	lockSet := newLockSet[int]()
 
-	lockSet.Lock(txn1, 1)
+	lockSet.Lock(txn1, 1, false)
 	txn1.Close()
 	// Discard can be called multiple times, including after txn commit, so it is important
 	// to test for this.
@@ -254,7 +254,7 @@ func TestLockSet_RLockAllAndLockSameTxn_Deadlocks(t *testing.T) {
 		t,
 		func() bool {
 			// This call should never complete, because txn1 has read locked everything
-			lockSet.Lock(txn1, 1)
+			lockSet.Lock(txn1, 1, false)
 			return true
 		},
 		timeout,
@@ -273,7 +273,7 @@ func TestLockSet_RLockAllAndLockDifferentTxn_Deadlocks(t *testing.T) {
 		t,
 		func() bool {
 			// This call should never complete, because txn1 has read locked everything
-			lockSet.Lock(txn2, 1)
+			lockSet.Lock(txn2, 1, false)
 			return true
 		},
 		timeout,

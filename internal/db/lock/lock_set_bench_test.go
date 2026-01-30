@@ -21,7 +21,7 @@ func Benchmark_InitialReadLock(b *testing.B) {
 		lockSet := newLockSet[int]()
 
 		b.StartTimer()
-		lockSet.RLock(txn, 1)
+		lockSet.RLock(txn, 1, false)
 	}
 }
 
@@ -35,10 +35,10 @@ func Benchmark_SecondaryReadLock(b *testing.B) {
 
 		// Perform the initial RLock, before starting the timer - we are not interested
 		// in the cost of this in this test.
-		lockSet.RLock(txn, 1)
+		lockSet.RLock(txn, 1, false)
 
 		b.StartTimer()
-		lockSet.RLock(txn, 1)
+		lockSet.RLock(txn, 1, false)
 	}
 }
 
@@ -51,7 +51,7 @@ func Benchmark_InitialWriteLock(b *testing.B) {
 		lockSet := newLockSet[int]()
 
 		b.StartTimer()
-		lockSet.Lock(txn, 1)
+		lockSet.Lock(txn, 1, false)
 	}
 }
 
@@ -65,10 +65,10 @@ func Benchmark_SecondaryWriteLock(b *testing.B) {
 
 		// Perform the initial Lock, before starting the timer - we are not interested
 		// in the cost of this in this test.
-		lockSet.Lock(txn, 1)
+		lockSet.Lock(txn, 1, false)
 
 		b.StartTimer()
-		lockSet.Lock(txn, 1)
+		lockSet.Lock(txn, 1, false)
 	}
 }
 
@@ -82,10 +82,10 @@ func Benchmark_ReadLockPromotion(b *testing.B) {
 
 		// Perform the initial RLock, before starting the timer - we are not interested
 		// in the cost of this in this test.
-		lockSet.RLock(txn, 1)
+		lockSet.RLock(txn, 1, false)
 
 		b.StartTimer()
-		lockSet.Lock(txn, 1)
+		lockSet.Lock(txn, 1, false)
 	}
 }
 
@@ -98,7 +98,7 @@ func Benchmark_ReadLockUnlock(b *testing.B) {
 		txn := newTxn(1)
 		lockSet := newLockSet[int]()
 
-		lockSet.RLock(txn, 1)
+		lockSet.RLock(txn, 1, false)
 
 		b.StartTimer()
 		// In production, this will be called on transaction close - we could call
@@ -117,7 +117,7 @@ func Benchmark_WriteLockUnlock(b *testing.B) {
 		txn := newTxn(1)
 		lockSet := newLockSet[int]()
 
-		lockSet.Lock(txn, 1)
+		lockSet.Lock(txn, 1, false)
 
 		b.StartTimer()
 		// In production, this will be called on transaction close - we could call

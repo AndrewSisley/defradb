@@ -675,7 +675,14 @@ func (db *DB) deleteCollectionVersion(
 	if err != nil {
 		return err
 	}
-	db.lockSet.CollectionLock(txn, shortID)
+
+	// Lock the collection, and make any subsequently requested competing write lock attempts return
+	// an error - the collection (or fields being written to) may not exist by the time the competing
+	// lock is acquired.
+	err = db.lockSet.CollectionLock(txn, shortID, true)
+	if err != nil {
+		return err
+	}
 
 	hasDocs, err := collectionHasDocuments(ctx, version)
 	if err != nil {

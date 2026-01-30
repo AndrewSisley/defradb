@@ -39,27 +39,27 @@ func TestLockSet_ConcurrentRWLockRLockForDifferentTxnSameKey_Deadlocks(t *testin
 	// Create some routines read and write locking txn1.
 	go func() {
 		wait.RLock()
-		lockSet.RLock(txn1, 1)
+		lockSet.RLock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.Lock(txn1, 1)
+		lockSet.Lock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.RLock(txn1, 1)
+		lockSet.RLock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.RLock(txn1, 1)
+		lockSet.RLock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.Lock(txn1, 1)
+		lockSet.Lock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.RLock(txn1, 1)
+		lockSet.RLock(txn1, 1, false)
 	}()
 
 	// Unlock the wait, allowing the child routines to start read-write locking txn1
@@ -75,7 +75,7 @@ func TestLockSet_ConcurrentRWLockRLockForDifferentTxnSameKey_Deadlocks(t *testin
 			// This call should never complete, because no matter in what order the child routines
 			// executed, and no mater how concurrent they actually were, txn1 *must* hold the write
 			// lock to key `1` by the time they complete - causing this call for txn2 to block.
-			lockSet.RLock(txn2, 1)
+			lockSet.RLock(txn2, 1, false)
 			return true
 		},
 		timeout,
@@ -99,27 +99,27 @@ func TestLockSet_ConcurrentRWLockRLockForSameTxnKey_ClosesCorrectly(t *testing.T
 	// Create some routines read and write locking txn1.
 	go func() {
 		wait.RLock()
-		lockSet.RLock(txn1, 1)
+		lockSet.RLock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.Lock(txn1, 1)
+		lockSet.Lock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.RLock(txn1, 1)
+		lockSet.RLock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.RLock(txn1, 1)
+		lockSet.RLock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.Lock(txn1, 1)
+		lockSet.Lock(txn1, 1, false)
 	}()
 	go func() {
 		wait.RLock()
-		lockSet.RLock(txn1, 1)
+		lockSet.RLock(txn1, 1, false)
 	}()
 
 	// Unlock the wait, allowing the child routines to start read-write locking txn1
@@ -134,5 +134,5 @@ func TestLockSet_ConcurrentRWLockRLockForSameTxnKey_ClosesCorrectly(t *testing.T
 	txn1.Close()
 
 	// Ensure that all locks have been unlocked by acquiring a write lock using another txn.
-	lockSet.Lock(txn2, 1)
+	lockSet.Lock(txn2, 1, false)
 }
