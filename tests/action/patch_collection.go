@@ -11,9 +11,12 @@
 package action
 
 import (
+	"fmt"
+
 	"github.com/sourcenetwork/immutable"
 	"github.com/sourcenetwork/lens/host-go/config/model"
 
+	"github.com/sourcenetwork/defradb/errors"
 	"github.com/sourcenetwork/defradb/tests/state"
 )
 
@@ -43,6 +46,11 @@ type PatchCollection struct {
 	// String can be a partial, and the test will pass if an error is returned that
 	// contains this string.
 	ExpectedError string
+
+	// Skip this test if the following error is returned when executing this action.
+	//
+	// This should only be used for rare, known, unrecoverable errors.
+	SkipTestOnError error
 }
 
 var _ Action = (*PatchCollection)(nil)
@@ -59,6 +67,11 @@ func (a *PatchCollection) Execute() {
 		nodeID := nodeIDs[index]
 		ctx := getContextWithIdentity(a.s.Ctx, a.s, a.Identity, nodeID)
 		err := node.PatchCollection(ctx, patch, a.Lens)
+		if a.SkipTestOnError != nil && err != nil && errors.Is(err, a.SkipTestOnError) {
+			a.s.SkipTest = fmt.Sprintf("known error: %s", err.Error())
+			return
+		}
+
 		expectedErrorRaised := assertError(a.s.T, err, a.ExpectedError)
 
 		assertExpectedErrorRaised(a.s.T, a.ExpectedError, expectedErrorRaised)
