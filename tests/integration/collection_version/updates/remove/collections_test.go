@@ -18,9 +18,11 @@ import (
 
 	"github.com/sourcenetwork/defradb/client"
 	"github.com/sourcenetwork/defradb/client/options"
+	"github.com/sourcenetwork/defradb/internal/db"
 	"github.com/sourcenetwork/defradb/tests/action"
 	testUtils "github.com/sourcenetwork/defradb/tests/integration"
 	"github.com/sourcenetwork/defradb/tests/multiplier"
+	"github.com/sourcenetwork/defradb/tests/state"
 )
 
 func TestColVersionUpdateRemoveCollections_ByID(t *testing.T) {
@@ -652,6 +654,75 @@ func TestColVersionUpdateAddFieldRemoveMultipleNewCollection_MiddleAndLast(t *te
 						},
 					},
 				},
+			},
+		},
+	}
+
+	testUtils.ExecuteTestCase(t, test)
+}
+
+// This test documents unwanted behaviour (see final assert):
+// https://github.com/sourcenetwork/defradb/issues/4268
+func TestColVersionUpdateRemoveCollections_ConcurrentWrite(t *testing.T) {
+	test := testUtils.TestCase{
+		SupportedClientTypes: immutable.Some([]state.ClientType{
+			// The other client types return different errors when occasionally executing the `CreateDoc`
+			// action.
+			state.GoClientType,
+		}),
+		Actions: []any{
+			&action.AddSchema{
+				Schema: `
+					type Users {
+						name: String
+					}
+				`,
+			},
+			&action.Async{
+				// todo - we also need to test this with explicit transactions both async and sync
+				// https://github.com/sourcenetwork/defradb/issues/4476
+				Child: &action.PatchCollection{
+					// If the create call completes before the patch starts this will error - skip the test
+					// when this happens as it is unrecoverable and rare.
+					SkipTestOnError: db.ErrCannotDeleteCollectionWithDocs,
+					Patch: `
+						[
+							{
+								"op": "remove",
+								"path": "/Users"
+							}
+						]
+					`,
+				},
+			},
+			&action.CreateDoc{
+				DoNotWaitForEvent: true,
+				DocMap: map[string]any{
+					"name": "John",
+				},
+				// This error can occur if the create-doc call starts after the patch collection call (mostly)
+				// completes, it is uncommon for this to happen, but it does sometimes, especially on slower
+				// machines.
+				//
+				// todo - If this happens, the _commits query will not error...
+				IgnoreError: "Cannot query field \"create_Users\" on type \"Mutation\"",
+			},
+			&action.Await{},
+			&action.GetCollections{
+				ExpectedResults: []client.CollectionVersion{},
+			},
+			&action.Request{
+				Request: `query {
+					_commits {
+						cid
+					}
+				}`,
+				Results: map[string]any{
+					"_commits": []map[string]any{},
+				},
+				// This action should not error, this is the unwanted behaviour that this
+				// test documents.
+				ExpectedError: "key not found",
 			},
 		},
 	}
