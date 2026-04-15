@@ -35,7 +35,33 @@ type TxnStore interface {
 	// NewTxn returns a new transaction on the root store that may be managed externally.
 	//
 	// It may be used with other functions in the client package. It is not threadsafe.
-	NewTxn(readOnly bool) (Txn, error)
+	NewTxn(readOnly bool) (Txn, error) // remove
+
+	// idiot, unconvinced this solves the concurrency problem (multiple active instances)
+	//
+	// although... we can ensure that the instance, or at least the locks on the instance
+	// are actually the same (does that introduce a security issue re mem manipulation? -
+	// I dont think we care as if they can do that, they can do what ever they want)
+	//WithTxn(...options.Enumerable[options.WithTxnOptions]) (Txn, error)
+}
+
+type ExampleTxnOptions struct {
+	// error if provided along with ID
+	ReadOnly immutable.Option[bool]
+	// if none - create new txn
+	ID                immutable.Option[int]
+	SigningTokenStuff immutable.Option[string]
+	// should this be a server setting?
+	//
+	// It feels like it should really, it is not really for us to decide embedded security stuff
+	// A server setting gives users greater control and slims the higher frequency interface.
+	//
+	// server setting should default to true IMO (secure by default), but this adds hassle to new
+	// devs playing around with defra for the first time.
+	//
+	// server setting does make the option system wide though, this is limitting if the instance
+	// has multiple clients (e.g. embedded and http).
+	RequireSignatureToReuse bool
 }
 
 type Store interface {
