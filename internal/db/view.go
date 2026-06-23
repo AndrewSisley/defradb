@@ -30,7 +30,6 @@ import (
 	"github.com/sourcenetwork/defradb/internal/identity"
 	"github.com/sourcenetwork/defradb/internal/keys"
 	"github.com/sourcenetwork/defradb/internal/planner"
-	"github.com/sourcenetwork/defradb/internal/utils"
 )
 
 func (db *DB) addView(
@@ -100,7 +99,12 @@ func (db *DB) addView(
 
 	for _, view := range returnDescriptions {
 		if view.Query.HasValue() && view.IsMaterialized {
-			err := db.refreshViews(ctx, utils.NewOptions(options.GetCollections().SetVersionID(view.VersionID)))
+			shortID, err := id.GetShortCollectionID(ctx, view.CollectionID)
+			if err != nil {
+				return nil, err
+			}
+
+			err = db.refreshView(ctx, shortID, view)
 			if err != nil {
 				return nil, err
 			}
@@ -132,63 +136,67 @@ func (db *DB) refreshViews(ctx context.Context, opts *options.GetCollectionsOpti
 		viewsByShortIDs[shortID] = col
 	}
 
-	txn := datastore.CtxMustGetTxn(ctx)
-
 	for shortID, col := range viewsByShortIDs {
-		db.lockSet.CollectionLock(txn, shortID)
-
-		colObject, err := db.newCollection(ctx, col, immutable.Some(txn))
-		if err != nil {
-			return err
-		}
-
-		multistore := datastore.NewMultistore(db.rootstore, db.lockSet, db.blockStoreChunkSize)
-
-		// Clear the transaction on the context used to write the action execution information, otherwise
-		// corekv will pick it up again, writing using the transaction.
-		// https://github.com/sourcenetwork/corekv/issues/107
-		txnFreeCtx := datastore.CtxSetTxn(ctx, nil)
-		err = action.Register(txnFreeCtx, multistore, db.events, col.CollectionID, client.RefreshDatastoreAction)
-		if err != nil {
-			return err
-		}
-
-		// Clearing and then constructing is a bit inefficient, but it should do for now.
-		// Long term we probably want to update inline as much as possible to avoid unnessecarily
-		// moving/adding/deleting keys in storage
-		err = colObject.truncate(ctx)
-		if err != nil {
-			errErr := action.Set(
-				txnFreeCtx,
-				multistore,
-				db.events,
-				col.CollectionID,
-				client.RefreshDatastoreAction,
-				client.ErroredActionStatus,
-			)
-			return errors.Join(errErr, err)
-		}
-
-		err = db.buildViewCache(ctx, col)
-		if err != nil {
-			errErr := action.Set(
-				txnFreeCtx,
-				multistore,
-				db.events,
-				col.CollectionID,
-				client.RefreshDatastoreAction,
-				client.ErroredActionStatus,
-			)
-			return errors.Join(errErr, err)
-		}
-
-		err = action.Complete(txnFreeCtx, multistore, db.events, col.CollectionID, client.RefreshDatastoreAction)
+		err := db.refreshView(ctx, shortID, col)
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (db *DB) refreshView(ctx context.Context, shortID uint32, col client.CollectionVersion) error {
+	txn := datastore.CtxMustGetTxn(ctx)
+
+	db.lockSet.CollectionLock(txn, shortID)
+
+	colObject, err := db.newCollection(ctx, col, immutable.Some(txn))
+	if err != nil {
+		return err
+	}
+
+	multistore := datastore.NewMultistore(db.rootstore, db.lockSet, db.blockStoreChunkSize)
+
+	// Clear the transaction on the context used to write the action execution information, otherwise
+	// corekv will pick it up again, writing using the transaction.
+	// https://github.com/sourcenetwork/corekv/issues/107
+	txnFreeCtx := datastore.CtxSetTxn(ctx, nil)
+	err = action.Register(txnFreeCtx, multistore, db.events, col.CollectionID, client.RefreshDatastoreAction)
+	if err != nil {
+		return err
+	}
+
+	// Clearing and then constructing is a bit inefficient, but it should do for now.
+	// Long term we probably want to update inline as much as possible to avoid unnessecarily
+	// moving/adding/deleting keys in storage
+	err = colObject.truncate(ctx)
+	if err != nil {
+		errErr := action.Set(
+			txnFreeCtx,
+			multistore,
+			db.events,
+			col.CollectionID,
+			client.RefreshDatastoreAction,
+			client.ErroredActionStatus,
+		)
+		return errors.Join(errErr, err)
+	}
+
+	err = db.buildViewCache(ctx, col)
+	if err != nil {
+		errErr := action.Set(
+			txnFreeCtx,
+			multistore,
+			db.events,
+			col.CollectionID,
+			client.RefreshDatastoreAction,
+			client.ErroredActionStatus,
+		)
+		return errors.Join(errErr, err)
+	}
+
+	return action.Complete(txnFreeCtx, multistore, db.events, col.CollectionID, client.RefreshDatastoreAction)
 }
 
 func (db *DB) getViews(ctx context.Context, opts *options.GetCollectionsOptions) ([]client.CollectionVersion, error) {
