@@ -117,8 +117,7 @@ func (db *DB) refreshViews(ctx context.Context, opts *options.GetCollectionsOpti
 		return err
 	}
 
-	txn := datastore.CtxMustGetTxn(ctx)
-
+	viewsByShortIDs := map[uint32]client.CollectionVersion{}
 	for _, col := range cols {
 		if !col.IsMaterialized {
 			// We only care about materialized views here, so skip any that aren't
@@ -129,6 +128,13 @@ func (db *DB) refreshViews(ctx context.Context, opts *options.GetCollectionsOpti
 		if err != nil {
 			return err
 		}
+
+		viewsByShortIDs[shortID] = col
+	}
+
+	txn := datastore.CtxMustGetTxn(ctx)
+
+	for shortID, col := range viewsByShortIDs {
 		db.lockSet.CollectionLock(txn, shortID)
 
 		colObject, err := db.newCollection(ctx, col, immutable.Some(txn))
