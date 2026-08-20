@@ -73,6 +73,16 @@ func (l *LWW) Description() string {
 	return "Last Write Wins register"
 }
 
+func (l *LWW) Operations() []Operation {
+	return []Operation{
+		{
+			Name:               "Set",
+			IncludeAsLegacyGQL: true,
+			AcceptsFieldValue:  true,
+		},
+	}
+}
+
 func (l *LWW) Set(
 	ctx context.Context,
 	collectionVersionID string,

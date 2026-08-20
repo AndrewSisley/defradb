@@ -22,6 +22,7 @@ import (
 
 	"github.com/sourcenetwork/defradb/client/request"
 	"github.com/sourcenetwork/defradb/internal/connor"
+	"github.com/sourcenetwork/defradb/internal/core/crdt"
 	schemaTypes "github.com/sourcenetwork/defradb/internal/request/graphql/schema/types"
 )
 
@@ -607,6 +608,7 @@ func (g *Generator) buildMutationInputTypes(collections []client.CollectionVersi
 					// This is the system _docID field, users cannot set its value
 					continue
 				}
+
 				objFieldName, isRelationID := request.ToRelatedObjectName(field.Name)
 				if isRelationID {
 					ofd, exists := collection.GetFieldByName(objFieldName)
@@ -622,33 +624,51 @@ func (g *Generator) buildMutationInputTypes(collections []client.CollectionVersi
 				continue
 			}
 
-			var ttype gql.Type
+			var crdtField client.CollectionFieldDescription
 			if field.Kind.IsObject() {
-				if field.Kind.IsArray() {
-					ttype = gql.NewList(gql.ID)
-				} else {
-					ttype = gql.ID
-				}
+				idFieldName := request.ToFieldID(field.Name)
+				crdtField, _ = collection.GetFieldByName(idFieldName)
 			} else {
-				var ok bool
-				ttype, ok = fieldKindToGQLType[field.Kind]
-				if !ok {
-					return NewErrTypeNotFound(fmt.Sprint(field.Kind))
-				}
-				// Mutation inputs must be nullable even for non-nillable fields so
-				// that application code handles null validation and produces
-				// consistent error messages regardless of mutation type.
-				if nonNull, isNonNull := ttype.(*gql.NonNull); isNonNull {
-					ttype = nonNull.OfType
-				} else if list, isList := ttype.(*gql.List); isList {
-					if nonNull, isNonNull := list.OfType.(*gql.NonNull); isNonNull {
-						ttype = gql.NewList(nonNull.OfType)
-					}
-				}
+				crdtField = field
 			}
 
-			fields[field.Name] = &gql.InputObjectFieldConfig{
-				Type: ttype,
+			ct, _ := crdt.TryGetFieldCRDT(crdtField.Typ)
+			if ct == nil {
+				panic(fmt.Sprintf("%v %v", crdtField.Name, crdtField.Typ))
+			}
+			for _, operation := range ct.Operations() {
+				if operation.IncludeAsLegacyGQL {
+					// Deprecated: This code block should be removed as part of v2.0.0
+
+					var ttype gql.Type
+					if field.Kind.IsObject() {
+						if field.Kind.IsArray() {
+							ttype = gql.NewList(gql.ID)
+						} else {
+							ttype = gql.ID
+						}
+					} else {
+						var ok bool
+						ttype, ok = fieldKindToGQLType[field.Kind]
+						if !ok {
+							return NewErrTypeNotFound(fmt.Sprint(field.Kind))
+						}
+						// Mutation inputs must be nullable even for non-nillable fields so
+						// that application code handles null validation and produces
+						// consistent error messages regardless of mutation type.
+						if nonNull, isNonNull := ttype.(*gql.NonNull); isNonNull {
+							ttype = nonNull.OfType
+						} else if list, isList := ttype.(*gql.List); isList {
+							if nonNull, isNonNull := list.OfType.(*gql.NonNull); isNonNull {
+								ttype = gql.NewList(nonNull.OfType)
+							}
+						}
+					}
+
+					fields[field.Name] = &gql.InputObjectFieldConfig{
+						Type: ttype,
+					}
+				}
 			}
 		}
 

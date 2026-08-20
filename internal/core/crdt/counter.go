@@ -227,6 +227,16 @@ func (c *Counter) Description() string {
 	causing it to overflow the float64 max value will act like a no-op.`
 }
 
+func (l *Counter) Operations() []Operation {
+	return []Operation{
+		{
+			Name:               "Increment",
+			IncludeAsLegacyGQL: true,
+			AcceptsFieldValue:  true,
+		},
+	}
+}
+
 func validateAndIncrement[T Incrementable](
 	ctx context.Context,
 	store datastore.Keyedstore,

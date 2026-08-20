@@ -48,12 +48,35 @@ type KindLimitedCRDT interface {
 	SupportedKinds() []client.FieldKind
 }
 
+type Operation struct {
+	Name string
+
+	Params map[string]client.FieldKind
+
+	// If true, this operation also has a property of the same name and kind as the field.
+	//
+	// For example: `set: { name: "John" }`, where `set` is the operation name and `name` is
+	// the field name.
+	//
+	// todo - collision issue?  What if the crdt param names clash with this? (strongly consider
+	// defering this problem until implmenting text crdt)
+	AcceptsFieldValue bool
+
+	// IncludeAsLegacyGQL constructs the legacy v1 input parameters, and anything supplied by users
+	// to them will be used in this operation - for example `input: { name: "John" }`.
+	//
+	// @deprecated: Remove this property as part of v2.0.0
+	IncludeAsLegacyGQL bool
+}
+
 type FieldValueCRDT interface {
 	CType() client.CType
 
 	String() string
 
 	Description() string
+
+	Operations() []Operation
 
 	Merge(
 		ctx context.Context,
