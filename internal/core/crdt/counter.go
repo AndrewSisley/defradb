@@ -92,7 +92,6 @@ func (c *Counter) Increment(
 	ctx context.Context,
 	collectionVersionID string,
 	data *DocField,
-	isAdd bool,
 	priority uint64,
 ) (*CounterDelta, error) {
 	bytes, err := data.FieldValue.Bytes()
@@ -104,7 +103,7 @@ func (c *Counter) Increment(
 	// This is done only on update (if the doc doesn't already exist) to ensure that the
 	// initial dag block of a document can be reproducible.
 	var nonce int64
-	if !isAdd {
+	if priority > 1 {
 		r, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
 		if err != nil {
 			return nil, NewErrGenerateCounterNonce(err)

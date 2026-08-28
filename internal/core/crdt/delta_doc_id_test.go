@@ -45,7 +45,6 @@ func TestDocumentDeltasDoNotEncodeDocID(t *testing.T) {
 		"collection-version",
 		//nolint:staticcheck
 		NewDocField("age", client.NewFieldValue(client.P_COUNTER, client.NewNormalInt(1))),
-		false,
 		1,
 	)
 	require.NoError(t, err)

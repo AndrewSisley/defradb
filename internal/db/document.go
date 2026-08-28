@@ -559,7 +559,7 @@ func (c *collection) save(
 				)
 				merkleCRDT = counter
 
-				delta, err = counter.Increment(ctx, c.VersionID(), crdt.NewDocField(k, val), isAdd, height)
+				delta, err = counter.Increment(ctx, c.VersionID(), crdt.NewDocField(k, val), height)
 				if err != nil {
 					return err
 				}
