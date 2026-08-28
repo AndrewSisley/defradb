@@ -273,6 +273,7 @@ func NewNormalValue(val any) (NormalValue, error) {
 			return convertAnyArrToTypedArr(v, NewNormalDocumentArray, NewNormalNillableDocumentArray)
 		}
 	}
+
 	return nil, NewCanNotNormalizeValue(val)
 }
 

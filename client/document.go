@@ -938,6 +938,21 @@ func (doc *Document) Set(ctx context.Context, field string, value any) error {
 	}
 	doc.values[f] = NewFieldValue(fd.Typ, val)
 
+	// todo - use consts or something for these
+	var operation string
+	if fd.Typ == PN_COUNTER || fd.Typ == P_COUNTER {
+		operation = "Increment"
+	} else {
+		operation = "Set"
+	}
+
+	doc.Mutate(Mutation{
+		Field:     field,
+		Operation: operation,
+		// todo - this is very silly and should be removed (legacy nonsense)
+		Value: immutable.Some[any](NewFieldValue(fd.Typ, val)),
+	})
+
 	return nil
 }
 
