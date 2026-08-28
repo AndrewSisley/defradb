@@ -894,6 +894,8 @@ func (doc *Document) setWithFastJSONObject(ctx context.Context, obj *fastjson.Ob
 }
 
 // Set the value of a field.
+//
+// Deprecated: This function will be removed in v2.0.0, please use `Mutate` instead.
 func (doc *Document) Set(ctx context.Context, field string, value any) error {
 	fd, exists := doc.collection.GetFieldByName(field)
 	if !exists {
