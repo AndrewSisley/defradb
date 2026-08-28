@@ -97,6 +97,8 @@ type Document struct {
 	head   cid.Cid
 	mu     sync.RWMutex
 
+	mutations []Mutation
+
 	collection CollectionVersion
 }
 
@@ -935,6 +937,29 @@ func (doc *Document) Set(ctx context.Context, field string, value any) error {
 	doc.values[f] = NewFieldValue(fd.Typ, val)
 
 	return nil
+}
+
+type Mutation struct {
+	Field     string
+	Operation string
+	Value     immutable.Option[any]
+}
+
+// todo
+// Mutate lorium ipsum...
+//
+// This function does not update the fields' state until this object is provided to the database
+// via a function such as `Collection.Save(doc)`, after which the result of the mutations will be reflected
+// via getters on this object such as `Fields()`. The mutation will be immediately visible via `Mutations()`.
+func (doc *Document) Mutate(mutation Mutation) {
+	// todo - concurrency protection?
+	doc.mutations = append(doc.mutations, mutation)
+}
+
+func (doc *Document) Mutations() []Mutation {
+	// todo - concurrency protection?
+	// todo - clone to prevent mutation? (why? concurrency?)
+	return doc.mutations
 }
 
 func (doc *Document) setAndParseObjectType(ctx context.Context, value map[string]any) error {
