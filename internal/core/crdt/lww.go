@@ -15,6 +15,7 @@ import (
 	"context"
 
 	"github.com/sourcenetwork/corekv"
+	"github.com/sourcenetwork/immutable"
 
 	"github.com/sourcenetwork/defradb/client"
 	"github.com/sourcenetwork/defradb/errors"
@@ -56,6 +57,7 @@ func (d *LWWDelta) GetPriority() uint64 {
 type LWW struct{}
 
 var _ FieldValueCRDT = (*LWW)(nil)
+var _ DynamicFieldValueCRDT = (*LWW)(nil)
 
 func NewLWW() *LWW {
 	return &LWW{}
@@ -100,6 +102,31 @@ func (l *LWW) Set(
 		CollectionVersionID: collectionVersionID,
 		Priority:            priority,
 	}, nil
+}
+
+func (l *LWW) Execute(
+	ctx context.Context,
+	operation string,
+	collectionVersionID string,
+	fieldName string,
+	value immutable.Option[any],
+	priority uint64,
+) (Delta, error) {
+	//todo - value=>NormalValue=>FieldValue=>DocField is very silly but it is what the legacy code does
+	nv, err := client.NewNormalValue(value)
+	if err != nil {
+		return nil, err
+	}
+
+	dc := NewDocField(fieldName, client.NewFieldValue(client.NONE_CRDT, nv))
+
+	// todo - const
+	if operation != "Set" {
+		// todo - Validation needs to be done here in order to avoid reflect and maybe security problems
+		panic("todo")
+	}
+
+	return l.Set(ctx, collectionVersionID, dc, priority)
 }
 
 func (l *LWW) Merge(

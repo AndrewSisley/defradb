@@ -19,6 +19,7 @@ import (
 	"github.com/sourcenetwork/defradb/client"
 	"github.com/sourcenetwork/defradb/internal/datastore"
 	"github.com/sourcenetwork/defradb/internal/keys"
+	"github.com/sourcenetwork/immutable"
 )
 
 var FieldCRDTs = []FieldValueCRDT{
@@ -89,4 +90,18 @@ type FieldValueCRDT interface {
 
 type DocumentValueCRDT interface {
 	Merge(ctx context.Context, store datastore.Keyedstore, key keys.PrimaryDataStoreKey, other Delta) error
+}
+
+///
+
+// todo - strongly consider moving this into FieldValueCRDT
+type DynamicFieldValueCRDT interface {
+	Execute(
+		ctx context.Context,
+		operation string,
+		collectionVersionID string,
+		fieldName string,
+		value immutable.Option[any],
+		priority uint64,
+	) (Delta, error)
 }

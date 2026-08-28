@@ -21,6 +21,7 @@ import (
 	"golang.org/x/exp/constraints"
 
 	"github.com/sourcenetwork/corekv"
+	"github.com/sourcenetwork/immutable"
 
 	"github.com/sourcenetwork/defradb/client"
 	"github.com/sourcenetwork/defradb/errors"
@@ -118,6 +119,31 @@ func (c *Counter) Increment(
 		Nonce:               nonce,
 		Priority:            priority,
 	}, nil
+}
+
+func (c *Counter) Execute(
+	ctx context.Context,
+	operation string,
+	collectionVersionID string,
+	fieldName string,
+	value immutable.Option[any],
+	priority uint64,
+) (Delta, error) {
+	//todo - value=>NormalValue=>FieldValue=>DocField is very silly but it is what the legacy code does
+	nv, err := client.NewNormalValue(value)
+	if err != nil {
+		return nil, err
+	}
+
+	dc := NewDocField(fieldName, client.NewFieldValue(client.NONE_CRDT, nv))
+
+	// todo - const
+	if operation != "Increment" {
+		// todo - Validation needs to be done here in order to avoid reflect and maybe security problems
+		panic("todo")
+	}
+
+	return c.Increment(ctx, collectionVersionID, dc, priority)
 }
 
 // Merge implements ReplicatedData interface.
