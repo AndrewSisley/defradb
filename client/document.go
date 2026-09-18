@@ -135,12 +135,18 @@ func NewDocFromMap(ctx context.Context, data map[string]any, collection Collecti
 	k, hasDocID := data[request.DocIDFieldName]
 	if hasDocID {
 		delete(data, request.DocIDFieldName) // remove the DocID so it isn't parsed further
-		kstr, ok := k.(string)
-		if !ok {
+
+		switch docID := k.(type) {
+		case string:
+			if doc.id, err = NewDocIDFromString(docID); err != nil {
+				return nil, err
+			}
+
+		case DocID:
+			doc.id = docID
+
+		default:
 			return nil, NewErrUnexpectedType[string]("data["+request.DocIDFieldName+"]", k)
-		}
-		if doc.id, err = NewDocIDFromString(kstr); err != nil {
-			return nil, err
 		}
 	}
 
