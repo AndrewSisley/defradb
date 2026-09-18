@@ -17,6 +17,7 @@ import (
 	"github.com/fxamacker/cbor/v2"
 
 	"github.com/sourcenetwork/defradb/client"
+	"github.com/sourcenetwork/defradb/client/request"
 	"github.com/sourcenetwork/defradb/internal/core"
 )
 
@@ -112,31 +113,21 @@ func Decode(ctx context.Context,
 	encdoc EncodedDocument,
 	collection client.CollectionVersion,
 ) (*client.Document, error) {
-	docID, err := client.NewDocIDFromString(string(encdoc.ID()))
-	if err != nil {
-		return nil, err
-	}
-
-	doc, err := client.NewDocWithID(ctx, docID, collection)
-	if err != nil {
-		return nil, err
-	}
 	properties, err := encdoc.Properties(false)
 	if err != nil {
 		return nil, err
 	}
 
-	for desc, val := range properties {
-		err = doc.Set(ctx, desc.Name, val)
-		if err != nil {
-			return nil, NewErrDecodeDocField(err, desc.Name)
-		}
+	propertiesByFieldName := make(map[string]any, len(properties)+1)
+	propertiesByFieldName[request.DocIDFieldName] = string(encdoc.ID())
+	for field, value := range properties {
+		propertiesByFieldName[field.Name] = value
 	}
 
-	// client.Document tracks which fields have been set ('dirtied'), here we
-	// are simply decoding a clean document and the dirty flag is an artifact
-	// of the current client.Document interface.
-	doc.Clean()
+	doc, err := client.NewDocFromMap(ctx, propertiesByFieldName, collection)
+	if err != nil {
+		return nil, NewErrDecodeDocField(err, "todo")
+	}
 
 	return doc, nil
 }
