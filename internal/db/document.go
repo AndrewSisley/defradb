@@ -512,6 +512,87 @@ func (c *collection) save(
 
 	links := make([]coreblock.DAGLink, 0)
 	encryptionCIDs := make([]cid.Cid, 0)
+
+	if isAdd {
+		// todo - the `db` must be responsible for determining this, and whether a doc is new or not.
+		// document, and refactor.
+		for f, v := range doc.Values() {
+			fieldDescription, valid := c.Version().GetFieldByName(f.Name())
+			if !valid {
+				return client.NewErrFieldNotExist(f.Name())
+			}
+
+			if fieldDescription.Typ == client.NONE_CRDT {
+				// todo - should we not error here? An example is a object-relationship field
+				//
+				// todo - tests actually expect this to set the id field, this is probably a problem with mutations too
+				continue
+			}
+
+			fieldID, err := id.GetShortFieldID(ctx, collectionShortID, fieldDescription.FieldID)
+			if err != nil {
+				return err
+			}
+			fieldKey := keys.DataStoreKey{
+				CollectionShortID: collectionShortID,
+				DocShortID:        primaryKey.DocShortID,
+				FieldID:           strconv.FormatUint(uint64(fieldID), 10),
+			}
+
+			merkleCRDT, ok := crdt.TryGetFieldCRDT(fieldDescription.Typ)
+			if !ok {
+				panic("todo")
+			}
+			ctt, ok := merkleCRDT.(crdt.DynamicFieldValueCRDT)
+			if !ok {
+				panic(fieldDescription.Name)
+				panic("todo")
+			}
+
+			// todo - come up with something proper here (new func on crdt.DynamicFieldValueCRDT?)
+			var operation string
+			if fieldDescription.Typ == client.PN_COUNTER || fieldDescription.Typ == client.P_COUNTER {
+				operation = "Increment"
+			} else {
+				operation = "Set"
+			}
+
+			delta, err := ctt.Execute(ctx, operation, c.VersionID(), f.Name(), immutable.Some[any](v), 1)
+			if err != nil {
+				return err
+			}
+
+			err = merkleCRDT.Merge(
+				ctx,
+				txn.Datastore(),
+				fieldKey,
+				fieldDescription.Kind,
+				delta,
+			)
+			if err != nil {
+				return err
+			}
+
+			link, rawBlock, err := coreblock.AddDeltaWithOptions(
+				signingCtx,
+				fieldKey.ToHeadStoreKey(),
+				delta,
+				coreblock.AddDeltaOptions{EncryptionDocKey: encryptionDocID},
+				[]cid.Cid{},
+			)
+			if err != nil {
+				return err
+			}
+
+			links = append(links, coreblock.NewDAGLink(f.Name(), link))
+			encryptionCIDs, err = appendEncryptionCID(encryptionCIDs, rawBlock)
+			if err != nil {
+				return err
+			}
+
+		}
+	}
+
 	for _, mutation := range doc.Mutations() {
 		fieldDescription, valid := c.Version().GetFieldByName(mutation.Field)
 		if !valid {

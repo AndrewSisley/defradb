@@ -438,7 +438,7 @@ func substituteRelations(
 func parseAddDocs(ctx context.Context, action *AddDoc, collection client.Collection) ([]*client.Document, error) {
 	switch {
 	case action.DocMap != nil:
-		val, err := client.NewDocFromMap(ctx, action.DocMap, collection.Version())
+		val, err := client.NewDocFromMap(ctx, action.DocMap, collection.Version()) // todo - genesis block question
 		if err != nil {
 			return nil, err
 		}

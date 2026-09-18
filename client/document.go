@@ -131,30 +131,48 @@ func NewDocFromMap(ctx context.Context, data map[string]any, collection Collecti
 		return nil, err
 	}
 
-	// check if document contains special _docID field
-	k, hasDocID := data[request.DocIDFieldName]
-	if hasDocID {
-		delete(data, request.DocIDFieldName) // remove the DocID so it isn't parsed further
+	for fieldName, value := range data {
+		if fieldName == request.DocIDFieldName {
+			switch docID := value.(type) {
+			case string:
+				if doc.id, err = NewDocIDFromString(docID); err != nil {
+					return nil, err
+				}
 
-		switch docID := k.(type) {
-		case string:
-			if doc.id, err = NewDocIDFromString(docID); err != nil {
-				return nil, err
+			case DocID:
+				doc.id = docID
+
+			default:
+				return nil, NewErrUnexpectedType[string]("data["+request.DocIDFieldName+"]", value)
+			}
+			continue
+		}
+
+		// todo - this is really silly, but it is what the old legacy code requires atm
+		f := doc.newField(LWW_REGISTER, fieldName)
+		doc.fields[fieldName] = f
+
+		var nv NormalValue
+		if value == nil {
+			fd, ok := collection.GetFieldByName(fieldName)
+			if !ok {
+				return nil, NewErrFieldNotExist(fieldName)
 			}
 
-		case DocID:
-			doc.id = docID
-
-		default:
-			return nil, NewErrUnexpectedType[string]("data["+request.DocIDFieldName+"]", k)
+			nv, err = NewNormalNil(fd.Kind)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			nv, err = NewNormalValue(value)
+			if err != nil {
+				return nil, err
+			}
 		}
+		doc.values[f] = NewFieldValue(LWW_REGISTER, nv)
 	}
 
-	err = doc.setAndParseObjectType(ctx, data)
-	if err != nil {
-		return nil, err
-	}
-
+	// todo - strongly consider removing this
 	if err = doc.validateRequiredFields(); err != nil {
 		return nil, err
 	}
@@ -175,7 +193,7 @@ func NewDocFromJSON(ctx context.Context, obj []byte, collection CollectionVersio
 	if err != nil {
 		return nil, err
 	}
-	err = doc.SetWithJSON(ctx, obj)
+	err = doc.SetWithJSON(ctx, obj) // todo - avoid mutation
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +225,7 @@ func NewDocsFromJSON(ctx context.Context, obj []byte, collection CollectionVersi
 		if err != nil {
 			return nil, err
 		}
-		err = doc.setWithFastJSONObject(ctx, o)
+		err = doc.setWithFastJSONObject(ctx, o) // todo - avoid mutation
 		if err != nil {
 			return nil, err
 		}
@@ -985,25 +1003,20 @@ func (doc *Document) Mutations() []Mutation {
 	return doc.mutations
 }
 
-func (doc *Document) setAndParseObjectType(ctx context.Context, value map[string]any) error {
-	for k, v := range value {
-		err := doc.Set(ctx, k, v)
-		if err != nil {
-			return NewErrSetDocFieldValue(err, k)
-		}
-	}
-	return nil
-}
-
 func (doc *Document) setDefaultValues(ctx context.Context) error {
 	for _, field := range doc.collection.Fields {
 		if field.DefaultValue == nil {
 			continue // no default value to set
 		}
-		err := doc.Set(ctx, field.Name, field.DefaultValue)
+
+		// todo - this is really silly, but it is what the old legacy code requires atm
+		f := doc.newField(LWW_REGISTER, field.Name)
+		doc.fields[field.Name] = f
+		nv, err := NewNormalValue(field.DefaultValue)
 		if err != nil {
-			return NewErrSetDocFieldValue(err, field.Name)
+			return err
 		}
+		doc.values[f] = NewFieldValue(LWW_REGISTER, nv)
 	}
 	return nil
 }
