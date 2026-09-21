@@ -132,44 +132,10 @@ func NewDocFromMap(ctx context.Context, data map[string]any, collection Collecti
 	}
 
 	for fieldName, value := range data {
-		if fieldName == request.DocIDFieldName {
-			switch docID := value.(type) {
-			case string:
-				if doc.id, err = NewDocIDFromString(docID); err != nil {
-					return nil, err
-				}
-
-			case DocID:
-				doc.id = docID
-
-			default:
-				return nil, NewErrUnexpectedType[string]("data["+request.DocIDFieldName+"]", value)
-			}
-			continue
+		err := doc.initializeField(ctx, fieldName, value, collection)
+		if err != nil {
+			return nil, err
 		}
-
-		// todo - this is really silly, but it is what the old legacy code requires atm
-		f := doc.newField(LWW_REGISTER, fieldName)
-		doc.fields[fieldName] = f
-
-		var nv NormalValue
-		if value == nil {
-			fd, ok := collection.GetFieldByName(fieldName)
-			if !ok {
-				return nil, NewErrFieldNotExist(fieldName)
-			}
-
-			nv, err = NewNormalNil(fd.Kind)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			nv, err = NewNormalValue(value)
-			if err != nil {
-				return nil, err
-			}
-		}
-		doc.values[f] = NewFieldValue(LWW_REGISTER, nv)
 	}
 
 	// todo - strongly consider removing this
@@ -178,6 +144,56 @@ func NewDocFromMap(ctx context.Context, data map[string]any, collection Collecti
 	}
 
 	return doc, nil
+}
+
+func (doc *Document) initializeField(ctx context.Context, fieldName string, value any, collection CollectionVersion) error {
+	var err error
+	if fieldName == request.DocIDFieldName {
+		switch docID := value.(type) {
+		case string:
+			if doc.id, err = NewDocIDFromString(docID); err != nil {
+				return err
+			}
+
+		case DocID:
+			doc.id = docID
+
+		default:
+			return NewErrUnexpectedType[string]("data["+request.DocIDFieldName+"]", value)
+		}
+		return nil
+	}
+
+	fieldDescription, valid := collection.GetFieldByName(fieldName)
+	if !valid {
+		return NewErrFieldNotExist(fieldName)
+	}
+	if fieldDescription.Kind.IsObject() && !fieldDescription.Kind.IsArray() {
+		if _, ok := request.ToRelatedObjectName(fieldName); !ok {
+			fieldName = request.ToFieldID(fieldName)
+		}
+		var exists bool
+		fieldDescription, exists = collection.GetFieldByName(fieldName)
+		if !exists {
+			return NewErrFieldNotExist(fieldName)
+		}
+	}
+
+	// todo - this is really silly, but it is what the old legacy code requires atm
+	// todo - lww is hardcoded as it is never used
+	f := doc.newField(LWW_REGISTER, fieldName)
+	doc.fields[fieldName] = f
+
+	// todo - rename this
+	nv, err := validateFieldSchema(ctx, value, fieldDescription)
+	if err != nil {
+		return err
+	}
+
+	// todo - lww is hardcoded as it is never used
+	doc.values[f] = NewFieldValue(LWW_REGISTER, nv)
+
+	return nil
 }
 
 var jsonArrayPattern = regexp.MustCompile(`(?s)^\s*\[.*\]\s*$`)
@@ -193,10 +209,25 @@ func NewDocFromJSON(ctx context.Context, obj []byte, collection CollectionVersio
 	if err != nil {
 		return nil, err
 	}
-	err = doc.SetWithJSON(ctx, obj) // todo - avoid mutation
+
+	v, err := fastjson.ParseBytes(obj)
+	if err != nil {
+		return nil, NewErrDocumentJSONParseFailed(err)
+	}
+
+	o, err := v.Object()
+	if err != nil {
+		return nil, NewErrDocumentJSONParseFailed(err)
+	}
+
+	o.Visit(func(k []byte, v *fastjson.Value) {
+		fieldName := string(k)
+		err = errors.Join(err, doc.initializeField(ctx, fieldName, v, collection))
+	})
 	if err != nil {
 		return nil, err
 	}
+
 	if err = doc.validateRequiredFields(); err != nil {
 		return nil, err
 	}
@@ -225,10 +256,15 @@ func NewDocsFromJSON(ctx context.Context, obj []byte, collection CollectionVersi
 		if err != nil {
 			return nil, err
 		}
-		err = doc.setWithFastJSONObject(ctx, o) // todo - avoid mutation
+
+		o.Visit(func(k []byte, v *fastjson.Value) {
+			fieldName := string(k)
+			err = errors.Join(err, doc.initializeField(ctx, fieldName, v, collection))
+		})
 		if err != nil {
 			return nil, err
 		}
+
 		if err = doc.validateRequiredFields(); err != nil {
 			return nil, err
 		}
@@ -891,7 +927,7 @@ func (doc *Document) GetValueWithField(f Field) (*FieldValue, error) {
 // JSON Merge Patch object. Note: fields indicated as nil in the Merge
 // Patch are to be deleted
 // @todo: Handle sub documents for SetWithJSON
-func (doc *Document) SetWithJSON(ctx context.Context, obj []byte) error {
+func (doc *Document) SetWithJSON(ctx context.Context, obj []byte) error { //todo - this is probably broken
 	v, err := fastjson.ParseBytes(obj)
 	if err != nil {
 		return NewErrDocumentJSONParseFailed(err)
@@ -1010,12 +1046,13 @@ func (doc *Document) setDefaultValues(ctx context.Context) error {
 		}
 
 		// todo - this is really silly, but it is what the old legacy code requires atm
-		f := doc.newField(LWW_REGISTER, field.Name)
-		doc.fields[field.Name] = f
-		nv, err := NewNormalValue(field.DefaultValue)
+		nv, err := validateFieldSchema(ctx, field.DefaultValue, field)
 		if err != nil {
 			return err
 		}
+
+		f := doc.newField(LWW_REGISTER, field.Name)
+		doc.fields[field.Name] = f
 		doc.values[f] = NewFieldValue(LWW_REGISTER, nv)
 	}
 	return nil

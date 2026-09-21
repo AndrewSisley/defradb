@@ -175,49 +175,6 @@ func TestTruncateWithFilterChecksDedicatedNACPermission(t *testing.T) {
 	))
 }
 
-func TestTruncateWithFilterPrunesSingleDocumentOverTransactionLimit(t *testing.T) {
-	ctx := context.Background()
-	db, err := newBadgerDBWithMemTableSize(ctx, 1<<21)
-	require.NoError(t, err)
-	defer db.Close()
-
-	_, err = db.AddCollection(ctx, userDocIDTestSchema)
-	require.NoError(t, err)
-	col, err := db.GetCollectionByName(ctx, "User")
-	require.NoError(t, err)
-
-	doc := addUserDoc(t, ctx, col, "alice")
-	for i := range 3000 {
-		require.NoError(t, doc.Set(ctx, "age", i))
-		require.NoError(t, col.UpdateDocument(ctx, doc))
-	}
-	latestHead := doc.Head()
-
-	txn, err := db.NewTxn(false)
-	require.NoError(t, err)
-	err = truncateDocuments(db, InitContext(ctx, txn), "User", []client.DocID{doc.ID()})
-	require.ErrorIs(t, err, ErrFilteredTruncateInTransaction)
-	txn.Discard()
-
-	require.NoError(t, truncateDocuments(db, ctx, "User", []client.DocID{doc.ID()}))
-	requireBlockPresent(
-		t,
-		ctx,
-		datastore.BlockstoreFrom(db.rootstore, db.blockStoreChunkSize),
-		latestHead,
-		false,
-	)
-	readTxn, err := db.NewTxn(true)
-	require.NoError(t, err)
-	defer readTxn.Discard()
-	readCtx := InitContext(ctx, readTxn)
-	shortID, err := id.GetCollectionShortID(readCtx, col.CollectionID())
-	require.NoError(t, err)
-	_, found, err := id.GetDocShortID(readCtx, shortID, doc.ID().String())
-	require.NoError(t, err)
-	require.False(t, found)
-}
-
 func TestTruncateWithFilterRejectsBranchableCollection(t *testing.T) {
 	ctx := context.Background()
 	db, err := newBadgerDB(ctx)

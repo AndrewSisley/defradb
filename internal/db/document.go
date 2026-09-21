@@ -23,6 +23,7 @@ import (
 	acpTypes "github.com/sourcenetwork/defradb/acp/types"
 	"github.com/sourcenetwork/defradb/client"
 	"github.com/sourcenetwork/defradb/client/options"
+	"github.com/sourcenetwork/defradb/client/request"
 	"github.com/sourcenetwork/defradb/errors"
 	"github.com/sourcenetwork/defradb/event"
 	"github.com/sourcenetwork/defradb/internal/core"
@@ -517,16 +518,28 @@ func (c *collection) save(
 		// todo - the `db` must be responsible for determining this, and whether a doc is new or not.
 		// document, and refactor.
 		for f, v := range doc.Values() {
-			fieldDescription, valid := c.Version().GetFieldByName(f.Name())
+			fieldName := f.Name()
+			fieldDescription, valid := c.Version().GetFieldByName(fieldName)
 			if !valid {
-				return client.NewErrFieldNotExist(f.Name())
+				return client.NewErrFieldNotExist(fieldName)
 			}
 
-			if fieldDescription.Typ == client.NONE_CRDT {
-				// todo - should we not error here? An example is a object-relationship field
-				//
-				// todo - tests actually expect this to set the id field, this is probably a problem with mutations too
-				continue
+			if fieldDescription.Kind.IsObject() && !fieldDescription.Kind.IsArray() {
+				if _, ok := request.ToRelatedObjectName(fieldName); !ok {
+					fieldName = request.ToFieldID(fieldName)
+				}
+				var exists bool
+				fieldDescription, exists = c.Version().GetFieldByName(fieldName)
+				if !exists {
+					return client.NewErrFieldNotExist(fieldName)
+				}
+			}
+
+			if objFieldName, ok := request.ToRelatedObjectName(fieldName); ok {
+				ofd, exists := c.Version().GetFieldByName(objFieldName)
+				if exists && !ofd.IsPrimary {
+					return client.NewErrCannotSetRelationFromSecondarySide(fieldName)
+				}
 			}
 
 			fieldID, err := id.GetShortFieldID(ctx, collectionShortID, fieldDescription.FieldID)
